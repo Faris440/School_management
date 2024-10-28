@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form enctype="multipart/form-data" class="container" method="post" id="user_form">
+    {% csrf_token %}
+    <div class="card">
+        <div class="card-header card-header-secondary">
+            <h4 class="card-title">{{ card_title }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for field in form %}
+                    <div class="{% if field.name == 'description' %}col-md-12{% else %}col-md-4{% endif %}" id="div_id_{{ field.name }}_container">
+                        <div class="form-group" id="div_id_{{ field.name }}">
+                            <label for="id_{{ field.name }}" id="label_id_{{ field.name }}">{{ field.label }}</label>
+                            {% if field.field.required %}
+                                <span style="color: red;" class="required">*</span>
+                            {% endif %}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small style="color: grey">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p style="color: red;">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-group mt-3 d-flex justify-content-center">
+            <button type="submit" class="btn btn-lg" style="background-color: #00CC00; border-color: #007bff; box-shadow: 0 4px 6px rgba(0, 123, 255, 0.4);">Enregistrer</button>
+            <button type="submit" class="btn btn-secondary btn-lg mx-2" name="_continue" style="box-shadow: 0 4px 6px rgba(0, 123, 255, 0.4);">Enregistrer et continuer</button>
+            <button type="button" class="btn btn-danger btn-lg" onclick="window.history.back();" style="box-shadow: 0 4px 6px rgba(0, 123, 255, 0.4);">Annuler</button>
+        </div>
+    </div>
+</form>
+{% endblock content %}
