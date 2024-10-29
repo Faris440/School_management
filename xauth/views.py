@@ -604,7 +604,7 @@ class CustomLoginView(auth_views.LoginView):
 
 
 class CustomLogoutView(auth_views.LogoutView):
-    next_page = reverse_lazy("login")
+    next_page = reverse_lazy("user-login")
     http_method_names = ["post", "options", "get"]
 
     def get(self, request, *args, **kwargs):
