@@ -114,8 +114,11 @@
                                    title="Voir les détails de l'ufr'"><i class="fas fa-eye"></i></a>
                                 <a href="{% url 'parameter:ufr-update' ufr.pk %}" class="btn btn-outline-success btn-sm"
                                    title="Modifier l'ufr'"><i class="fas fa-edit"></i></a>
-                                <button type="button" class="btn btn-outline-danger btn-sm" 
-                                        onclick="confirmDelete({{ ufrs.pk }});" title="Supprimer l'ufr"><i class="fas fa-trash"></i></button>
+                                   <button type="button" class="btn btn-outline-danger btn-sm" 
+                                   onclick="confirmDelete({{ ufr.pk }}, this);" title="Supprimer l'UFR">
+                               <i class="fas fa-trash"></i>
+                                    </button>
+                           
                             </div>
                         </td>
                     </tr>
@@ -151,8 +154,7 @@
         });
     });
 
-    // Fonction pour confirmer la suppression avec SweetAlert2
-    function confirmDelete(ufrId) {
+    function confirmDelete(ufrId, rowElement) {
         Swal.fire({
             title: 'Êtes-vous sûr ?',
             text: "Cette action est irréversible !",
@@ -164,10 +166,28 @@
             cancelButtonText: 'Annuler'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{% url 'parameter:ufr-delete' 0 %}".replace('0', ufrId);
+                // Utiliser AJAX pour la suppression
+                fetch("{% url 'parameter:ufr-delete' 0 %}".replace('0', ufrId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Suppression de la ligne sans recharger la page
+                        rowElement.closest('tr').remove();
+                        Swal.fire('Supprimé!', 'L\'UFR a été supprimé avec succès.', 'success');
+                    } else {
+                        Swal.fire('Erreur!', 'La suppression a échoué.', 'error');
+                    }
+                });
             }
         });
     }
+    
 
     // Fonction pour naviguer avec effet de transition
     function navigateTo(url) {
