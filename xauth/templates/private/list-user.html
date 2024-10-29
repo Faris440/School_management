@@ -28,14 +28,7 @@
 
 {% block other-options %}
 {% if deactivate_user %}
-{% if object.is_active %}
-<a>
-  <button type="button" class="btn btn-md btn-outline-secondary" disabled data-bs-toggle="popover"
-    data-bs-content="Compte déjà activé" data-bs-container="body">
-    {% icon "key" height=option_size width=option_size %}
-  </button>
-</a>
-{% else %}
+{% if not object.is_active %}
 <a href="{% url 'auth:user-send-key' object.id %}">
   <button type="button" class="btn btn-md btn-outline-secondary" data-bs-toggle="popover"
     data-bs-content="Activer le compte" data-bs-container="body" data-bs-placement="top">

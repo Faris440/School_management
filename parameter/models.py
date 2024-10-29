@@ -37,10 +37,9 @@ class Departement(BaseModel):
 
     def __str__(self):
         return self.label
-    
+
 # Semestre rattaché à un niveau
 class Semestre(BaseModel):
-    
     class Meta:
         ordering = ["label"]
         verbose_name = "Semestre"
@@ -53,6 +52,7 @@ class Semestre(BaseModel):
 # Niveau rattaché à une filière
 class Niveau(BaseModel):
     semestres = models.ManyToManyField(Semestre, related_name="filiere_semestres")
+    
     class Meta:
         ordering = ["label"]
         verbose_name = "Niveau"
@@ -66,6 +66,7 @@ class Niveau(BaseModel):
 class Filiere(BaseModel):
     departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name="filiere_department")
     niveaux = models.ManyToManyField(Niveau, related_name="filiere_niveaux")
+    
     class Meta:
         ordering = ["label"]
         verbose_name = "Filière"
@@ -74,13 +75,13 @@ class Filiere(BaseModel):
 
     def __str__(self):
         return self.label 
-    
 
 # UE (Unité d'Enseignement) rattachée à une filière
 class UE(BaseModel):
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name="ue_filiere")
     niveau = models.ForeignKey(Niveau, on_delete=models.CASCADE, related_name="ue_niveau")
     semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE, related_name="ue_semestre")
+    
     class Meta:
         ordering = ["label"]
         verbose_name = "Unité d'Enseignement"
@@ -89,11 +90,7 @@ class UE(BaseModel):
 
     def __str__(self):
         return self.label
-    
-# # Modele credit
-# class Credit(models.Model):
-#     value = models.PositiveIntegerField()
-        
+
 # Exemple de Module rattaché à un niveau
 class Module(BaseModel):
     ufr = models.ForeignKey(UniteDeRecherche, on_delete=models.CASCADE, related_name="module_urf")
@@ -101,21 +98,15 @@ class Module(BaseModel):
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name="module_filiere")
     niveau = models.ForeignKey(Niveau, on_delete=models.CASCADE, related_name="module_niveau")
     semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE, related_name="module_semestre")
-    ue = models.ForeignKey(UE, on_delete=models.CASCADE, )
-    volume_horaire = models.IntegerField(null=True ,verbose_name='volume_horaire')
-    credit = models.IntegerField(null=True ,verbose_name='credit')
+    ue = models.ForeignKey(UE, on_delete=models.CASCADE)
+    volume_horaire = models.IntegerField(null=True, verbose_name='volume_horaire')
+    credit = models.IntegerField(null=True, verbose_name='credit')
     
     class Meta:
         ordering = ["label"]
         verbose_name = "module"
         verbose_name_plural = "modules"
-        permissions = [
-            ("list_module", f"Peut lister {verbose_name}")
-        ]
+        permissions = [("list_module", f"Peut lister {verbose_name}")]
 
     def __str__(self):
         return self.label
-
-# class VolumeHoraire(models.Model):
-#     ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name="volumes_horaires")
-#     hours = models.PositiveIntegerField()

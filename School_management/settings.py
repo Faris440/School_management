@@ -35,6 +35,14 @@ LOGIN_REDIRECT_URL = "/"
 ALLOWED_HOSTS = []
 
 
+PUBLIC_NAMED_URLS = (
+    "user-login",
+)  # vues publiques
+
+ONLY_SUPERUSER_URLS = (
+)  # vues accessibles que par superuser *Doesn't work*
+ONLY_ADMINS_URLS = ()  # vues accessibles que par simple admin *Doesn't work*
+SITE_ID = 1
 
 
 # Application definition
@@ -62,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'School_management.middlewares.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'School_management.urls'
@@ -82,6 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "School_management.context_processors.get_icons_size",
             ],
         },
     },

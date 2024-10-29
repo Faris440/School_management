@@ -420,7 +420,6 @@ class UserUpdatePasswordView(auth_views.PasswordChangeView):
         messages.success(self.request, "Votre mot de passe a été modifié avec succès")
         return super().form_valid(form)
 
-
 class UserSendSecreteKey(View):
     def get_success_url(self):
         return reverse("auth:user-list")
@@ -451,24 +450,25 @@ class UserSendSecreteKey(View):
                 models.AccountActivationSecret.all_objects.create(
                     user=self.object, secret=secret
                 )
-            send_mail(
-                "Clé d'activation de compte",
-                secret,
-                DEFAULT_FROM_EMAIL,
-                [self.object.email],
-            )
+            # send_mail(
+            #     "Clé d'activation de compte",
+            #     secret,
+            #     DEFAULT_FROM_EMAIL,
+            #     [self.object.email],
+            # )
+            print("Clé d'activation de compte :", secret," Matricule :", self.object.username)
+            
             messages.success(
                 self.request,
-                f"Le code d'activation de `{self.object.get_full_name()}` envoyé avec succès.",
+                f"Le code d'activation de {self.object.get_full_name()} envoyé avec succès.",
             )
         else:
             messages.warning(
                 self.request,
-                f"Le compte de `{self.object.get_full_name()}` est déjà actif.",
+                f"Le compte de {self.object.get_full_name()} est déjà actif.",
             )
 
         return HttpResponseRedirect(self.get_success_url())
-
 
 @method_decorator(
     permission_required("xauth.can_change_right", raise_exception=True),
@@ -597,9 +597,9 @@ class GroupDeleteView(DeleteView):
 
 class CustomLoginView(auth_views.LoginView):
     template_name = "public/login.html"
-    # next_page = reverse_lazy("index-view")
     success_url = reverse_lazy("index-view")
     def get_context_data(self, **kwargs):
+        print('azertyuio')
         return super().get_context_data(**kwargs)
 
 

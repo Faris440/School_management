@@ -31,7 +31,7 @@ urlpatterns = [
     path('', views.RedirectionView.as_view(),name='redirect'),
     path('home/', views.IndexTemplateView.as_view(),name='index-view'),
     path('admin/', admin.site.urls),
-    path('login/', xauth_views.CustomLoginView.as_view(), name='login'),
+    path('login/', xauth_views.CustomLoginView.as_view(), name='user-login'),
     path('logout/', xauth_views.CustomLogoutView.as_view(), name='logout'),
     path('auth/', include('xauth.urls')),
     path('parameter/', include('parameter.urls')),   
