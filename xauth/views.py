@@ -174,10 +174,10 @@ class RemoveAssignView(View):
         return redirect("xauth:user-list")
 
 
-@method_decorator(
-    permission_required("xauth.list_user", raise_exception=True),
-    name="dispatch",
-)
+# @method_decorator(
+#     permission_required("xauth.list_user", raise_exception=True),
+#     name="dispatch",
+# )
 class UserListView(ListView):
     model = models.User
     template_name = "private/list-user.html"

@@ -229,7 +229,7 @@ class ModuleListView(ListView):
     model = Module
     name = "module"
     context_object_name = "modules"
-    template_name = "module/list-module.html"
+    template_name = "modules/list-module.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -240,7 +240,7 @@ class ModuleCreateView(CreateView):
     model = Module
     form_class = ModuleForm
     name = "module"
-    template_name = "module/create_module.html"
+    template_name = "modules/create_module.html"
     success_url = reverse_lazy("parameter:module-list")
     
 
@@ -248,7 +248,7 @@ class ModuleCreateView(CreateView):
 class ModuleUpdateView(UpdateView):
     model = Module
     name = "module"
-    template_name = "module/create_module.html"
+    template_name = "modules/create_module.html"
     form_class = ModuleForm
     success_url = reverse_lazy("parameter:module-list")
 
@@ -256,13 +256,13 @@ class ModuleUpdateView(UpdateView):
 class ModuleDetailView(DetailView):
     model = Module
     name = "module"
-    template_name = "module/detail-module.html"
+    template_name = "modules/detail-module.html"
 
 
 class ModuleDeleteView(DeleteView):
     model = Module
     name = "module"
-    template_name = "module/delete-module.html"
+    template_name = "modules/delete-module.html"
     success_url = reverse_lazy("parameter:module-list")
     
     

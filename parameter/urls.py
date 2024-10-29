@@ -148,31 +148,59 @@ urlpatterns = [
         name="semestre-delete",
     ),
     
+        ##UE urls
+
+    path(
+        "parameters/ue/list/",
+        view=views.UeListView.as_view(),
+        name="ue-list",
+    ),
+    path(
+        "parameters/ue/create/",
+        view=views.UeCreateView.as_view(),
+        name="ue-create",
+    ),
+    path(
+        "parameters/ue/<int:pk>/detail/",
+        view=views.UeDetailView.as_view(),
+        name="ue-detail",
+    ),
+    path(
+        "parameters/ue/<int:pk>/update/",
+        view=views.UeUpdateView.as_view(),
+        name="ue-update",
+    ),
+    path(
+        "parameters/ue/<int:pk>/delete/",
+        view=views.UeDeleteView.as_view(),
+        name="ue-delete",
+    ),
+    
     
     ##module urls
 
     path(
-        "parameters/module/list/",
+        "parameters/modules/list/",
         view=views.ModuleListView.as_view(),
         name="module-list",
     ),
     path(
-        "parameters/module/create/",
+        "parameters/modules/create/",
         view=views.ModuleCreateView.as_view(),
         name="module-create",
     ),
     path(
-        "parameters/module/<int:pk>/detail/",
+        "parameters/modules/<int:pk>/detail/",
         view=views.ModuleDetailView.as_view(),
         name="module-detail",
     ),
     path(
-        "parameters/module/<int:pk>/update/",
+        "parameters/modules/<int:pk>/update/",
         view=views.ModuleUpdateView.as_view(),
         name="module-update",
     ),
     path(
-        "parameters/module/<int:pk>/delete/",
+        "parameters/modules/<int:pk>/delete/",
         view=views.ModuleDeleteView.as_view(),
         name="module-delete",
     ),

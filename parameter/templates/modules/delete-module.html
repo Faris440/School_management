@@ -1,0 +1,7 @@
+<h1>Confirmer la suppression de {{ departements.title }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Oui, supprimer</button>
+    <a href="{%  url 'parameter:filiere-list' %}">Annuler</a>
+</form>

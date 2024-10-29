@@ -96,9 +96,14 @@ class UE(BaseModel):
         
 # Exemple de Module rattaché à un niveau
 class Module(BaseModel):
+    ufr = models.ForeignKey(UniteDeRecherche, on_delete=models.CASCADE, related_name="module_urf")
+    departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name="module_department")
+    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name="module_filiere")
+    niveau = models.ForeignKey(Niveau, on_delete=models.CASCADE, related_name="module_niveau")
+    semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE, related_name="module_semestre")
     ue = models.ForeignKey(UE, on_delete=models.CASCADE, )
-    voulume_horaire = models.IntegerField(null=False ,verbose_name='volume_horaire')
-    credit = models.IntegerField(null=False ,verbose_name='credit')
+    volume_horaire = models.IntegerField(null=True ,verbose_name='volume_horaire')
+    credit = models.IntegerField(null=True ,verbose_name='credit')
     
     class Meta:
         ordering = ["label"]

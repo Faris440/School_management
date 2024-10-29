@@ -215,7 +215,7 @@ table {
 caption {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  color: #030303;
+  color: #858796;
   text-align: left;
   caption-side: bottom;
 }
@@ -223,7 +223,6 @@ caption {
 th {
   text-align: inherit;
   text-align: -webkit-match-parent;
-  color: black !important;
 }
 
 label {

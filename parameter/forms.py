@@ -22,7 +22,7 @@ class UniteDeRechercheForm(forms.ModelForm):
 class DepartementForm(forms.ModelForm):
     class Meta:
         model = Departement
-        fields = ['code', 'label', 'description', 'ufr']
+        fields = ['code', 'label', 'ufr','description', ]
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du département'}),
@@ -34,7 +34,7 @@ class DepartementForm(forms.ModelForm):
 class FiliereForm(forms.ModelForm):
     class Meta:
         model = Filiere
-        fields = ['code', 'label', 'description', 'departement']
+        fields = ['code','departement', 'label', 'description']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la filière'}),
@@ -77,7 +77,7 @@ class SemestreForm(forms.ModelForm):
 class UEForm(forms.ModelForm):
     class Meta:
         model = UE
-        fields = ['code', 'label', 'description', 'filiere']
+        fields = ['code', 'label', 'description','filiere', 'niveau','semestre']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'UE'}),
@@ -89,7 +89,7 @@ class UEForm(forms.ModelForm):
 class ModuleForm(forms.ModelForm):
     class Meta:
         model = Module
-        fields = ['code', 'label', 'description','ue']  # Ajout du champ 'ue'
+        fields = ['code', 'label', 'description','ufr','departement','filiere','niveau','semestre','ue','volume_horaire','credit']  # Ajout du champ 'ue'
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du module'}),

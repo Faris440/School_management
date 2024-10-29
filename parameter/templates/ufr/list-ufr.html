@@ -3,12 +3,62 @@
 
 {% block stylesheet %}
 <style>
-    /* Votre style pour la barre de recherche, le tableau et les boutons */
-    /* ... (Conserver le code CSS existant) ... */
+    /* Styles pour une barre de recherche sans contours */
+    .search-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        max-width: 300px; /* Largeur maximale de la barre de recherche */
+    }
+
+    .search-bar input {
+        border: none;
+        border-bottom: 2px solid #ccc;
+        background: transparent;
+        padding: 2px 0; /* Padding réduit */
+        padding-left: 24px; /* Espace pour l'icône */
+        font-size: 14px; /* Taille de police réduite */
+        outline: none;
+        width: 100%;
+        transition: border-color 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-bottom-color: #0c7dd4; /* Couleur sur focus */
+    }
+
+    .search-bar .search-icon {
+        position: absolute;
+        left: 4px;
+        color: #888;
+        font-size: 14px; /* Taille de police réduite */
+    }
+
+    /* Styles pour les boutons et le tableau */
+    .btn-group a, .btn-group button {
+        margin-right: 5px;
+    }
+
+    /* Styles pour le tableau */
+    .table-responsive {
+        margin-top: 20px;
+    }
+
+    /* Centre les éléments de la colonne action */
+    .table td:last-child {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    /* Aligne le texte des autres colonnes à gauche */
+    .table td, .table th {
+        text-align: left;
+        vertical-align: middle;
+    }
 </style>
 {% endblock stylesheet %}
 
-{% block title %} UNITE DE FORMATION ET DE RECHERCHE {% endblock title %}
+{% block title %} UNITE DE FORMATION ET RECHERCHE {% endblock title %}
 
 {% block content %}
 <div class="card">
@@ -21,20 +71,21 @@
                 <div class="col-6">
                     <div class="search-bar">
                         <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" placeholder="Rechercher..." aria-label="Rechercher">
+                        <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Rechercher..." aria-label="Rechercher">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Recherche</button>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="d-flex flex-row mb-5 justify-content-end">
-                        <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:ufr-create' %}')">
-                            Nouveau
-                        </a>
-                        <a href="#" class="btn btn-outline-success">Exporter</a>
-                        <a href="#" class="btn btn-outline-secondary">Importer</a>
+                        <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:ufr-create' %}')"
+                           title="Ajouter une ufr">Nouveau</a>
+                        <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des UFR">Exporter</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste d'UFR">Importer</a>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- Tableau des UFR -->
         <div class="table-responsive">
@@ -55,17 +106,16 @@
                         <td>{{ ufr.code }}</td>
                         <td>{{ ufr.label }}</td>
                         <td>{{ ufr.description }}</td>
+                        
+                        
                         <td>
                             <div class="btn-group">
-                                <a href="{% url 'parameter:ufr-detail' ufr.pk %}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'parameter:ufr-update' ufr.pk %}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete({{ ufr.pk }});">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <a href="{% url 'parameter:ufr-detail' ufr.pk %}" class="btn btn-outline-secondary btn-sm"
+                                   title="Voir les détails de l'ufr'"><i class="fas fa-eye"></i></a>
+                                <a href="{% url 'parameter:ufr-update' ufr.pk %}" class="btn btn-outline-success btn-sm"
+                                   title="Modifier l'ufr'"><i class="fas fa-edit"></i></a>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        onclick="confirmDelete({{ ufrs.pk }});" title="Supprimer l'ufr"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
