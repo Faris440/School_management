@@ -78,9 +78,9 @@
                 <div class="col-6">
                     <div class="d-flex flex-row mb-5 justify-content-end">
                         <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:niveau-create' %}')"
-                           title="Ajouter un departement">Noiveau</a>
+                           title="Ajouter un niveau">Niveau</a>
                         <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste de niveau">Exporter</a>
-                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste d'un niveau">Importer</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste de niveau">Importer</a>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@
                                 <a href="{% url 'parameter:niveau-update' niveau.pk %}" class="btn btn-outline-success btn-sm"
                                    title="Modifier le niveau"><i class="fas fa-edit"></i></a>
                                 <button type="button" class="btn btn-outline-danger btn-sm" 
-                                        onclick="confirmDelete({{ niveau.pk }});" title="Supprimer la niveau"><i class="fas fa-trash"></i></button>
+                                        onclick="confirmDelete({{ niveau.pk }});" title="Supprimer le niveau"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>

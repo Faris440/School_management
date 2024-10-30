@@ -24,7 +24,9 @@ class User(AbstractUser, CommonAbstractModel):
     USER_TYPES = Choices(
         ('admin', 'ADMINISTRATEUR'),
         ('student', 'Etudiant'),
-        ('teacher', 'Enseignat'),
+        ('teacher', 'Enseignant'),
+        # ('teacher_manager', 'Responsable de filière'),
+         # ('vice_president', 'Vice Président'),
        
     )
     MATRIAL_STATUS = Choices(
@@ -122,6 +124,10 @@ class User(AbstractUser, CommonAbstractModel):
             ("change_right_user", "Can change user right"),
             ("access_parameter", "Can access to parameter module"),
             ("access_account", "Can access to account module"),
+            ("can_submit_programmatic_sheet","Peut soumettre une fiche programmatique"),
+            ("can_download_programmatic_sheet","peut telecharger une fiche programmatique"),
+            ("can_edit_progrmmatic_sheet","peut modifier une fiche programmatique"),
+            ("can_validate_programmatic_sheet","peut valider une fiche programmatique")
 
         ]
 

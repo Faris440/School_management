@@ -80,7 +80,7 @@
                         <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:module-create' %}')"
                            title="Ajouter un module">Nouveau</a>
                         <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste de Modules">Exporter</a>
-                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste de Modules">Importer</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste de Module">Importer</a>
                     </div>
                 </div>
             </div>
@@ -94,15 +94,8 @@
                     <tr>
                         <th>#</th>
                         <th>Code</th>
-                        <th>UFR</th>
-                        <th>Departement</th>
-                        <th>Filière</th>
-                        <th>Niveau</th>
-                        <th>Semestre</th>
-                        <th>UE</th>
-                        <th>Volume_H</th>
-                        <th>Crédit</th>
                         <th>Libellé</th>
+                        <th>Filière</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -111,17 +104,15 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ module.code }}</td>
-                        <td>{{ module.ufr }}</td>
-                        <td>{{ module.departement }}</td>
+                        <td>{{ module.label }}</td>
                         <td>{{ module.filiere }}</td>
+                        <!-- <td>{{ module.ufr }}</td>
+                        <td>{{ module.departement }}</td>
                         <td>{{ module.niveau }}</td>
                         <td>{{ module.semestre }}</td>
                         <td>{{ module.ue }}</td>
                         <td>{{ module.volume_horaire }}</td>
-                        <td>{{ module.credit }}</td>
-                        <td>{{ module.label }}</td>
-                        
-                        
+                        <td>{{ module.credit }}</td> -->
                         <td>
                             <div class="btn-group">
                                 <a href="{% url 'parameter:module-detail' module.pk %}" class="btn btn-outline-secondary btn-sm"

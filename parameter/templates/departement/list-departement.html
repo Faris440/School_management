@@ -79,8 +79,8 @@
                     <div class="d-flex flex-row mb-5 justify-content-end">
                         <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:departement-create' %}')"
                            title="Ajouter un departement">Nouveau</a>
-                        <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des UFR">Exporter</a>
-                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste d'UFR">Importer</a>
+                        <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des départements">Exporter</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste de département">Importer</a>
                     </div>
                 </div>
             </div>
@@ -112,11 +112,11 @@
                         <td>
                             <div class="btn-group">
                                 <a href="{% url 'parameter:departement-detail' departement.pk %}" class="btn btn-outline-secondary btn-sm"
-                                   title="Voir les détails de l'departement"><i class="fas fa-eye"></i></a>
+                                   title="Voir les détails du departement"><i class="fas fa-eye"></i></a>
                                 <a href="{% url 'parameter:departement-update' departement.pk %}" class="btn btn-outline-success btn-sm"
-                                   title="Modifier l'departement"><i class="fas fa-edit"></i></a>
+                                   title="Modifier le departement"><i class="fas fa-edit"></i></a>
                                 <button type="button" class="btn btn-outline-danger btn-sm" 
-                                        onclick="confirmDelete({{ departement.pk }});" title="Supprimer l'departement"><i class="fas fa-trash"></i></button>
+                                        onclick="confirmDelete({{ departement.pk }});" title="Supprimer le departement"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>

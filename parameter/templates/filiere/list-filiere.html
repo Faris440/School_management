@@ -78,9 +78,9 @@
                 <div class="col-6">
                     <div class="d-flex flex-row mb-5 justify-content-end">
                         <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:filiere-create' %}')"
-                           title="Ajouter un departement">Nouveau</a>
-                        <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des UFR">Exporter</a>
-                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste d'UFR">Importer</a>
+                           title="Ajouter une filière">Nouveau</a>
+                        <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des filières">Exporter</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste de filière">Importer</a>
                     </div>
                 </div>
             </div>
@@ -113,7 +113,7 @@
                         <td>
                             <div class="btn-group">
                                 <a href="{% url 'parameter:filiere-detail' filiere.pk %}" class="btn btn-outline-secondary btn-sm"
-                                   title="Voir les détails de la filieres"><i class="fas fa-eye"></i></a>
+                                   title="Voir les détails de la filiere"><i class="fas fa-eye"></i></a>
                                 <a href="{% url 'parameter:filiere-update' filiere.pk %}" class="btn btn-outline-success btn-sm"
                                    title="Modifier la filière"><i class="fas fa-edit"></i></a>
                                 <button type="button" class="btn btn-outline-danger btn-sm" 

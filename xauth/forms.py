@@ -130,7 +130,7 @@ class UserCreateForm( ModelForm):
                 attrs={"placeholder": "Saisir votre nom", "class":"form-control"},
             ),
             "last_name": fm.TextInput(
-                attrs={"placeholder": "Saisir votre prônom", "class":"form-control"},
+                attrs={"placeholder": "Saisir votre prénom", "class":"form-control"},
             ),
             "phone": fm.TextInput(
                 attrs={"placeholder": "Saisir votre numéro de téléphone", "class":"form-control"},

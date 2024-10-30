@@ -63,7 +63,7 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h2>Liste des Filières</h2>
+        <h2>Liste des unités d'enseignement</h2>
     </div>
     <div class="card-body">
         <div class="container">
@@ -78,7 +78,7 @@
                 <div class="col-6">
                     <div class="d-flex flex-row mb-5 justify-content-end">
                         <a href="#" class="btn btn-outline-primary btn-sm" onclick="navigateTo('{% url 'parameter:ue-create' %}')"
-                           title="Ajouter un departement">Nouveau</a>
+                           title="Ajouter une unité d'enseignement">Nouveau</a>
                         <a href="#" class="btn btn-outline-success btn-sm" title="Exporter la liste des UE">Exporter</a>
                         <a href="#" class="btn btn-outline-secondary btn-sm" title="Importer une liste d'UE">Importer</a>
                     </div>
@@ -117,11 +117,11 @@
                         <td>
                             <div class="btn-group">
                                 <a href="{% url 'parameter:ue-detail' ue.pk %}" class="btn btn-outline-secondary btn-sm"
-                                   title="Voir les détails de la ues"><i class="fas fa-eye"></i></a>
+                                   title="Voir les détails"><i class="fas fa-eye"></i></a>
                                 <a href="{% url 'parameter:ue-update' ue.pk %}" class="btn btn-outline-success btn-sm"
-                                   title="Modifier la filière"><i class="fas fa-edit"></i></a>
+                                   title="Modifier cette unité d'enseignement"><i class="fas fa-edit"></i></a>
                                 <button type="button" class="btn btn-outline-danger btn-sm" 
-                                        onclick="confirmDelete({{ ues.pk }});" title="Supprimer la ue"><i class="fas fa-trash"></i></button>
+                                        onclick="confirmDelete({{ ues.pk }});" title="Supprimer l'unité d'enseignement"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
