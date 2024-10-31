@@ -3,6 +3,62 @@
 
 {% block stylesheet %}
 <!-- <link rel="stylesheet" href="{# static 'css/searchbar.css' #}"> -->
+
+<style>
+    /* Styles pour une barre de recherche sans contours */
+    .search-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        max-width: 300px; /* Largeur maximale de la barre de recherche */
+    }
+
+    .search-bar input {
+        border: none;
+        border-bottom: 2px solid #ccc;
+        background: transparent;
+        padding: 2px 0; /* Padding réduit */
+        padding-left: 24px; /* Espace pour l'icône */
+        font-size: 14px; /* Taille de police réduite */
+        outline: none;
+        width: 100%;
+        transition: border-color 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-bottom-color: #0c7dd4; /* Couleur sur focus */
+    }
+
+    .search-bar .search-icon {
+        position: absolute;
+        left: 4px;
+        color: #888;
+        font-size: 14px; /* Taille de police réduite */
+    }
+
+    /* Styles pour les boutons et le tableau */
+    .btn-group a, .btn-group button {
+        margin-right: 5px;
+    }
+
+    /* Styles pour le tableau */
+    .table-responsive {
+        margin-top: 20px;
+    }
+
+    /* Centre les éléments de la colonne action */
+    .table td:last-child {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    /* Aligne le texte des autres colonnes à gauche */
+    .table td, .table th {
+        text-align: left;
+        vertical-align: middle;
+    }
+</style>
+
 {% endblock stylesheet %}
 
 
@@ -21,10 +77,16 @@
     </div>
     <div class="card-body">
         <div class="d-flex flex-row mb-5 justify-content-between">
-            <div>
+            <div class="col-6">
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Rechercher..." aria-label="Rechercher">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Recherche</button>
+                </div>
             </div>
             <div class="d-flex flex-row mb-5 justify-content-between">
                 {% block toolbar %}
+                {% include "components/toolbar.html" %}
                 {% block toolbar-plus %}{% endblock toolbar-plus %}
                 {% endblock toolbar %}
             </div>
@@ -35,17 +97,18 @@
                     <tr>
                         <th class="center">#</th>
                         {% block table-headers %}{% endblock table-headers %}
-                        <th class="center"> Action </th>
+                        <th class="center text-center"> Action </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for object in object_list %}
                     <tr class="odd gradeX">
-                        <th scope="row" class="center">{{ forloop.counter }}</th>
+                        <td scope="row" class="center">{{ forloop.counter }}</th>
                         {% block table-rows %}{% endblock table-rows %}
                         <td class="center">
                             <div class="btn-group" role="group" aria-label="buttons group">
                                 {% block list-options %}
+                                {% include "components/list-buttons.html" %}
 
                                 {% block other-options %}
                                 

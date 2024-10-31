@@ -1,6 +1,8 @@
 from datetime import timedelta, date
 from django import forms as fm
-
+from formset.widgets import (
+    DualSortableSelector,
+    )
 # from typing import Any
 from django.forms import forms, fields, widgets
 from django.forms.models import ModelForm, ModelChoiceField
@@ -15,52 +17,51 @@ from django.contrib.auth.forms import (
     
     
 )
+from formset.utils import FormsetErrorList
+from formset.collection import FormMixin
 from django.utils.safestring import mark_safe
 from django.conf import settings
-
+from formset.renderers.bootstrap import FormRenderer
 from parameter import models as params_models
 from xauth.models import User, Assign, AccountActivationSecret
 
 MINIMUM_AGE = 0 * 365
 
+class GroupForm(FormMixin, ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-12 h-100 input100",
+            "permissions": "mb-2  fs-1 col-md-12 h-100 input100"
+        },
+    )
+    class Meta:
+        model = Group
+        fields = "__all__"
+        widgets = {
+            "permissions": DualSortableSelector(
+                search_lookup=["name__icontains"],
+                group_field_name="content_type",
+            )
+        }
 
-class GroupForm( ModelForm):
-  
-
-    def __init__(self,  **kwargs):
+    def __init__(self, error_class=FormsetErrorList, **kwargs):
         user = kwargs.pop("user", None)
-        super().__init__( **kwargs)
+        super().__init__(error_class, **kwargs)
         
         permissions = Permission.objects.filter(
             content_type__app_label__in=[
                 "xauth",
+                "auth",
                 "parameter",
                 "assign",
             ]
         )
-        '''permissions = permissions.exclude(
-            content_type__model__in=[
-                "assign",
-                "accountactivationsecret",
-                "historicalassign",
-            ]
-        )'''
         
-        
-        if user   and  (not user.is_staff ):
-            permissions=user.assign.group_assign.permissions.all(
-         
-        )
+        if user and (not user.is_staff and not user.is_superviseur):
+            permissions=user.assign.group_assign.permissions.all()
         self.fields["permissions"].queryset = permissions
-       
-
-       
-
-
-    class Meta:
-        model = Group
-        fields = "__all__"
-      
+    
 
 
 class CustomSetPasswordForm( SetPasswordForm):
@@ -74,7 +75,12 @@ class CustomSetPasswordForm( SetPasswordForm):
 
 
 class UserCreateForm( ModelForm):
-    
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 h-100 input100",
+        },
+    )
 
     def __init__(self, user: User = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -150,7 +156,12 @@ class UserCreateForm( ModelForm):
 
 
 class UserChangeForm( ModelForm):
-   
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-12 h-100 input100",
+        },
+    )
 
     class Meta:
         model = User
@@ -190,13 +201,24 @@ class UserConfirmDeleteForm(forms.Form):
 
 
 class UserChangeProfilePhotoForm( ModelForm):
-
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-12 h-100 input100",
+        },
+    )
     class Meta:
         model = User
         fields = ("photo",)
 
 
 class UserPublicActivationForm(forms.Form):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-12 h-100 input100",
+        },
+    )
     identifier = fields.CharField(
         max_length=120,
         label="Identifiant",
@@ -242,7 +264,12 @@ class UserPublicActivationForm(forms.Form):
 
 
 class AssignForm( ModelForm):
-
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 h-100 input100",
+        },
+    )
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         pass
@@ -254,7 +281,12 @@ class AssignForm( ModelForm):
 
 
 class RoleForm(ModelForm):
-   
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 h-100 input100",
+        },
+    )
     #
     def __init__(self, user: User = None, **kwargs):
         super().__init__( **kwargs)

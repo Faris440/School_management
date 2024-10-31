@@ -1,0 +1,19 @@
+<!-- form-collection.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Créer une Fiche et ses Enseignements</h2>
+<django-formset endpoint="{{ request.path }}" csrf-token="{{ csrf_token }}">
+    {{ form_collection }}
+
+    <div class="offset-sm-3  my-5">
+        {% include 'button.html' with label="Enregistrer" color="btn-success" icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
+        {% if can_rerender %}
+        {% include 'button.html' with label="Enregistrer et Continuer" color="btn-info" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
+        {% endif %}
+        <a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}</a>
+    </div>
+
+  </django-formset>
+  
+{% endblock %}

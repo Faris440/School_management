@@ -42,7 +42,7 @@ DEFAULT_FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL")
     permission_required("xauth.can_assign", raise_exception=True),
     name="dispatch",
 )
-class AssignCreateView(CreateView):
+class AssignCreateView(cviews.CustomCreateView):
     model = models.Assign
     name = "nomination"
     form_class = forms.AssignForm
@@ -76,7 +76,7 @@ class AssignCreateView(CreateView):
     permission_required("xauth.can_assign", raise_exception=True),
     name="dispatch",
 ) 
-class RoleCreateView(CreateView):
+class RoleCreateView(cviews.CustomCreateView):
     model = models.Assign
     name = "nomination"
     form_class = forms.RoleForm
@@ -99,6 +99,7 @@ class RoleCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['card_title'] = "Assignation de role"
         return context
 
     def form_valid(self, form):
@@ -125,7 +126,7 @@ class RoleCreateView(CreateView):
     permission_required("xauth.can_assign", raise_exception=True),
     name="dispatch",
 )
-class AssignUpdateView(UpdateView):
+class AssignUpdateView(cviews.CustomUpdateView):
     model = models.Assign
     name = "nomination"
     form_class = forms.AssignForm
@@ -237,7 +238,7 @@ class StaffListView(ListView):
     name="dispatch",
 )
 
-class UserCreateView(CreateView):
+class UserCreateView(cviews.CustomCreateView):
     model = models.User
     success_url = reverse_lazy("auth:user-list")
     
@@ -271,7 +272,7 @@ class UserCreateView(CreateView):
     permission_required("xauth.change_user", raise_exception=True),
     name="dispatch",
 )
-class UserUpdateView(UpdateView):
+class UserUpdateView(cviews.CustomUpdateView):
     model = models.User
     form_class = forms.UserChangeForm
 
@@ -314,7 +315,7 @@ class UserUpdateView(UpdateView):
     permission_required("xauth.change_user", raise_exception=True),
     name="dispatch",
 )
-class UserProfilePhotoUpdateView(UpdateView):
+class UserProfilePhotoUpdateView(cviews.CustomUpdateView):
     model = models.User
     form_class = forms.UserChangeProfilePhotoForm
 
@@ -334,7 +335,7 @@ class UserProfilePhotoUpdateView(UpdateView):
     permission_required("xauth.view_user", raise_exception=True),
     name="dispatch",
 )
-class UserDetailView(DetailView):
+class UserDetailView(cviews.CustomDetailView):
     model = models.User
 
     def get_template_names(self):
@@ -351,7 +352,7 @@ class UserDetailView(DetailView):
     permission_required("xauth.delete_user", raise_exception=True),
     name="dispatch",
 )
-class UserDeleteView(DeleteView):
+class UserDeleteView(cviews.CustomDeleteView):
     model = models.User
 
     def get_success_url(self):
@@ -509,7 +510,7 @@ class UserAdminRightView(View):
     permission_required("auth.view_group", raise_exception=True),
     name="dispatch",
 )
-class GroupListView(ListView):
+class GroupListView(cviews.CustomListView):
     model = Group
     template_name = "private/list-group.html"
 
@@ -543,7 +544,7 @@ class GroupListView(ListView):
     permission_required("auth.add_group", raise_exception=True),
     name="dispatch",
 )
-class GroupCreateView(CreateView):
+class GroupCreateView(cviews.CustomCreateView):
     model = Group
     form_class = forms.GroupForm
     success_url = reverse_lazy("auth:group-list")
@@ -561,7 +562,7 @@ class GroupCreateView(CreateView):
     permission_required("auth.change_group", raise_exception=True),
     name="dispatch",
 )
-class GroupUpdateView(UpdateView):
+class GroupUpdateView(cviews.CustomUpdateView):
     model = Group
     form_class = forms.GroupForm
     success_url = reverse_lazy("auth:group-list")
@@ -571,7 +572,7 @@ class GroupUpdateView(UpdateView):
     permission_required(["auth.view_group", "auth.change_group"], raise_exception=True),
     name="dispatch",
 )
-class GroupDetailView(DetailView):
+class GroupDetailView(cviews.CustomDetailView):
     model = Group
     template_name = "private/detail-group.html"
 
@@ -580,7 +581,7 @@ class GroupDetailView(DetailView):
     permission_required("auth.delete_group", raise_exception=True),
     name="dispatch",
 )
-class GroupDeleteView(DeleteView):
+class GroupDeleteView(cviews.CustomDeleteView):
     model = Group
 
     def get_success_url(self):

@@ -35,4 +35,5 @@ urlpatterns = [
     path('logout/', xauth_views.CustomLogoutView.as_view(), name='logout'),
     path('auth/', include('xauth.urls')),
     path('parameter/', include('parameter.urls')),   
+    path('management/', include('fiche_management.urls')), 
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

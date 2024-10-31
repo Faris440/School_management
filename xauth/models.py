@@ -125,9 +125,12 @@ class User(AbstractUser, CommonAbstractModel):
             ("access_parameter", "Can access to parameter module"),
             ("access_account", "Can access to account module"),
             ("can_submit_programmatic_sheet","Peut soumettre une fiche programmatique"),
+            ("can_update_programmatic_sheet","Peut modifier une fiche programmatique"),
+            ("can_delete_programmatic_sheet","Peut supprimer une fiche programmatique"),
             ("can_download_programmatic_sheet","peut telecharger une fiche programmatique"),
-            ("can_edit_progrmmatic_sheet","peut modifier une fiche programmatique"),
-            ("can_validate_programmatic_sheet","peut valider une fiche programmatique")
+            ("can_export_programmatic_sheet","Peut exporter une fiche programmatique"),
+            ("can_validate_programmatic_sheet","peut valider une fiche programmatique"),
+            ("can_reject_programmatic_sheet","peut rejeter une fiche programmatique"),
 
         ]
 

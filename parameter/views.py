@@ -7,44 +7,43 @@ from django.shortcuts import render, redirect
 from .forms import *
 from django.views.generic import ListView, UpdateView, DeleteView,DetailView,CreateView
 from .models import *
+from School_management import views as cviews
 
 
 
-class UfrListView(ListView):
+class UfrListView(cviews.CustomListView):
     model = UniteDeRecherche
-    name = "ufr"
-    context_object_name = "ufrs"
+    name = "uniteDeRecherche"
     template_name = "ufr/list-ufr.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['can_add'] = True
         return context
 
 
-class UfrCreateView(CreateView):
+class UfrCreateView(cviews.CustomCreateView):
     model = UniteDeRecherche
     form_class = UniteDeRechercheForm
-    name = "ufr"
-    template_name = "ufr/create_unite_de_recherche.html"
+    name = "uniteDeRecherche"
     success_url = reverse_lazy("parameter:ufr-list")
     
 
 
-class UfrUpdateView(UpdateView):
+class UfrUpdateView(cviews.CustomUpdateView):
     model = UniteDeRecherche
-    name = "ufr"
-    template_name = "ufr/create_unite_de_recherche.html"
+    name = "uniteDeRecherche"
     form_class = UniteDeRechercheForm
     success_url = reverse_lazy("parameter:ufr-list")
 
 
-class UfrDetailView(DetailView):
+class UfrDetailView(cviews.CustomDetailView):
     model = UniteDeRecherche
-    name = "ufr"
+    name = "uniteDeRecherche"
     template_name = "ufr/detail-ufr.html"
 
 
-class UfrDeleteView(DeleteView):
+class UfrDeleteView(cviews.CustomDeleteView):
     model = UniteDeRecherche
     name = "ufr"
     template_name = "ufr/delete-ufr.html"
@@ -53,7 +52,7 @@ class UfrDeleteView(DeleteView):
 
 ##Departement views
 
-class DepartementListView(ListView):
+class DepartementListView(cviews.CustomListView):
     model = Departement
     name = "departement"
     context_object_name = "departements"
@@ -64,30 +63,29 @@ class DepartementListView(ListView):
         return context
 
 
-class DepartementCreateView(CreateView):
+class DepartementCreateView(cviews.CustomCreateView):
     model = Departement
     form_class = DepartementForm
     name = "departement"
-    template_name = "departement/create_departement.html"
+    template_name = "form.html"
     success_url = reverse_lazy("parameter:departement-list")
     
 
 
-class DepartementUpdateView(UpdateView):
+class DepartementUpdateView(cviews.CustomUpdateView):
     model = Departement
     name = "departement"
-    template_name = "departement/create_departement.html"
     form_class = DepartementForm
     success_url = reverse_lazy("parameter:departement-list")
 
 
-class DepartementDetailView(DetailView):
+class DepartementDetailView(cviews.CustomDetailView):
     model = Departement
     name = "departement"
     template_name = "departement/detail-departement.html"
 
 
-class DepartementDeleteView(DeleteView):
+class DepartementDeleteView(cviews.CustomDeleteView):
     model = Departement
     name = "departement"
     template_name = "departement/delete-departement.html"
@@ -96,10 +94,9 @@ class DepartementDeleteView(DeleteView):
 
 ##Filieres views
 
-class FiliereListView(ListView):
+class FiliereListView(cviews.CustomListView):
     model = Filiere
     name = "filiere"
-    context_object_name = "filieres"
     template_name = "filiere/list-filiere.html"
 
     def get_context_data(self, **kwargs):
@@ -107,16 +104,16 @@ class FiliereListView(ListView):
         return context
 
 
-class FiliereCreateView(CreateView):
+class FiliereCreateView(cviews.CustomCreateView):
     model = Filiere
     form_class = FiliereForm
     name = "filiere"
-    template_name = "filiere/create_filiere.html"
+    template_name = "form.html"
     success_url = reverse_lazy("parameter:filiere-list")
     
 
 
-class FiliereUpdateView(UpdateView):
+class FiliereUpdateView(cviews.CustomUpdateView):
     model = Filiere
     name = "filiere"
     template_name = "filiere/create_filiere.html"
@@ -124,13 +121,13 @@ class FiliereUpdateView(UpdateView):
     success_url = reverse_lazy("parameter:filiere-list")
 
 
-class FiliereDetailView(DetailView):
+class FiliereDetailView(cviews.CustomDetailView):
     model = Filiere
     name = "filiere"
     template_name = "filiere/detail-filiere.html"
 
 
-class FiliereDeleteView(DeleteView):
+class FiliereDeleteView(cviews.CustomDeleteView):
     model = Filiere
     name = "filiere"
     template_name = "filiere/delete-filiere.html"
@@ -139,10 +136,9 @@ class FiliereDeleteView(DeleteView):
     
 ##semestre views
 
-class SemestreListView(ListView):
+class SemestreListView(cviews.CustomListView):
     model = Semestre
     name = "semestre"
-    context_object_name = "semestres"
     template_name = "semestre/list-semestre.html"
 
     def get_context_data(self, **kwargs):
@@ -150,30 +146,28 @@ class SemestreListView(ListView):
         return context
 
 
-class SemestreCreateView(CreateView):
+class SemestreCreateView(cviews.CustomCreateView):
     model = Semestre
     form_class = SemestreForm
     name = "semestre"
-    template_name = "semestre/create_semestre.html"
     success_url = reverse_lazy("parameter:semestre-list")
     
 
 
-class SemestreUpdateView(UpdateView):
+class SemestreUpdateView(cviews.CustomUpdateView):
     model = Semestre
     name = "semestre"
-    template_name = "semestre/create_semestre.html"
     form_class = SemestreForm
     success_url = reverse_lazy("parameter:semestre-list")
 
 
-class SemestreDetailView(DetailView):
+class SemestreDetailView(cviews.CustomDetailView):
     model = Semestre
     name = "semestre"
     template_name = "semestre/detail-semestre.html"
 
 
-class SemestreDeleteView(DeleteView):
+class SemestreDeleteView(cviews.CustomDeleteView):
     model = Semestre
     name = "semestre"
     template_name = "semestre/delete-semestre.html"
@@ -182,10 +176,9 @@ class SemestreDeleteView(DeleteView):
     
 ##UE views
 
-class UeListView(ListView):
+class UeListView(cviews.CustomListView):
     model = UE
     name = "ue"
-    context_object_name = "ues"
     template_name = "ue/list-ue.html"
 
     def get_context_data(self, **kwargs):
@@ -193,30 +186,28 @@ class UeListView(ListView):
         return context
 
 
-class UeCreateView(CreateView):
+class UeCreateView(cviews.CustomCreateView):
     model = UE
     form_class = UEForm
     name = "ue"
-    template_name = "ue/create_ue.html"
     success_url = reverse_lazy("parameter:ue-list")
     
 
 
-class UeUpdateView(UpdateView):
+class UeUpdateView(cviews.CustomUpdateView):
     model = UE
     name = "ue"
-    template_name = "ue/create_ue.html"
     form_class = UEForm
     success_url = reverse_lazy("parameter:ue-list")
 
 
-class UeDetailView(DetailView):
+class UeDetailView(cviews.CustomDetailView):
     model = UE
     name = "ue"
     template_name = "ue/detail-ue.html"
 
 
-class UeDeleteView(DeleteView):
+class UeDeleteView(cviews.CustomDeleteView):
     model = UE
     name = "ue"
     template_name = "ue/delete-ue.html"
@@ -225,10 +216,9 @@ class UeDeleteView(DeleteView):
     
 ##Module views
 
-class ModuleListView(ListView):
+class ModuleListView(cviews.CustomListView):
     model = Module
     name = "module"
-    context_object_name = "modules"
     template_name = "modules/list-module.html"
 
     def get_context_data(self, **kwargs):
@@ -236,30 +226,28 @@ class ModuleListView(ListView):
         return context
 
 
-class ModuleCreateView(CreateView):
+class ModuleCreateView(cviews.CustomCreateView):
     model = Module
     form_class = ModuleForm
     name = "module"
-    template_name = "modules/create_module.html"
     success_url = reverse_lazy("parameter:module-list")
     
 
 
-class ModuleUpdateView(UpdateView):
+class ModuleUpdateView(cviews.CustomUpdateView):
     model = Module
     name = "module"
-    template_name = "modules/create_module.html"
     form_class = ModuleForm
     success_url = reverse_lazy("parameter:module-list")
 
 
-class ModuleDetailView(DetailView):
+class ModuleDetailView(cviews.CustomDetailView):
     model = Module
     name = "module"
     template_name = "modules/detail-module.html"
 
 
-class ModuleDeleteView(DeleteView):
+class ModuleDeleteView(cviews.CustomDeleteView):
     model = Module
     name = "module"
     template_name = "modules/delete-module.html"
@@ -268,10 +256,9 @@ class ModuleDeleteView(DeleteView):
     
 ##Niveau views
 
-class NiveauListView(ListView):
+class NiveauListView(cviews.CustomListView):
     model = Niveau
     name = "niveau"
-    context_object_name = "niveaux"
     template_name = "niveau/list-niveau.html"
 
     def get_context_data(self, **kwargs):
@@ -279,30 +266,28 @@ class NiveauListView(ListView):
         return context
 
 
-class NiveauCreateView(CreateView):
+class NiveauCreateView(cviews.CustomCreateView):
     model = Niveau
     form_class = NiveauForm
     name = "niveau"
-    template_name = "niveau/create_niveau.html"
     success_url = reverse_lazy("parameter:niveau-list")
     
 
 
-class NiveauUpdateView(UpdateView):
+class NiveauUpdateView(cviews.CustomUpdateView):
     model = Niveau
     name = "niveau"
-    template_name = "niveau/create_niveau.html"
     form_class = NiveauForm
     success_url = reverse_lazy("parameter:niveau-list")
 
 
-class NiveauDetailView(DetailView):
+class NiveauDetailView(cviews.CustomDetailView):
     model = Niveau
     name = "niveau"
     template_name = "niveau/detail-niveau.html"
 
 
-class NiveauDeleteView(DeleteView):
+class NiveauDeleteView(cviews.CustomDeleteView):
     model = Niveau
     name = "niveau"
     template_name = "niveau/delete-niveau.html"

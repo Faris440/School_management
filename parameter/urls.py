@@ -10,27 +10,27 @@ urlpatterns = [
     path(
         "parameters/ufr/list/",
         view=views.UfrListView.as_view(),
-        name="ufr-list",
+        name="uniteDeRecherche-list",
     ),
     path(
         "parameters/ufr/create/",
         view=views.UfrCreateView.as_view(),
-        name="ufr-create",
+        name="uniteDeRecherche-create",
     ),
     path(
-        "parameters/ufr/<int:pk>/detail/",
+        "parameters/ufr/<uuid:pk>/detail/",
         view=views.UfrDetailView.as_view(),
-        name="ufr-detail",
+        name="uniteDeRecherche-detail",
     ),
     path(
-        "parameters/ufr/<int:pk>/update/",
+        "parameters/ufr/<uuid:pk>/update/",
         view=views.UfrUpdateView.as_view(),
-        name="ufr-update",
+        name="uniteDeRecherche-update",
     ),
     path(
-        "parameters/ufr/<int:pk>/delete/",
+        "parameters/ufr/<uuid:pk>/delete/",
         view=views.UfrDeleteView.as_view(),
-        name="ufr-delete",
+        name="uniteDeRecherche-delete",
     ),
 
 
@@ -47,17 +47,17 @@ urlpatterns = [
         name="departement-create",
     ),
     path(
-        "parameters/departement/<int:pk>/detail/",
+        "parameters/departement/<uuid:pk>/detail/",
         view=views.DepartementDetailView.as_view(),
         name="departement-detail",
     ),
     path(
-        "parameters/departement/<int:pk>/update/",
+        "parameters/departement/<uuid:pk>/update/",
         view=views.DepartementUpdateView.as_view(),
         name="departement-update",
     ),
     path(
-        "parameters/departement/<int:pk>/delete/",
+        "parameters/departement/<uuid:pk>/delete/",
         view=views.DepartementDeleteView.as_view(),
         name="departement-delete",
     ),
@@ -76,17 +76,17 @@ urlpatterns = [
         name="filiere-create",
     ),
     path(
-        "parameters/filiere/<int:pk>/detail/",
+        "parameters/filiere/<uuid:pk>/detail/",
         view=views.FiliereDetailView.as_view(),
         name="filiere-detail",
     ),
     path(
-        "parameters/filiere/<int:pk>/update/",
+        "parameters/filiere/<uuid:pk>/update/",
         view=views.FiliereUpdateView.as_view(),
         name="filiere-update",
     ),
     path(
-        "parameters/filiere/<int:pk>/delete/",
+        "parameters/filiere/<uuid:pk>/delete/",
         view=views.FiliereDeleteView.as_view(),
         name="filiere-delete",
     ),
@@ -104,17 +104,17 @@ urlpatterns = [
          name="niveau-create",
      ),
     path(
-        "parameters/niveau/<int:pk>/detail/",
+        "parameters/niveau/<uuid:pk>/detail/",
          view=views.NiveauDetailView.as_view(),
          name="niveau-detail",
      ),
      path(
-         "parameters/niveau/<int:pk>/update/",
+         "parameters/niveau/<uuid:pk>/update/",
          view=views.NiveauUpdateView.as_view(),
          name="niveau-update",
      ),
      path(
-        "parameters/niveau/<int:pk>/delete/",
+        "parameters/niveau/<uuid:pk>/delete/",
          view=views.NiveauDeleteView.as_view(),
          name="niveau-delete",
      ),
@@ -133,17 +133,17 @@ urlpatterns = [
         name="semestre-create",
     ),
     path(
-        "parameters/semestre/<int:pk>/detail/",
+        "parameters/semestre/<uuid:pk>/detail/",
         view=views.SemestreDetailView.as_view(),
         name="semestre-detail",
     ),
     path(
-        "parameters/semestre/<int:pk>/update/",
+        "parameters/semestre/<uuid:pk>/update/",
         view=views.SemestreUpdateView.as_view(),
         name="semestre-update",
     ),
     path(
-        "parameters/semestre/<int:pk>/delete/",
+        "parameters/semestre/<uuid:pk>/delete/",
         view=views.SemestreDeleteView.as_view(),
         name="semestre-delete",
     ),
@@ -161,17 +161,17 @@ urlpatterns = [
         name="ue-create",
     ),
     path(
-        "parameters/ue/<int:pk>/detail/",
+        "parameters/ue/<uuid:pk>/detail/",
         view=views.UeDetailView.as_view(),
         name="ue-detail",
     ),
     path(
-        "parameters/ue/<int:pk>/update/",
+        "parameters/ue/<uuid:pk>/update/",
         view=views.UeUpdateView.as_view(),
         name="ue-update",
     ),
     path(
-        "parameters/ue/<int:pk>/delete/",
+        "parameters/ue/<uuid:pk>/delete/",
         view=views.UeDeleteView.as_view(),
         name="ue-delete",
     ),
@@ -190,17 +190,17 @@ urlpatterns = [
         name="module-create",
     ),
     path(
-        "parameters/modules/<int:pk>/detail/",
+        "parameters/modules/<uuid:pk>/detail/",
         view=views.ModuleDetailView.as_view(),
         name="module-detail",
     ),
     path(
-        "parameters/modules/<int:pk>/update/",
+        "parameters/modules/<uuid:pk>/update/",
         view=views.ModuleUpdateView.as_view(),
         name="module-update",
     ),
     path(
-        "parameters/modules/<int:pk>/delete/",
+        "parameters/modules/<uuid:pk>/delete/",
         view=views.ModuleDeleteView.as_view(),
         name="module-delete",
     ),

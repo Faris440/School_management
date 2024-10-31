@@ -1,4 +1,5 @@
 from django.db import models
+from School_management.cmodels import CONSTRAINT, CommonAbstractModel
 
 # Définitions des longueurs par convention
 Max_length = 100
@@ -6,7 +7,7 @@ Medium_length = 50
 Min_length = 25
 
 # Modèle de base avec des champs communs
-class BaseModel(models.Model):
+class BaseModel(CommonAbstractModel):
     code = models.CharField('code', max_length=Min_length, unique=True)
     label = models.CharField(max_length=Max_length, blank=True, null=True)
     description = models.CharField(max_length=250, blank=True, null=True)

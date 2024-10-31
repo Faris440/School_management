@@ -37,7 +37,7 @@
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Actions :</h6>
-                <a class="collapse-item" href="#">Gérer les utilisateur</a>
+                <a class="collapse-item" href="{% url 'fiche_management:sheet-list' %}">Fiches programmatiques</a>
             </div>
         </div>
     </li>
@@ -60,7 +60,7 @@
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Actions:</h6>
-                <a class="collapse-item" href="{% url 'parameter:ufr-list' %}">UFR</a>
+                <a class="collapse-item" href="{% url 'parameter:uniteDeRecherche-list' %}">UFR</a>
                 <a class="collapse-item" href="{% url 'parameter:departement-list' %}">Départements</a>  
                 <a class="collapse-item" href="{% url 'parameter:filiere-list' %}">Filières</a>
                 <a class="collapse-item" href="{% url 'parameter:semestre-list' %}">Semestre</a>

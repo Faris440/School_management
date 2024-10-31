@@ -14,7 +14,6 @@ from django.template.loader import render_to_string
 from django.template import Template, Context
 from django.contrib.auth.models import Group, User
 
-from parameter.models import MailContent
 from School_management.constants import hostname
 
 
