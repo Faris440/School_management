@@ -27,6 +27,7 @@ MEDIA_URL = getattr (settings,"MEDIA_URL")
 
 
 
+
 urlpatterns = [
     path('', views.RedirectionView.as_view(),name='redirect'),
     path('home/', views.IndexTemplateView.as_view(),name='index-view'),
@@ -36,4 +37,16 @@ urlpatterns = [
     path('auth/', include('xauth.urls')),
     path('parameter/', include('parameter.urls')),   
     path('management/', include('fiche_management.urls')), 
+    path("signup/", xauth_views.User2CreateView.as_view(), name="user-signup"),
+    path(
+        "account-activation/<uuid:pk>/set-password/",
+        xauth_views.SetPasswordView.as_view(),
+        name="user-set-password",
+    ),
+    path(
+        "account-activation/<str:uidb64>/set-password/<str:token>",
+        xauth_views.SetPasswordView.as_view(),
+        name="user-set-password",
+    ),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
+

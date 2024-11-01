@@ -15,6 +15,31 @@ class BaseModel(CommonAbstractModel):
     class Meta:
         abstract = True  # Modèle abstrait pour être réutilisé
 
+
+class MailContent(CommonAbstractModel):
+    is_active = models.BooleanField(default=True)
+    account_activation_mail = models.TextField(
+        null=True,
+        blank=True,
+        default="""{{phone}}\n{{link}}""",
+        verbose_name="Mail d'activation de compte avec lien",
+    )
+    account_activation_sms = models.TextField(
+        null=True,
+        blank=True,
+        default="""{{phone}}\n{{otp}}""",
+        verbose_name="Génération d'OTP pour activation d'un compte",
+    )
+
+    class Meta:
+        ordering = ["pk"]
+        verbose_name = "contenu de mail"
+        verbose_name_plural = "contenus de mail"
+        permissions = [
+            ("list_mailcontent", f"peut lister {verbose_name}"),
+        ]
+
+
 # UFR - Unités de Formation et de Recherche
 class UniteDeRecherche(BaseModel):
     class Meta:

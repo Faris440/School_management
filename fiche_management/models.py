@@ -11,6 +11,7 @@ class Sheet(CommonAbstractModel):
     enseignant = models.ForeignKey("xauth.User", on_delete=models.CASCADE, related_name="sheet_enseignant")
     date_debut = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de début du cours")
     date_fin = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de fin du cours")
+    is_validated = models.BooleanField(null=True, verbose_name="Validé") 
     # 
     # 
     class Meta:

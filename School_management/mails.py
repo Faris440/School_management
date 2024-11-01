@@ -1,21 +1,13 @@
-import datetime, socket
-from copy import deepcopy
-
-from django.core.mail import (
-    EmailMultiAlternatives,
-    # mail_admins,
-    # send_mail,
-    get_connection,
-)
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMultiAlternatives, get_connection  # mail_admins,
 from django.db.models import Model
-from django.utils.html import strip_tags
+from django.http import HttpRequest
+from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.template import Template, Context
-from django.contrib.auth.models import Group, User
-
-from School_management.constants import hostname
-
+from django.utils.html import strip_tags
+from parameter.models import MailContent
+from xauth.models import User
 
 DEFAULT_FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", None)
 
@@ -57,49 +49,28 @@ def send_mail(
     return mail.send()
 
 
-def mailer(**kwargs):
+def mailer(subject, recipient_list, content, from_email=None, cc=None, **kwargs):
     """
-    - kwargs:
-        -fields (mandatory)
-        - mail_template (mandatory)
-        - subject
-        - recipient_list (mandatory)
-        -  **other : from_email, cc,
+    - subject (mandatory)
+    - recipient_list (mandatory)
+    - content (mandatory) - the actual content of the email
+    - from_email (optional)
+    - cc (optional)
     """
-    if not "fields" in kwargs:
-        raise KeyError("No *fields* in mailer kwargs")
 
-    if not "mail_template" in kwargs:
-        raise KeyError("No *mail_template* in mailer kwargs")
+    if not recipient_list:
+        raise KeyError("No recipient_list in mailer kwargs")
 
-    if not "recipient_list" in kwargs:
-        raise KeyError("No *recipient_list* in mailer kwargs")
+    # Default sender email
+    from_email = from_email or DEFAULT_FROM_EMAIL
 
-    mail_content = MailContent.objects.first()
-    content = mail_content._meta.get_field(kwargs.get("mail_template"))
+    # Prepare the email content
+    content_html = render_to_string("email.html", context={"subject": subject, "content": content})
+    
+    # Prepare plain text version
+    content_str = strip_tags(content_html)
 
-    if not content:
-        raise ValueError("unknown mail_template")
-
-    subject = kwargs.get("subject", "")
-    recipient_list = kwargs.get("recipient_list")
-    from_email = kwargs.get("from_email", DEFAULT_FROM_EMAIL)
-    fields: dict = kwargs.get("fields")
-
-    fields.update(hostname=socket.gethostname())
-
-    if mail_content is not None:
-        content_html = render_to_string(
-            "includes/email.html",
-            context={"subject": subject, "content": content},
-        )
-        content_html = Template(content_html).render(context=Context(fields))
-        content_str = strip_tags(content_html)
-
-    else:
-        content_str = " - ".join([str(value) for value in fields.values()])
-        content_html = None
-
+    # Send the email
     response = send_mail(
         subject=subject,
         message=content_str,
@@ -107,28 +78,36 @@ def mailer(**kwargs):
         recipient_list=recipient_list,
         html_message=content_html,
         fail_silently=True,
+        cc=cc,
     )
 
     return response
 
 
-def send_task_author_mail(instance, is_created=True):
-    subject = "Assignation de tâche"
-    subject = subject if is_created else f"(Modification) {subject}"
-    to = [author.email for author in instance.author.all()]
-    fields = deepcopy(instance.__dict__)
 
-    fields.pop("_state")
-    fields.pop("id")
-    fields.pop("attachment")
-    fields.update(
-        author=instance.author,
-        assigned_to=instance.assigned_to,
-    )
+def send_account_activation_mail(request: HttpRequest, instance: User, link):
+    subject = "Code d'activation de compte"
+    to = [instance.email]
+    
+    # Prepare the content of the email
+    content = f"""
+    Bonjour {instance.first_name} {instance.last_name},
 
+    Merci de vous être inscrit. Pour activer votre compte, veuillez utiliser le lien ci-dessous :
+
+    {link}
+
+    Si vous avez des questions, n'hésitez pas à nous contacter.
+
+    Cordialement,
+    L'équipe de support
+    """
+
+    # Send the email using the mailer function
     return mailer(
         subject=subject,
-        fields=fields,
-        mail_template="mail_task_receiver",
         recipient_list=to,
+        content=content,
+        from_email=None,  # or set to your default email if needed
     )
+

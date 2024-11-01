@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 
 # Create your views here.
@@ -9,6 +9,35 @@ from django.views.generic import ListView, UpdateView, DeleteView,DetailView,Cre
 from .models import *
 from School_management import views as cviews
 
+
+class ContentListView(cviews.CustomListView):
+    template_name = "list-x-content.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["can_add"] = False
+        context["can_import"] = False
+        context["can_export"] = False
+        context["can_delete"] = False
+        return context
+
+
+class MailContentListView(ContentListView):
+    model = MailContent
+    name = "mail-content"
+
+
+class MailContentUpdateView(cviews.CustomUpdateView):
+    model = MailContent
+    form_class = MailContentForm
+    name = "mail-content"
+    success_url = reverse_lazy("settings:mail-content-list")
+
+    def form_valid(self, form):
+        current = get_object_or_404(MailContent, pk=self.kwargs.get("pk"))
+        current.is_active = False
+        current.save()
+        return super().form_valid(form)
 
 
 class UfrListView(cviews.CustomListView):

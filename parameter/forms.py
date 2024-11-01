@@ -1,14 +1,25 @@
 from django import forms
-from .models import UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau
+from .models import MailContent, UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau
 from django.forms.models import ModelChoiceField , ModelMultipleChoiceField
 from formset.renderers.bootstrap import FormRenderer
 from formset.widgets import (
     Selectize,
     SelectizeMultiple,
     DualSortableSelector,
-    DualSelector
+    DualSelector,
 )
 from formset.collection import FormMixin
+from formset.richtext.widgets import RichTextarea
+from django.utils.safestring import mark_safe
+from School_management.constants import control_elements , TEXTAREA
+
+
+default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
 
 class UniteDeRechercheForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -141,5 +152,34 @@ class ModuleForm(forms.ModelForm):
             'ue': forms.Select(attrs={'class': 'form-control'}),
         }
         
+class CustomModelForm(forms.ModelForm):
+    default_renderer = default_renderer
+    # submit = submit
+    # reload = reload
+    # reset = reset
 
+    def _init_(self, **kwargs):
+        super()._init_(**kwargs)
+        for name, field in self.fields.items():
+            if field.required:
+                field.label = mark_safe(f"{field.label} <span class='text-danger h3'>*</span>")
 
+class ContentForm(CustomModelForm):
+    initial_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={"*": "mt-4 mb-4 col-md-12"},
+    )
+
+    def _init_(self, **kwargs):
+        super()._init_(**kwargs)
+
+        for name, field in self.fields.items():
+            if isinstance(field, forms.CharField):
+                field.widget = RichTextarea(
+                    control_elements=control_elements, attrs=TEXTAREA
+                )
+
+class MailContentForm(ContentForm):
+    class Meta:
+        model = MailContent
+        exclude = ["is_removed"]

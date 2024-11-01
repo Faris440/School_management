@@ -25,6 +25,14 @@ from formset.renderers.bootstrap import FormRenderer
 from parameter import models as params_models
 from xauth.models import User, Assign, AccountActivationSecret
 
+from School_management.constants import *
+
+default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-12 h-100 input100",
+        },
+    )
 MINIMUM_AGE = 0 * 365
 
 class GroupForm(FormMixin, ModelForm):
@@ -55,6 +63,7 @@ class GroupForm(FormMixin, ModelForm):
                 "auth",
                 "parameter",
                 "assign",
+                "fiche_management",
             ]
         )
         
@@ -64,7 +73,7 @@ class GroupForm(FormMixin, ModelForm):
     
 
 
-class CustomSetPasswordForm( SetPasswordForm):
+class CustomSetPasswordForm(SetPasswordForm):
     def save(self, commit=True):
         password = self.cleaned_data["new_password1"]
         self.user.set_password(password)
@@ -212,24 +221,20 @@ class UserChangeProfilePhotoForm( ModelForm):
         fields = ("photo",)
 
 
-class UserPublicActivationForm(forms.Form):
-    default_renderer = FormRenderer(
-        form_css_classes="row",
-        field_css_classes={
-            "*": "mb-2 col-md-12 h-100 input100",
-        },
-    )
+
+class UserPublicActivationForm(FormMixin, forms.Form):
     identifier = fields.CharField(
-        max_length=120,
+        max_length=MIN_LENGTH,
         label="Identifiant",
         help_text="Vous pouvez saisir soit votre email ou votre matricule",
     )
     secret = fields.CharField(
-        max_length=120,
+        max_length=MIN_LENGTH,
         label="Code secret",
         help_text="Il s'agit du code que vous avez reçu par mail/sms",
     )
 
+    default_renderer = default_renderer
 
     def clean(self):
         cleaned_data = super().clean()
@@ -261,6 +266,7 @@ class UserPublicActivationForm(forms.Form):
             )
         cleaned_data["user"] = user
         return cleaned_data
+
 
 
 class AssignForm( ModelForm):

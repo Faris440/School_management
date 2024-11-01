@@ -1,12 +1,15 @@
 from datetime import date
-
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.contrib.auth import views as auth_views
 from django.forms import BaseModelForm
 from django.http.response import HttpResponse as HttpResponse
-from django.http import HttpResponseBadRequest
+from django.http import Http404, HttpResponseBadRequest
 from django.utils import timezone
 from django.contrib.auth import login as auth_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -27,6 +30,9 @@ from School_management import views as cviews
 from xauth import forms
 from xauth import models
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, FormView
+from School_management import (
+    mails as web_mail
+)
 
 # Create your views here.
 
@@ -261,7 +267,7 @@ class UserCreateView(cviews.CustomCreateView):
         context["card_title"] = "Ajout d'un nouvel utilisateur"
         return context
     def form_valid(self, form):
-        form.instance.is_active = True
+        form.instance.is_active = False
         return super().form_valid(form)
 
 
@@ -423,13 +429,12 @@ class UserUpdatePasswordView(auth_views.PasswordChangeView):
 
 class UserSendSecreteKey(View):
     def get_success_url(self):
-        return reverse("auth:user-list")
+        return self.request.META.get("HTTP_REFERER")
 
     def get_object(self, pk):
         return get_object_or_404(models.User, pk=pk)
 
     def get(self, request, *args, **kwargs):
-        from django.core.mail import send_mail
 
         pk = self.kwargs.get("pk")
         if pk is None:
@@ -437,32 +442,22 @@ class UserSendSecreteKey(View):
         self.object = self.get_object(pk)
 
         if not self.object.is_active:
-            activation = models.AccountActivationSecret.all_objects.filter(
-                user=self.object
+            current_site = get_current_site(request)
+            uid = urlsafe_base64_encode(force_bytes(self.object.pk))
+            token = PasswordResetTokenGenerator().make_token(self.object)
+            activation_link = reverse(
+                "user-set-password", kwargs={"uidb64": uid, "token": token}
             )
-
-            print("activation exists", activation.exists())
-            if activation.exists():
-                secret = activation.first().secret
-            else:
-                secret: str = models.User.objects.make_random_password(
-                    length=GENERATED_PASSWORD_LENGTH
-                )
-                models.AccountActivationSecret.all_objects.create(
-                    user=self.object, secret=secret
-                )
-            # send_mail(
-            #     "Clé d'activation de compte",
-            #     secret,
-            #     DEFAULT_FROM_EMAIL,
-            #     [self.object.email],
-            # )
-            print("Clé d'activation de compte :", secret," Matricule :", self.object.username)
-            
+            activation_url = (
+                f"{request.scheme}://{current_site.domain}{activation_link}"
+            )
+            print(activation_url)
+            web_mail.send_account_activation_mail(request, self.object, activation_url)
             messages.success(
                 self.request,
-                f"Le code d'activation de {self.object.get_full_name()} envoyé avec succès.",
+                f"Un mail sera envoyé à {self.object.get_full_name()} pour l'activation de son compte.",
             )
+
         else:
             messages.warning(
                 self.request,
@@ -470,6 +465,8 @@ class UserSendSecreteKey(View):
             )
 
         return HttpResponseRedirect(self.get_success_url())
+
+
 
 @method_decorator(
     permission_required("xauth.can_change_right", raise_exception=True),
@@ -654,25 +651,20 @@ class SetPasswordView(FormView):
     success_url = reverse_lazy("user-login")
     form_class = forms.CustomSetPasswordForm
 
-    def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(models.User, pk=self.kwargs.get("pk"))
-        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.user
+        kwargs["user"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["card_title"] = "Initialisation de votre mot de passe"
+        
         return context
 
     def form_valid(self, form):
-        form.save()
-        models.AccountActivationSecret.objects.filter(user=self.user).first().delete(
-            soft=False
-        )
+        print('activate///')
         messages.success(self.request, "Votre compte a été activé avec succès.")
         return super().form_valid(form)
 
@@ -686,16 +678,28 @@ class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 class User2CreateView(FormView):
     form_class = forms.UserPublicActivationForm
     template_name = "public/signup.html"
-
+    
     def get_success_url(self):
         return reverse("user-set-password", kwargs={"pk": self.user.pk})
 
     def form_valid(self, form):
+        # Set the user instance from form data
         self.user = form.cleaned_data["user"]
         secret = form.cleaned_data["secret"]
+
+        # Filter and activate the account
         activation = models.AccountActivationSecret.all_objects.filter(
             user=self.user, secret=secret
         )
-        print("activation existe", activation.exists())
+        print("Activation exists:", activation.exists())
         activation.update(is_active=True)
+
+        # Return JSON response with the success URL
         return JsonResponse({"success_url": self.get_success_url()})
+
+    def form_invalid(self, form):
+        # Collect and format form errors to send as JSON
+        errors = form.errors.as_json()
+        print("Form validation errors:", errors)
+        
+        return JsonResponse({"errors": errors}, status=400)

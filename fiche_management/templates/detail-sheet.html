@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="d-flex justify-content-between align-items-center">
+        Détails de la fiche
+        
+    </h2>
+    
+    <!-- Détails de la fiche -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="d-flex justify-content-between align-items-center">Informations sur la fiche</h5>
+            <p><strong>Enseignant :</strong> {{ object.enseignant }}</p>
+            <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
+            <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
+            {% if object.is_validated == Null %}
+            <div>
+                <a href="#" class="btn btn-success">Valider</a>
+                <a href="#" class="btn btn-danger">Rejeter</a>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    <!-- Détails des enseignements associés sous forme de tableau -->
+    <div class="mt-4">
+        <h3>Enseignements associés</h3>
+        
+        {% if object.enseignement_sheet.all %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Filière</th>
+                    <th>Niveau</th>
+                    <th>Semestre</th>
+                    <th>Module</th>
+                    <th>CT Volume Horaire Confié</th>
+                    <th>TD Volume Horaire Confié</th>
+                    <th>TP Volume Horaire Confié</th>
+                    <th>CT Volume Horaire Effectué</th>
+                    <th>TD Volume Horaire Effectué</th>
+                    <th>TP Volume Horaire Effectué</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enseignement in object.enseignement_sheet.all %}
+                <tr>
+                    <td>{{ enseignement.code }}</td>
+                    <td>{{ enseignement.filiere }}</td>
+                    <td>{{ enseignement.niveau }}</td>
+                    <td>{{ enseignement.semestre }}</td>
+                    <td>{{ enseignement.module }}</td>
+                    <td>{{ enseignement.ct_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.td_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.tp_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.ct_volume_horaire_efectue }}</td>
+                    <td>{{ enseignement.td_volume_horaire_efectue }}</td>
+                    <td>{{ enseignement.tp_volume_horaire_efectue }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Aucun enseignement associé trouvé.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
