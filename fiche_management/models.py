@@ -1,5 +1,7 @@
 from django.db import models
 from School_management.cmodels import CONSTRAINT, CommonAbstractModel
+from School_management.constants import BIG_LENGTH
+
 
  # Définitions des longueurs par convention
 Max_length = 100
@@ -11,7 +13,8 @@ class Sheet(CommonAbstractModel):
     enseignant = models.ForeignKey("xauth.User", on_delete=models.CASCADE, related_name="sheet_enseignant")
     date_debut = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de début du cours")
     date_fin = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de fin du cours")
-    is_validated = models.BooleanField(null=True, verbose_name="Validé") 
+    is_validated = models.BooleanField(null=True, verbose_name="Validé")
+    motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True) 
     # 
     # 
     class Meta:

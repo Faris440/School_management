@@ -31,5 +31,12 @@ urlpatterns = [
         view=views.SheetDeleteView.as_view(),
         name="sheet-delete",
     ),
+    path('management/<uuid:pk>/valider/',
+         views.valider_fiche, 
+         name='valider_fiche'),
+    
+    path('management/<uuid:pk>/rejeter/', 
+         views.rejeter_fiche, 
+         name='rejeter_fiche'),
 
 ]

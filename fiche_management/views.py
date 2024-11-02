@@ -7,6 +7,7 @@ from django.contrib import messages
 from School_management import views as cviews
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 
 # Create your views here.
 class SheetCreateView(cviews.CustomFormCollectionView):
@@ -111,8 +112,39 @@ class SheetDeleteView(cviews.CustomDeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+    
+def valider_fiche(request, pk):
+    # Récupère la fiche avec l'ID fourni ou retourne 404 si elle n'existe pas
+    fiche = get_object_or_404(Sheet, id=pk)
+
+    # Vérifie si la fiche est déjà validée
+    if fiche.is_validated:
+        messages.warning(request, "Cette fiche a déjà été validée.")
+    else:
+        # Met à jour le statut de validation
+        fiche.is_validated = True
+        fiche.save()
+        messages.success(request, "La fiche a été validée avec succès !")
+
+    return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
 
 
+def rejeter_fiche(request, pk):
+    fiche = get_object_or_404(Sheet, id=pk)
+
+    if request.method == "POST":
+        motif_rejet = request.POST.get("motif_rejet")
+        
+        if motif_rejet:
+            fiche.is_validated = False
+            fiche.motif_de_rejet = motif_rejet
+            fiche.save()
+            messages.success(request, "La fiche a été rejetée avec le motif indiqué.")
+            return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+        else:
+            messages.error(request, "Veuillez fournir un motif pour le rejet.")
+    
+    return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
 
 
 # class SheetUpdateView(cviews.CustomUpdateView):
