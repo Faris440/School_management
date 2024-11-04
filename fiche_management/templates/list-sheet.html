@@ -3,30 +3,55 @@
 {% load humanize %}
 {% load static %}
 
-
 {% block table-headers %}
 <th>Enseignant</th>
 <th>Debut de la periode</th>
 <th>Fin de la periode</th>
+<th>Statut</th> <!-- Nouvelle colonne pour le statut -->
 {% endblock table-headers %}
-
 
 {% block table-rows %}
 <td>{{ object.enseignant }}</td>
 <td>{{ object.date_debut }}</td>
 <td>{{ object.date_fin }}</td>
+<td>
+    {% if object.is_validated == null %}
+        <span class="text-warning">En cours de traitement</span>
+    {% elif object.is_validated == 0 %}
+        <span class="text-danger">Fiche rejetée</span>
+    {% elif object.is_validated == 1 %}
+        <span class="text-success">Fiche validée</span>
+    {% endif %}
+</td> <!-- Affichage du statut -->
 {% endblock table-rows %}
 
-
-
 {% block other-options %}
+<a href="{% url info_url object.slug|default:object.id %}">
+    <button type="button" class="btn btn-md btn-outline-info" data-bs-toggle="popover"
+        data-bs-content="Voir les détails" data-bs-container="body" data-bs-placement="top">
+        {% icon "info" height=option_size width=option_size %}
+    </button>
+</a>
+
+{% if object.is_validated is None or request.user.is_staff %}
+    <a href="{% url update_url object.slug|default:object.id %}">
+        <button type="button" class="btn btn-md btn-outline-success" data-bs-toggle="popover" data-bs-content="Modifier"
+            data-bs-container="body" data-bs-placement="top">
+            {% icon "edit" height=option_size width=option_size %}
+        </button>
+    </a>
+    {% if object.is_validated is None or request.user.is_staff %}
+        <a href="{% url delete_url object.slug|default:object.id %}" class="delete-btn">
+            <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="Supprimer"
+                data-bs-container="body" data-bs-placement="top">
+                {% icon "trash" height=option_size width=option_size %}
+            </button>
+        </a>
+    {% endif %}
+{% endif %}
 {% endblock other-options %}
 
-
-
 {% block javascript %}
-
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Fonction pour la recherche dans le tableau
@@ -47,6 +72,4 @@
         });
     });
 </script>
-
-
 {% endblock javascript %}

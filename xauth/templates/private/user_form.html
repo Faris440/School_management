@@ -25,7 +25,7 @@
 {% block content %}
 <div class="card mb-5">
 	<div class="card-header">
-		<h2 class="float-start">{{card_title}}</h2>
+		<h2 class="float-start">{{ card_title }}</h2>
 		{% if back_url %}
         <a href="{{ back_url }}">
             <button type="button" class="btn btn-md btn-outline-secondary float-end" 
@@ -46,7 +46,7 @@
 				{% else %}
 				{% render_form form  %}
 				{% endif %}
-				<div class="offset-sm-3  my-5">
+				<div class="offset-sm-3 my-5">
 					{% include 'button.html' with label="Enregistrer" color="btn-success" icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
 					{% if can_rerender %}
 					{% include 'button.html' with label="Enregistrer et Continuer" color="btn-info" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
@@ -57,15 +57,47 @@
 		</div>
 	</div>
 </div>
-
 {% endblock content %}
 
 {% block javascript %}
-
 {% if form_collection %}
 {{ form_collection.media.js }}
 {% else %}
 {{ form.media.js }}
 {% endif %}
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Récupère les éléments du formulaire
+    const userTypeField = document.getElementById("id_user_type");
+    const teacherTypeField = document.getElementById("id_teacher_type");
+    const gradeFieldWrapper = document.querySelector(".field-grade");
+    const diplomeFieldWrapper = document.querySelector(".field-diplome");
+
+    // Fonction pour afficher/masquer les champs grade et diplome
+    function toggleTeacherFields() {
+        const userType = userTypeField ? userTypeField.value : null;
+        const teacherType = teacherTypeField ? teacherTypeField.value : null;
+
+        if (userType === "teacher" && teacherType === "permanent") {
+            gradeFieldWrapper.style.display = "block";
+            diplomeFieldWrapper.style.display = "block";
+        } else {
+            gradeFieldWrapper.style.display = "none";
+            diplomeFieldWrapper.style.display = "none";
+        }
+    }
+
+    // Attache la fonction aux événements de changement
+    if (userTypeField) {
+        userTypeField.addEventListener("change", toggleTeacherFields);
+    }
+    if (teacherTypeField) {
+        teacherTypeField.addEventListener("change", toggleTeacherFields);
+    }
+
+    // Exécute la fonction au chargement de la page
+    toggleTeacherFields();
+});
+</script>
 {% endblock javascript %}

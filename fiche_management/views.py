@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from formset.views import FormCollectionView
 from django.views.generic import ListView
-from .forms import FinalFormCollection, FinalSelfFormCollection
+from .forms import FinalFormCollection, FinalSelfFormCollection, SheetForm,SheetSelfForm
 from .models import Sheet, Enseignements
 from django.contrib import messages
 from School_management import views as cviews
@@ -93,7 +93,7 @@ class SheetDetailView(cviews.CustomDetailView):
 
 class SheetUpdateView(cviews.CustomUpdateView):
     model = Sheet
-    fields = "__all__"  # Spécifiez les champs que vous voulez afficher dans le formulaire
+    form_class = SheetForm  # Spécifiez les champs que vous voulez afficher dans le formulaire
 
     def get_success_url(self):
         return reverse('fiche_management:sheet-list')  # Redirige vers la liste après la mise à jour
@@ -101,6 +101,11 @@ class SheetUpdateView(cviews.CustomUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+    
+    def form_valid(self, form):
+        form.instance.motif_de_rejet = None
+        form.instance.is_validated = None
+        return super().form_valid(form)
     
 
 

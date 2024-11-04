@@ -6,7 +6,7 @@ from formset.renderers.bootstrap import FormRenderer
 from formset.views import FormCollectionView
 from formset.widgets import DatePicker
 from django.utils.timezone import now, timedelta
-
+from formset.collection import FormMixin
 
 class EnseignementsForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -24,7 +24,7 @@ class EnseignementsForm(forms.ModelForm):
         ]
 
 # Inclure le formset directement dans le formulaire principal
-class SheetForm(forms.ModelForm):
+class SheetForm(FormMixin, forms.ModelForm):
     default_renderer = FormRenderer(
         form_css_classes="row",
         field_css_classes={
@@ -44,7 +44,7 @@ class SheetForm(forms.ModelForm):
         }
         
 
-class SheetSelfForm(forms.ModelForm):
+class SheetSelfForm(FormMixin, forms.ModelForm):
     default_renderer = FormRenderer(
         form_css_classes="row",
         field_css_classes={
@@ -67,7 +67,7 @@ class FinalFormCollection(FormCollection):
     enseignement = LogCollection()
 
 
-class FinalSelfFormCollection(FormCollection):
+class FinalSelfFormCollection(FormMixin ,FormCollection):
     default_renderer = FormRenderer(field_css_classes='mb-3')
     sheet = SheetSelfForm()
     enseignement = LogCollection()
