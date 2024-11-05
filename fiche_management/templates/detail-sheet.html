@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="d-flex justify-content-between align-items-center">
+        Détails de la fiche
+    </h2>
+    
+    <!-- Détails de la fiche -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="d-flex justify-content-between align-items-center">Informations sur la fiche</h5>
+            <p><strong>Enseignant :</strong> {{ object.enseignant }}</p>
+            <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
+            <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
+
+            <!-- Affichage du statut de la fiche avec des codes couleurs -->
+            <p>
+                <strong>Statut :</strong>
+                {% if object.is_validated == null %}
+                    <span class="text-warning">En cours de traitement</span>
+                {% elif object.is_validated == 0 %}
+                    <span class="text-danger">Fiche rejetée</span>
+                {% elif object.is_validated == 1 %}
+                    <span class="text-success">Fiche validée</span>
+                {% endif %}
+            </p>
+
+            <!-- Affichage du motif de rejet si la fiche est rejetée -->
+            {% if object.is_validated == 0 %}
+                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
+            {% endif %}
+
+
+            {% if object.is_validated == Null %}
+            <div>
+                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Détails des enseignements associés sous forme de tableau -->
+    <div class="mt-4">
+        <h3>Enseignements associés</h3>
+        
+        {% if object.enseignement_sheet.all %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Filière</th>
+                    <th>Niveau</th>
+                    <th>Semestre</th>
+                    <th>Module</th>
+                    <th>CT Volume Horaire Confié</th>
+                    <th>TD Volume Horaire Confié</th>
+                    <th>TP Volume Horaire Confié</th>
+                    <th>CT Volume Horaire Effectué</th>
+                    <th>TD Volume Horaire Effectué</th>
+                    <th>TP Volume Horaire Effectué</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enseignement in object.enseignement_sheet.all %}
+                <tr>
+                    <td>{{ enseignement.code }}</td>
+                    <td>{{ enseignement.filiere }}</td>
+                    <td>{{ enseignement.niveau }}</td>
+                    <td>{{ enseignement.semestre }}</td>
+                    <td>{{ enseignement.module }}</td>
+                    <td>{{ enseignement.ct_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.td_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.tp_volume_horaire_confie }}</td>
+                    <td>{{ enseignement.ct_volume_horaire_efectue }}</td>
+                    <td>{{ enseignement.td_volume_horaire_efectue }}</td>
+                    <td>{{ enseignement.tp_volume_horaire_efectue }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Aucun enseignement associé trouvé.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modale de confirmation pour la validation -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmer la validation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir valider cette fiche ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="{% url 'fiche_management:valider_fiche' object.id %}">
+                
+                    <button type="button" class="btn btn-success">Confirmer</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modale de confirmation pour le rejet -->
+<div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectionModalLabel">Confirmer le rejet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir rejeter cette fiche ?
+            </div>
+            <form id="rejetForm" method="post" action="{% url 'fiche_management:rejeter_fiche' object.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="motif_rejet" class="form-label">Motif du rejet</label>
+                    <textarea class="form-control" id="motif_rejet" name="motif_rejet" rows="4" required></textarea>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" onclick="confirmerRejet()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmerRejet() {
+        // Soumet le formulaire de rejet
+        document.getElementById('rejetForm').submit();
+    }
+</script>
+
+<script>
+    function confirmerValidation() {
+        // Simule une action de validation
+        alert("La fiche a été validée avec succès !");
+        
+        // Fermez la modale après l'action
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalInstance = bootstrap.Modal.getInstance(confirmationModal);
+        modalInstance.hide();
+    }
+
+</script>
+{% endblock %}

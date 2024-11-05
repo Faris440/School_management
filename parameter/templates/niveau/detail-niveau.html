@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">Détails du niveau: {{ object.label }}</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Informations sur le niveau</h6>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Code:</strong>
+                    <p>{{ object.code }}</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Libellé:</strong>
+                    <p>{{ object.label }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <strong>Description:</strong>
+                    <p>{{ object.description }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-right">
+
+                    <a href="{% url 'parameter:niveau-update' object.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+
+                    <a href="{% url 'parameter:niveau-delete' object.pk %}" class="btn btn-danger" 
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce niveau ?');">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+{% endblock content %}

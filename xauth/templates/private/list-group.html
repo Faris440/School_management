@@ -1,0 +1,24 @@
+{% extends "models/list.html" %}
+{% load icon %}
+{% load humanize %}
+{% load static %}
+
+{% block toolbar-plus %}
+<a href="{{ add_url }}">
+  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="popover"
+      data-bs-content="Nouveau" data-bs-container="body" data-bs-placement="top">
+      {% icon "plus" height=option_size width=option_size %}&nbsp; Nouveau
+  </button>
+</a>
+{% endblock toolbar-plus %}
+
+
+{% block table-headers %}
+<th>Nom(s)</th>
+<th>Permissions</th>
+{% endblock table-headers %}
+
+{% block table-rows %}
+<td>{{object.name|default_if_none:"-"}}</td>
+<td>{{ object.permissions.all|join:", "|truncatewords:20 }}</td>
+{% endblock table-rows %}

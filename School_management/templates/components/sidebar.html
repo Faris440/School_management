@@ -1,0 +1,186 @@
+<ul class="navbar-nav sidebar sidebar-dark accordion bg-custom-color" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">Administrateur</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{% url 'index-view' %}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Tableau de bord</span>
+        </a>
+    </li>
+    
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Gestion pedagogique
+    </div>
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa fa-users"></i>
+            <span>Gestion des fiches</span>
+        </a>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Actions :</h6>
+                <a class="collapse-item" href="{% url 'fiche_management:sheet-list' %}">Fiches programmatiques</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-heading">
+        Paramètres
+    </div>
+
+    <!-- Nav Item - Utilities Collapse Menu -->
+    {% if perms.xauth.access_parameter%}
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+            aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa fa-graduation-cap"></i>
+            <span>Gestion des cours</span>
+        </a>
+        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Actions:</h6>
+                <a class="collapse-item" href="{% url 'parameter:uniteDeRecherche-list' %}">UFR</a>
+                <a class="collapse-item" href="{% url 'parameter:departement-list' %}">Départements</a>  
+                <a class="collapse-item" href="{% url 'parameter:filiere-list' %}">Filières</a>
+                <a class="collapse-item" href="{% url 'parameter:semestre-list' %}">Semestre</a>
+                <a class="collapse-item" href="{% url 'parameter:niveau-list' %}">Niveau</a>
+                <a class="collapse-item" href="{% url 'parameter:ue-list' %}">Unité d'Enseignements</a>
+                <a class="collapse-item" href="{% url 'parameter:module-list' %}">Modules</a>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+    <hr class="sidebar-divider">
+
+
+    {% if perms.xauth.access_account %}
+    <div class="sidebar-heading">
+        GESTION DES UTILISATEURS
+    </div>
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+            aria-expanded="true" aria-controls="collapsePages">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Utilisateurs</span>
+        </a>
+        <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Actions:</h6>
+                <a class="collapse-item" href="{% url 'auth:user-list' %}">Utilisateurs</a>
+                <a class="collapse-item" href="{% url 'auth:group-list' %}">Droit d'acces</a>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+
+    <!-- Nav Item - Charts -->
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>Statistiques</span>
+        </a>
+    </li>
+
+    <!-- Nav Item - Tables -->
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <i class="fa fa-user "></i>
+            <span>Profil</span>
+        </a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+
+<style>
+    /* Couleur personnalisée pour la sidebar */
+    .bg-custom-color {
+        background-color: #17376e;
+    }
+
+    /* Couleurs du texte pour la sidebar */
+    .sidebar-dark .nav-link,
+    .sidebar-dark .sidebar-brand {
+        color: #ffffff;
+    }
+
+    .sidebar-dark .nav-link:hover {
+        color: #e0e0e0; /* Couleur au survol */
+    }
+
+    /* Style et transition pour la réduction de la sidebar */
+    #accordionSidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 200%;
+        z-index: 1000;
+        overflow-y: auto;
+        border-right: 2px solid #ccc;
+        width: 250px; /* Largeur de la sidebar */
+        transition: width 0.2s; /* Transition pour la réduction */
+    }
+
+    .sidebar-reduced {
+        width: 50px; /* Largeur réduite */
+    }
+
+    .sidebar .nav-link {
+        color: #ffffff;
+        font-size: 1.2rem;
+        transition: opacity 0.2s; /* Transition pour l'opacité */
+    }
+
+    /* Style pour le corps de la page */
+    body {
+        padding-left: 250px; /* Ajustement selon la largeur de la sidebar */
+        transition: padding-left 0.2s;
+    }
+
+    .body-expanded {
+        padding-left: 80px; /* Ajustement quand la sidebar est réduite */
+    }
+</style>
+
+<script>
+    // Réduction de la sidebar au clic
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        var sidebar = document.getElementById('accordionSidebar');
+        var body = document.body;
+
+        sidebar.classList.toggle('sidebar-reduced');
+        body.classList.toggle('body-expanded');
+    });
+</script>

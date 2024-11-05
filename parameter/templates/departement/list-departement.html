@@ -1,0 +1,52 @@
+{% extends "models/list.html" %}
+{% load icon %}
+{% load humanize %}
+{% load static %}
+
+
+{% block table-headers %}
+<th>Code</th>
+<th>UFR</th>
+<th>Libellé</th>
+{% endblock table-headers %}
+
+
+{% block table-rows %}
+<td>{{ object.code }}</td>
+<td>{{ object.ufr }}</td>
+<td>{{ object.label }}</td>
+{% endblock table-rows %}
+
+
+
+{% block other-options %}
+{% endblock other-options %}
+
+
+
+{% block javascript %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Fonction pour la recherche dans le tableau
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let searchValue = this.value.toLowerCase();
+        let rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            let code = row.cells[1].textContent.toLowerCase();
+            let ufr = row.cells[2].textContent.toLowerCase();
+            let label = row.cells[3].textContent.toLowerCase();
+
+            if (code.includes(searchValue) || ufr.includes(searchValue) || label.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+
+{% endblock javascript %}
