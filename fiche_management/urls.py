@@ -11,12 +11,22 @@ urlpatterns = [
         view=views.SheetListView.as_view(),
         name="sheet-list",
         ),
-     path(
+    path(
         "management/create/",
         view=views.SheetCreateView.as_view(),
         name="sheet-create",
         ),
-     path(
+    path(
+        "management/permanents/<str:type>/create/",
+        view=views.SheetPermananteCreateByAgentView.as_view(),
+        name="sheet-permanent-create",
+        ),
+    path(
+        "management/vacataires/<str:type>/create/",
+        view=views.SheetVacataireCreateByAgentView.as_view(),
+        name="sheet-vacataire-create",
+        ),
+    path(
         "management/<uuid:pk>/detail/",
         view=views.SheetDetailView.as_view(),
         name="sheet-detail",

@@ -5,13 +5,14 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Détails du module {{ object.label }}</h1>
+    <h1 class="h3 mb-2 text-gray-800">Détails du module {{ object.label }}</h1>
 
-    <div class="card shadow mb-4">
+    <div class="card shadow mb-6">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Informations sur le module</h6>
         </div>
         <div class="card-body">
+            <!-- Diviser en deux colonnes -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <strong>Code:</strong>
@@ -23,69 +24,58 @@
                 </div>
             </div>
 
+            <!-- Partie 1 : Informations sur le module (colonne de gauche) -->
             <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>UFR</strong>
+                <div class="col-md-6">
+                    <strong>UFR:</strong>
                     <p>{{ object.ufr }}</p>
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>Departement:</strong>
+                <div class="col-md-6">
+                    <strong>Département:</strong>
                     <p>{{ object.departement }}</p>
                 </div>
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>Filière:</strong>
                     <p>{{ object.filiere }}</p>
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>Niveau:</strong>
                     <p>{{ object.niveau }}</p>
                 </div>
             </div>
 
+            <!-- Partie 2 : Informations sur le module (colonne de droite) -->
             <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>Semestre:</strong>
                     <p>{{ object.semestre }}</p>
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>UE:</strong>
                     <p>{{ object.ue }}</p>
                 </div>
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>Volume horaire:</strong>
                     <p>{{ object.volume_horaire }}</p>
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <strong>Crédit:</strong>
                     <p>{{ object.credit }}</p>
                 </div>
             </div>
 
+            <!-- Actions : Modifier ou Supprimer le module -->
             <div class="row">
                 <div class="col-md-12 text-right">
-
                     <a href="{% url 'parameter:module-update' object.pk %}" class="btn btn-warning">
                         <i class="fas fa-edit"></i> Modifier
                     </a>
-
                     <a href="{% url 'parameter:module-delete' object.pk %}" class="btn btn-danger" 
                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet module ?');">
                         <i class="fas fa-trash"></i> Supprimer

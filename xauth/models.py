@@ -11,11 +11,10 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 
-
 # Create your models here.
 
-
 class User(AbstractUser, CommonAbstractModel):
+
     USERNAME_FIELD = "matricule"
     GENDER_CHOICES = [
         ('F', 'Femme'),
@@ -23,7 +22,7 @@ class User(AbstractUser, CommonAbstractModel):
     ]
     USER_TYPES = Choices(
         ('teacher', 'Enseignant'),
-        ('agent_administratif', 'Agent administratif'),
+        ('agent_administratif', 'Personnel administratif'),
     )
     MATRIAL_STATUS = Choices(
         ('bachelor', 'Célibataire'),
@@ -44,10 +43,14 @@ class User(AbstractUser, CommonAbstractModel):
     )
     first_name = models.CharField(_("first name"), max_length=MEDIUM_LENGTH)
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
+    diplome = models.CharField(_("diplome"),null=True, max_length=MEDIUM_LENGTH)
+    structure_origine = models.CharField(_("Struture d'origine"), max_length=MEDIUM_LENGTH)
+    grade = models.CharField(_("grade"), max_length=MEDIUM_LENGTH)
+    last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     email = models.EmailField(_("email address"), unique=True)
     birthdate = models.DateField("Date de naissance")
     birthplace = models.CharField("Lieu de naissance", max_length=MIN_LENGTH)
-    matricule = models.CharField(max_length=MIN_LENGTH, unique=True)
+    matricule = models.CharField(max_length=MIN_LENGTH, null=True, unique=True)
     address = models.CharField("Adresse", max_length=MIN_LENGTH, null=True, blank=True)
     photo = models.ImageField(
         "Photo d'identité",
@@ -90,6 +93,9 @@ class User(AbstractUser, CommonAbstractModel):
     )
     grade = models.CharField("Grade", max_length=MEDIUM_LENGTH, null=True, blank=True)
     diplome = models.CharField("Diplôme", max_length=MEDIUM_LENGTH, null=True, blank=True)
+    ufr = models.ForeignKey('parameter.UniteDeRecherche', on_delete=models.CASCADE,null=True, related_name="user_urf")
+    departement = models.ForeignKey('parameter.Departement', on_delete=models.CASCADE,null=True, related_name="user_department")
+    filiere = models.ForeignKey('parameter.Filiere', on_delete=models.CASCADE,null=True, related_name="user_filiere")
 
     def save(self, *args, **kwargs):
 

@@ -10,10 +10,23 @@
     <div class="card">
         <div class="card-body">
             <h5 class="d-flex justify-content-between align-items-center">Informations sur la fiche</h5>
-            <p><strong>Enseignant :</strong> {{ object.enseignant }}</p>
-            <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
-            <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
-
+            <div class="row">
+                <div class="col-6">
+                    <p><strong>Enseignant :</strong> {{ object.enseignant }}</p>
+                    <p><strong>Etablissement d'enseignement :</strong> {{ object.etablissement_enseigne }}</p>
+                    <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
+                    <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
+                </div>
+                <div class="col-6">
+                    {% if object.is_permanent %}
+                    <p><strong>Volume horaire statuaire :</strong> {{ object.volume_horaire_statuaire }}</p>
+                    <p><strong>Abattement :</strong> {{ object.abattement }}</p>
+                    <p><strong>Motif de l'abattement :</strong> {{ object.motif_abattement }}</p>
+                    <p><strong>Volume horaire après abattement :</strong> {{ object.v_h_obli_apres_abattement }}</p>
+                    {% endif %}
+                </div>
+            </div>
+    
             <!-- Affichage du statut de la fiche avec des codes couleurs -->
             <p>
                 <strong>Statut :</strong>
@@ -26,67 +39,63 @@
                 {% endif %}
             </p>
 
-            <!-- Affichage du motif de rejet si la fiche est rejetée -->
             {% if object.is_validated == 0 %}
                 <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
             {% endif %}
 
-
             {% if object.is_validated == Null %}
             <div>
-                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                {% if validate %}
+                    <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                {% endif %}
+                {% if invalidate %}
                 <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                {% endif %}
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Détails des enseignements associés sous forme de tableau -->
+    <!-- Détails des enseignements associés sous forme de deux colonnes -->
     <div class="mt-4">
         <h3>Enseignements associés</h3>
-        
+
         {% if object.enseignement_sheet.all %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Filière</th>
-                    <th>Niveau</th>
-                    <th>Semestre</th>
-                    <th>Module</th>
-                    <th>CT Volume Horaire Confié</th>
-                    <th>TD Volume Horaire Confié</th>
-                    <th>TP Volume Horaire Confié</th>
-                    <th>CT Volume Horaire Effectué</th>
-                    <th>TD Volume Horaire Effectué</th>
-                    <th>TP Volume Horaire Effectué</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for enseignement in object.enseignement_sheet.all %}
-                <tr>
-                    <td>{{ enseignement.code }}</td>
-                    <td>{{ enseignement.filiere }}</td>
-                    <td>{{ enseignement.niveau }}</td>
-                    <td>{{ enseignement.semestre }}</td>
-                    <td>{{ enseignement.module }}</td>
-                    <td>{{ enseignement.ct_volume_horaire_confie }}</td>
-                    <td>{{ enseignement.td_volume_horaire_confie }}</td>
-                    <td>{{ enseignement.tp_volume_horaire_confie }}</td>
-                    <td>{{ enseignement.ct_volume_horaire_efectue }}</td>
-                    <td>{{ enseignement.td_volume_horaire_efectue }}</td>
-                    <td>{{ enseignement.tp_volume_horaire_efectue }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Partie 1</h4>
+                <ul class="list-group">
+                    {% for enseignement in object.enseignement_sheet.all %}
+                    <li class="list-group-item">
+                        <strong>Code :</strong> {{ enseignement.code }}<br>
+                        <strong>Filière :</strong> {{ enseignement.filiere }}<br>
+                        <strong>Niveau :</strong> {{ enseignement.niveau }}<br>
+                        <strong>Semestre :</strong> {{ enseignement.semestre }}<br>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h4>Partie 2</h4>
+                <ul class="list-group">
+                    {% for enseignement in object.enseignement_sheet.all %}
+                    <li class="list-group-item">
+                        <strong>Module :</strong> {{ enseignement.module }}<br>
+                        <strong>CT Volume Horaire Confié :</strong> {{ enseignement.ct_volume_horaire_confie }}<br>
+                        <strong>TD Volume Horaire Confié :</strong> {{ enseignement.td_volume_horaire_confie }}<br>
+                        <strong>TP Volume Horaire Confié :</strong> {{ enseignement.tp_volume_horaire_confie }}<br>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
         {% else %}
         <p>Aucun enseignement associé trouvé.</p>
         {% endif %}
     </div>
 </div>
 
-<!-- Modale de confirmation pour la validation -->
+<!-- Modal de confirmation pour la validation -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -100,14 +109,14 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <a href="{% url 'fiche_management:valider_fiche' object.id %}">
-                
                     <button type="button" class="btn btn-success">Confirmer</button>
                 </a>
             </div>
         </div>
     </div>
 </div>
-<!-- Modale de confirmation pour le rejet -->
+
+<!-- Modal de confirmation pour le rejet -->
 <div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -150,6 +159,6 @@
         const modalInstance = bootstrap.Modal.getInstance(confirmationModal);
         modalInstance.hide();
     }
-
 </script>
+
 {% endblock %}

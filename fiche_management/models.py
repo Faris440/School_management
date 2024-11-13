@@ -9,19 +9,28 @@ Medium_length = 50
 Min_length = 25
 # Create your models here.
 class Sheet(CommonAbstractModel):
-    
     enseignant = models.ForeignKey("xauth.User", on_delete=models.CASCADE, related_name="sheet_enseignant")
+    etablissement_enseigne = models.CharField(max_length= BIG_LENGTH, verbose_name="Etablissement enseigné",null=True) 
+    volume_horaire_statuaire = models.IntegerField(null=True, verbose_name='Volume horaire statuaire')
+    abattement = models.IntegerField(null=True, verbose_name='veuillez saisir l\'abattement')
+    motif_abattement = models.CharField(max_length= BIG_LENGTH, verbose_name="Motif de l'abattement",null=True) 
+    v_h_obli_apres_abattement = models.IntegerField(null=True, verbose_name='Volume horaire après abattement')
     date_debut = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de début du cours")
     date_fin = models.DateField(auto_now=False, auto_now_add=False,null=False, verbose_name="Date de fin du cours")
     is_validated = models.BooleanField(null=True, verbose_name="Validé")
-    motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True) 
-    # 
-    # 
+    motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True)
+    is_permanent = models.BooleanField(null=True, verbose_name="type_fiche_permanent")
+
     class Meta:
         ordering = ["-created"]
         verbose_name = "Fiche"
         verbose_name_plural = "Fiches"
-        permissions = [("list_fiche", f"Peut lister {verbose_name}")]
+        permissions = [("list_fiche", f"Peut lister {verbose_name}"),
+                       ("can_valide_sheet", f"Peut valider {verbose_name}"),
+                       ("can_invalide_sheet", f"Peut invalider {verbose_name}"),
+                       ("can_add_multiple_sheet", f"Peut soumettre un formulaire pour enseignant {verbose_name}"),
+                       
+                       ]
         
     def __str__(self):
         return self.enseignant
@@ -33,6 +42,7 @@ class Enseignements(CommonAbstractModel):
     niveau = models.ForeignKey("parameter.Niveau",on_delete=models.CASCADE,related_name="sheet_niveau", verbose_name="Niveau de la filière")
     semestre = models.ForeignKey("parameter.Semestre",on_delete=models.CASCADE,related_name="sheet_semestre", verbose_name="Semestre du cours")
     module = models.ForeignKey("parameter.Module",on_delete=models.CASCADE,related_name="sheet_module", verbose_name="Module enseigné")
+
     ct_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, CT')
     td_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, TD')
     tp_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, TP')

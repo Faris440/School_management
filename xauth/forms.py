@@ -100,10 +100,12 @@ class UserCreateForm( ModelForm):
         self.fields['last_name'].required = True
         self.fields['birthplace'].required = True
         self.fields['email'].required = True
-        self.fields['matricule'].required = True
         self.fields['address'].required = True
         self.fields['phone'].required = True
-        
+        self.fields['ufr'].required = False        
+        self.fields['departement'].required = False        
+        self.fields['filiere'].required = False        
+        self.fields['matricule'].required = False        
     
 
        
@@ -133,6 +135,12 @@ class UserCreateForm( ModelForm):
             "birthplace",
             "email",
             "matricule",
+            "grade",
+            "diplome",
+            "ufr",
+            "departement",
+            "filiere",
+            "structure_origine",
             "address",
             "phone",
         ]
@@ -155,6 +163,7 @@ class UserCreateForm( ModelForm):
             "birthdate" : DatePicker(attrs={
                         'max': (now()).isoformat(),
                     }),
+            
 }
        
         labels = {
@@ -162,9 +171,6 @@ class UserCreateForm( ModelForm):
             "address": "Adresse",
             'matricule': "Matricule",
         }
-
-
-
 
 class UserChangeForm( ModelForm):
     default_renderer = FormRenderer(
