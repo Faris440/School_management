@@ -74,9 +74,9 @@ class UfrDetailView(cviews.CustomDetailView):
 
 class UfrDeleteView(cviews.CustomDeleteView):
     model = UniteDeRecherche
-    name = "ufr"
+    name = "uniteDeRecherche"
     template_name = "ufr/delete-ufr.html"
-    success_url = reverse_lazy("parameter:ufr-list")
+    success_url = reverse_lazy("parameter:uniteDeRecherche-delete")
 
 
 ##Departement views

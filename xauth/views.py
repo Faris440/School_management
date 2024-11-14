@@ -22,6 +22,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.conf import settings
 from datetime import datetime
+from School_management import views as cviews
 
 
 
@@ -185,7 +186,7 @@ class RemoveAssignView(View):
 #     permission_required("xauth.list_user", raise_exception=True),
 #     name="dispatch",
 # )
-class UserListView(ListView):
+class UserListView(cviews.CustomListView):
     model = models.User
     template_name = "private/list-user.html"
     context_object_name = "users"
@@ -346,9 +347,6 @@ class UserDetailView(cviews.CustomDetailView):
 
     def get_template_names(self):
         template_name = "private/user-profile.html"
-
-        if self.request.user.is_staff:
-            template_name = "private/user-profile-admin-view.html"
 
         return [template_name]
 

@@ -222,3 +222,36 @@ class FinalSelfFormCollection(FormMixin ,FormCollection):
     default_renderer = FormRenderer(field_css_classes='mb-3')
     sheet = SheetSelfForm()
     enseignement = LogCollection()
+
+
+
+
+class SheetFormu(FormMixin, forms.ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-4 input100s",
+        },
+    )
+    class Meta:
+        model = Sheet
+        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin']
+        widgets = {
+            'date_fin' : DatePicker(attrs={
+                        'max': (now()).isoformat(),
+                    }),
+            'date_debut': DatePicker(attrs={
+                        'max': (now()).isoformat(),
+                    }),
+            'enseignant' : Selectize()
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['etablissement_enseigne'].required = True
+        self.fields['etablissement_enseigne'].required = True
+        for field_name, field in self.fields.items():
+            if field.required:
+                field.label = mark_safe(
+                    f"{field.label} <span style='color: red;'>*</span>"
+                )

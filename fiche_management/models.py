@@ -49,7 +49,10 @@ class Enseignements(CommonAbstractModel):
     ct_volume_horaire_efectue = models.IntegerField(null=False, verbose_name='Volume horaire éffectué, CT')
     td_volume_horaire_efectue = models.IntegerField(null=False, verbose_name='Volume horaire éffectué, TD')
     tp_volume_horaire_efectue = models.IntegerField(null=False, verbose_name='Volume horaire éffectué, TP')
+    is_validated = models.BooleanField(null=True, verbose_name="Validé")
+    motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True)
     
+
     class Meta:
         ordering = ["-created"]
         verbose_name = "Enseignement"
@@ -57,5 +60,5 @@ class Enseignements(CommonAbstractModel):
         permissions = [("list_enseignement", f"Peut lister {verbose_name}")]
         
     def __str__(self):
-        return self.module
+        return self.module.label
     

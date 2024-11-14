@@ -1,17 +1,29 @@
 from django.shortcuts import render
-from .forms import FinalAgentPermanentFormCollection, FinalAgentVacataireFormCollection ,SheetSelfForm,FinalPermanentFormCollection,FinalVacataireFormCollection,SheetSelfForm
+from .forms import FinalAgentPermanentFormCollection, EnseignementsForm, FinalAgentVacataireFormCollection ,SheetSelfForm,FinalPermanentFormCollection,FinalVacataireFormCollection,SheetSelfForm,SheetFormu 
 from .models import Sheet, Enseignements
 from School_management import views as cviews
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-
+from django.views.generic import TemplateView, View
 # Create your views here.
+
 class SheetCreateView(cviews.CustomFormCollectionView):
     model = Sheet
     name = "sheet"
     
+    # Redirige vers la page de prévisualisation
+    def form_collection_valid(self, form_collection):
+        # Sérialiser les données pour le contexte
+        context = {
+            'sheet_data': form_collection.cleaned_data['sheet'],
+            'enseignement_data': form_collection.cleaned_data.get('enseignement', []),
+        }
+        # Stocke les données dans la session pour utilisation dans la vue de prévisualisation
+        self.request.session['sheet_preview_data'] = context
+        return redirect('fiche_management:sheet-preview')
+
     def get_collection_class(self):
         user = self.request.user
         type = self.request.GET.get('for')
@@ -241,7 +253,7 @@ class SheetDetailView(cviews.CustomDetailView):
 
 class SheetUpdateView(cviews.CustomUpdateView):
     model = Sheet
-    form_class = SheetSelfForm  # Spécifiez les champs que vous voulez afficher dans le formulaire
+    form_class = SheetFormu  # Spécifiez les champs que vous voulez afficher dans le formulaire
 
     def get_success_url(self):
         return reverse('fiche_management:sheet-list')  # Redirige vers la liste après la mise à jour
@@ -249,11 +261,6 @@ class SheetUpdateView(cviews.CustomUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-    
-    def form_valid(self, form):
-        form.instance.motif_de_rejet = None
-        form.instance.is_validated = None
-        return super().form_valid(form)
     
 
 
@@ -267,19 +274,37 @@ class SheetDeleteView(cviews.CustomDeleteView):
         return context
     
 def valider_fiche(request, pk):
-    # Récupère la fiche avec l'ID fourni ou retourne 404 si elle n'existe pas
     fiche = get_object_or_404(Sheet, id=pk)
 
     # Vérifie si la fiche est déjà validée
     if fiche.is_validated:
         messages.warning(request, "Cette fiche a déjà été validée.")
     else:
-        # Met à jour le statut de validation
+
         fiche.is_validated = True
+        enseignements = Enseignements.objects.filter( sheet = fiche )
+
+        for elem in enseignements :
+            elem.is_validated = True
+            elem.save()
+        
         fiche.save()
         messages.success(request, "La fiche a été validée avec succès !")
 
     return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+
+def valider_enseignement(request, pk):
+    enseignement = get_object_or_404(Enseignements, id=pk)
+
+    if enseignement.is_validated:
+        messages.warning(request, "Cette fiche a déjà été validée.")
+    else:
+        # Met à jour le statut de validation
+        enseignement.is_validated = True
+        enseignement.save()
+        messages.success(request, "La fiche a été validée avec succès !")
+
+    return redirect( 'fiche_management:sheet-detail', pk=enseignement.sheet.id)
 
 
 def rejeter_fiche(request, pk):
@@ -299,6 +324,70 @@ def rejeter_fiche(request, pk):
     
     return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
 
+
+class SheetPreviewView(TemplateView):
+    template_name = "sheet_preview.html"
+
+    def post(self, request, *args, **kwargs):
+        # Récupère les données soumises par le formulaire
+        form_data = request.POST.dict()
+        form_collection = FinalAgentPermanentFormCollection(form_data)
+
+        # Vérifie la validité des données du formulaire
+        if form_collection.is_valid():
+            context = {
+                'sheet_data': form_collection.cleaned_data['sheet'],
+                'enseignement_data': form_collection.cleaned_data.get('enseignement', []),
+            }
+            return render(request, self.template_name, context)
+        else:
+            return render(request, "form_template.html", {"form_collection": form_collection})
+
+
+
+class SheetConfirmView(View):
+    def post(self, request, *args, **kwargs):
+        # Récupère les données de prévisualisation de la session
+        sheet_preview_data = request.session.get('sheet_preview_data')
+        
+        if sheet_preview_data:
+            sheet_data = sheet_preview_data['sheet_data']
+            enseignement_data = sheet_preview_data['enseignement_data']
+            
+            # Créer la fiche
+            sheet = Sheet.objects.create(
+                enseignant=request.user,
+                date_debut=sheet_data['date_debut'],
+                date_fin=sheet_data['date_fin'],
+                etablissement_enseigne=sheet_data['etablissement_enseigne'],
+                is_permanent=sheet_data.get('is_permanent', False)
+            )
+            
+            # Créer les enseignements associés
+            for enseignement in enseignement_data:
+                Enseignements.objects.create(
+                    sheet=sheet,
+                    code=enseignement['code'],
+                    filiere=enseignement['filiere'],
+                    niveau=enseignement['niveau'],
+                    semestre=enseignement['semestre'],
+                    module=enseignement['module'],
+                    ct_volume_horaire_confie=enseignement['ct_volume_horaire_confie'],
+                    td_volume_horaire_confie=enseignement['td_volume_horaire_confie'],
+                    tp_volume_horaire_confie=enseignement['tp_volume_horaire_confie'],
+                    ct_volume_horaire_efectue=enseignement['ct_volume_horaire_efectue'],
+                    td_volume_horaire_efectue=enseignement['td_volume_horaire_efectue'],
+                    tp_volume_horaire_efectue=enseignement['tp_volume_horaire_efectue']
+                )
+            
+            messages.success(request, "Fiche créée avec succès!")
+            # Supprime les données de la session pour éviter la duplication
+            del request.session['sheet_preview_data']
+            
+            return redirect('fiche_management:sheet-list')
+        else:
+            messages.error(request, "Erreur: données de prévisualisation manquantes.")
+            return redirect('fiche_management:sheet-create')
 
 # class SheetUpdateView(cviews.CustomUpdateView):
 #     model = Sheet
@@ -330,3 +419,15 @@ def rejeter_fiche(request, pk):
 #         context = super().get_context_data(**kwargs)
 #         return context
     
+
+class EnseignemtUpdateView(cviews.CustomUpdateView):
+    model = Enseignements
+    form_class = EnseignementsForm
+
+    def get_success_url(self):
+        ob = self.get_object()
+        return reverse('fiche_management:sheet-detail', kwargs={'pk' : ob.sheet.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

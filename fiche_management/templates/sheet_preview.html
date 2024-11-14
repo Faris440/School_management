@@ -1,0 +1,30 @@
+<!-- sheet_preview.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Prévisualisation de la Fiche</h2>
+
+<!-- Affichage des données de la fiche -->
+<h3>Détails de la Fiche</h3>
+<ul>
+    <li>Date de début : {{ sheet_data.date_debut }}</li>
+    <li>Date de fin : {{ sheet_data.date_fin }}</li>
+    <li>Établissement : {{ sheet_data.etablissement_enseigne }}</li>
+    <!-- Ajoutez d'autres champs ici -->
+</ul>
+
+<h3>Enseignements</h3>
+<ul>
+{% for enseignement in enseignement_data %}
+    <li>Module : {{ enseignement.module }}, Niveau : {{ enseignement.niveau }}</li>
+    <!-- Ajoutez d'autres détails ici -->
+{% endfor %}
+</ul>
+
+<!-- Boutons de confirmation et de retour -->
+<form method="post" action="{% url 'fiche_management:sheet-confirm' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Confirmer</button>
+    <a href="{% url 'fiche_management:sheet-create' %}" class="btn btn-secondary">Modifier</a>
+</form>
+{% endblock %}

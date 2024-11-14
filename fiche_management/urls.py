@@ -41,12 +41,19 @@ urlpatterns = [
         view=views.SheetDeleteView.as_view(),
         name="sheet-delete",
     ),
-    path('management/<uuid:pk>/valider/',
+    path('management/sheet/<uuid:pk>/valider/',
          views.valider_fiche, 
          name='valider_fiche'),
+    path('management/enseignement/<uuid:pk>/valider/',
+        views.valider_enseignement, 
+        name='valider_enseignement'),
     
     path('management/<uuid:pk>/rejeter/', 
          views.rejeter_fiche, 
          name='rejeter_fiche'),
-
+    path(
+        "management/enseignement/<uuid:pk>/update/",
+        view=views.EnseignemtUpdateView.as_view(),
+        name="enseignement-update",
+    ),
 ]

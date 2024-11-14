@@ -62,32 +62,125 @@
 
         {% if object.enseignement_sheet.all %}
         <div class="row">
-            <div class="col-md-6">
-                <h4>Partie 1</h4>
-                <ul class="list-group">
-                    {% for enseignement in object.enseignement_sheet.all %}
-                    <li class="list-group-item">
-                        <strong>Code :</strong> {{ enseignement.code }}<br>
-                        <strong>Filière :</strong> {{ enseignement.filiere }}<br>
-                        <strong>Niveau :</strong> {{ enseignement.niveau }}<br>
-                        <strong>Semestre :</strong> {{ enseignement.semestre }}<br>
-                    </li>
-                    {% endfor %}
-                </ul>
+            {% if object.enseignement_sheet.all %}
+            <div class="row">
+                {% for enseignement in object.enseignement_sheet.all %}
+                    <div class="col-12">
+                        <div class="accordion accordion-flush" id="accordionFlushExample{{ enseignement.id }}">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="flush-heading{{ enseignement.id }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ enseignement.id }}" aria-expanded="false" aria-controls="flush-collapse{{ enseignement.id }}">
+                                        {{ enseignement.module }}
+                                    </button>
+                                </h2>
+                                <div id="flush-collapse{{ enseignement.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ enseignement.id }}" data-bs-parent="#accordionFlushExample{{ enseignement.id }}">
+                                    <div class="accordion-body row">
+                                        <div class="col-md-6">
+                                            <h4>Partie 1</h4>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <strong>Code :</strong> {{ enseignement.code }}<br>
+                                                    <strong>Filière :</strong> {{ enseignement.filiere }}<br>
+                                                    <strong>Niveau :</strong> {{ enseignement.niveau }}<br>
+                                                    <strong>Semestre :</strong> {{ enseignement.semestre }}<br>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>Partie 2</h4>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <strong>Module :</strong> {{ enseignement.module }}<br>
+                                                    <strong>CT Volume Horaire Confié :</strong> {{ enseignement.ct_volume_horaire_confie }}<br>
+                                                    <strong>TD Volume Horaire Confié :</strong> {{ enseignement.td_volume_horaire_confie }}<br>
+                                                    <strong>TP Volume Horaire Confié :</strong> {{ enseignement.tp_volume_horaire_confie }}<br>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <p><strong>Statut :</strong>
+                                                {% if enseignement.is_validated is None %}
+                                                    <span class="text-warning">En cours de traitement</span>
+                                                {% elif enseignement.is_validated == 0 %}
+                                                    <span class="text-danger">Fiche rejetée</span>
+                                                {% elif enseignement.is_validated == 1 %}
+                                                    <span class="text-success">Fiche validée</span>
+                                                {% endif %}
+                                            </p>
+                                            <a href="{% url 'fiche_management:enseignement-update' enseignement.id %}" class="btn btn-success">Modifier</a>
+        
+                                            {% if enseignement.is_validated == 0 %}
+                                                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
+                                            {% endif %}
+        
+                                            {% if enseignement.is_validated is None %}
+                                                <div>
+                                                    {% if validate %}
+                                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
+                                                    {% endif %}
+                                                    {% if invalidate %}
+                                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
+                                                    {% endif %}
+
+                                                </div>
+                                            {% endif %}
+        
+                                            <!-- Validation Modal -->
+                                            <div class="modal fade" id="confirmationModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="confirmationModalLabel{{ enseignement.id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="confirmationModalLabel{{ enseignement.id }}">Confirmer la validation</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Êtes-vous sûr de vouloir valider cette fiche ?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <a href="{% url 'fiche_management:valider_enseignement' enseignement.id %}" class="btn btn-success">Confirmer</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+        
+                                            <!-- Rejection Modal -->
+                                            <div class="modal fade" id="rejectionModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="rejectionModalLabel{{ enseignement.id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="rejectionModalLabel{{ enseignement.id }}">Confirmer le rejet</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Êtes-vous sûr de vouloir rejeter cette fiche ?
+                                                            <form id="rejetForm-{{ enseignement.id }}" method="post" action="{% url 'fiche_management:rejeter_fiche' enseignement.id %}">
+                                                                {% csrf_token %}
+                                                                <div class="mb-3">
+                                                                    <label for="motif_rejet" class="form-label">Motif du rejet</label>
+                                                                    <textarea class="form-control" id="motif_rejet" name="motif_rejet" rows="4" required></textarea>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button type="button" class="btn btn-danger" onclick="document.getElementById('rejetForm-{{ enseignement.id }}').submit();">Confirmer</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            <div class="col-md-6">
-                <h4>Partie 2</h4>
-                <ul class="list-group">
-                    {% for enseignement in object.enseignement_sheet.all %}
-                    <li class="list-group-item">
-                        <strong>Module :</strong> {{ enseignement.module }}<br>
-                        <strong>CT Volume Horaire Confié :</strong> {{ enseignement.ct_volume_horaire_confie }}<br>
-                        <strong>TD Volume Horaire Confié :</strong> {{ enseignement.td_volume_horaire_confie }}<br>
-                        <strong>TP Volume Horaire Confié :</strong> {{ enseignement.tp_volume_horaire_confie }}<br>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        {% endif %}
+        
+
+           
         </div>
         {% else %}
         <p>Aucun enseignement associé trouvé.</p>
