@@ -4,6 +4,13 @@
 {% load static %}
 
 
+
+{% block breadcrumb %}
+    <a href="{% url 'index-view' %}">Accueil</a> &gt;
+    <a href="#">Liste des départements</a> 
+    {{ departement.name }}
+{% endblock %}
+
 {% block table-headers %}
 <th>Code</th>
 <th>UFR</th>

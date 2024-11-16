@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
+{% load icon %}
+{% load humanize %}
+{% load static %}
+
+{% block breadcrumb %}
+    <a href="{% url 'index-view' %}">Accueil</a> &gt;
+    <a href="#">Liste des départements</a> 
+    <a href="#">Creation de département</a> 
+    {{ departement.name }}
+{% endblock %}
 
 {% block content %}
+
+
 <div class="mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">

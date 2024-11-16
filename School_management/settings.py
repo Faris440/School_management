@@ -41,7 +41,6 @@ LOGOUT_REDIRECT_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
-# ALLOWED_HOSTS = ['172.20.223.239']
 
 PUBLIC_NAMED_URLS = (
     "user-login",
@@ -71,8 +70,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    # Third part app
-    # "easyaudit",
     "channels",
     "formset",
     "django_feather",
@@ -80,8 +77,6 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_filters",
     "fontawesomefree",
-    # "chartjs",
-    # Own app
     "xauth.apps.XauthConfig",
     "parameter.apps.ParameterConfig",
     "ie_app.apps.IeAppConfig",
@@ -102,15 +97,7 @@ MIDDLEWARE = [
 ]
 
 if ONLINE:
-    # MIDDLEWARE.insert(
-    #     0, "django.middleware.cache.UpdateCacheMiddleware"
-    # )  # For cache system
-    # MIDDLEWARE.extend(
-    #     [
-    #         # "easyaudit.middleware.easyaudit.EasyAuditMiddleware",  # add for Django Easy Audit
-    #         "django.middleware.cache.FetchFromCacheMiddleware",  # For cache system
-    #     ]
-    # )
+
     pass
 
 ROOT_URLCONF = "School_management.urls"
@@ -140,8 +127,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "School_management.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
 
 USE_ONLINE_DB = env.bool("USE_ONLINE_DB")
 USE_DB_POOL = env.bool("USE_DB_POOL")
@@ -216,6 +202,7 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "School_management/static",
+    ('node_modules', BASE_DIR / 'node_modules'),
 ]
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 MEDIA_URL = "/media/"

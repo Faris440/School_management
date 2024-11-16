@@ -6,7 +6,9 @@
     <meta data-fr-http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Signin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <!-- Inclure Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <style>
       html {
@@ -15,7 +17,7 @@
 
       body {
         font-family: "Poppins", sans-serif;
-        background-image: url("{% static 'img/eno.jpg' %}"); /* Assurez-vous que le chemin est correct */
+        background-image: url("{% static 'img/eno.jpg' %}"); 
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -43,7 +45,6 @@
         color: #cccccc;
       }
 
-      /* STRUCTURE */
       .wrapper {
         display: flex;
         align-items: center;
@@ -56,7 +57,7 @@
 
       #formContent {
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.9); /* Ajout d'un fond semi-transparent */
+        background: rgba(255, 255, 255, 0.9);
         padding: 30px;
         width: 90%;
         max-width: 450px;
@@ -74,7 +75,6 @@
         border-radius: 0 0 10px 10px;
       }
 
-      /* FORM TYPOGRAPHY */
       input[type=button], input[type=submit], input[type=reset] {
         background-color: #56baed;
         border: none;
@@ -85,7 +85,6 @@
         display: inline-block;
         text-transform: uppercase;
         font-size: 13px;
-        
         border-radius: 5px;
         margin: 5px 20px 40px 20px;
         transition: all 0.5s ease-in-out;
@@ -102,52 +101,49 @@
       .input-container {
         position: relative;
         margin: 30px ;
-        width: 85%; /* Assurez-vous que le conteneur a la même largeur que le champ de texte */
+        width: 85%;
       }
 
-      input[type=text] {
-        background-color: transparent; /* Changer le fond en transparent */
-        border: none; /* Enlever la bordure */
+      input[type=text], input[type=password] {
+        background-color: transparent;
+        border: none;
         color: #0d0d0d;
-        padding: 15px 0; /* Ajustez le remplissage supérieur et inférieur */
-        text-align: left; /* Alignement à gauche */
+        padding: 15px 0;
+        text-align: left;
         display: inline-block;
         font-size: 16px;
-        width: 100%; /* Utilisez 100% pour remplir le conteneur */
-        border-bottom: 2px solid #56baed; /* Ligne sous le champ */
+        width: 100%;
+        border-bottom: 2px solid #56baed;
         transition: all 0.5s ease-in-out;
       }
 
-      input[type=text]:focus {
-        background-color: #fff; /* Changer le fond au focus */
-        border-bottom: 2px solid #39ace7; /* Changer la couleur de la ligne au focus */
-        outline: none; /* Enlever le contour par défaut */
+      input[type=text]:focus, input[type=password]:focus {
+        background-color: #fff;
+        border-bottom: 2px solid #39ace7;
+        outline: none;
       }
 
       .input-label {
         position: absolute;
-        left: 35px; /* Ajustez la position à gauche */
-        top: 25px; /* Ajustez la position vers le haut pour éviter le chevauchement */
+        left: 35px;
+        top: 25px;
         font-size: 17px;
         color: #aaaaaa;
         transition: 0.4s;
       }
 
       input[type=text]:focus + .input-label,
-      input[type=text]:valid + .input-label {
-        top: auto; /* Déplacez l'étiquette plus haut lorsqu'elle est au focus */
+      input[type=text]:valid + .input-label,
+      input[type=password]:focus + .input-label,
+      input[type=password]:valid + .input-label {
+        top: auto;
         font-size: 12px;
-        color: #39ace7; /* Couleur de l'étiquette au focus */
+        color: #39ace7;
       }
 
-      input[type=text]:placeholder {
-        color: #cccccc;
-      }
-
-      /* OTHERS */
       *:focus {
         outline: none;
-      } 
+      }
 
       #icon {
         width: 60%;
@@ -163,15 +159,20 @@
         </div>
 
         <!-- Login Form -->
-        <form method="post" action="{% url 'user-login' %}" role="form" >
+        <form method="post" action="{% url 'user-login' %}" role="form">
           {% csrf_token %}
           <div class="input-container">
             <input type="text" id="username" class="fadeIn second" name="username" placeholder=" " required>
             <label for="username" class="input-label">Nom d'utilisateur</label>
           </div>
           <div class="input-container">
-            <input type="text" id="password" class="fadeIn third" name="password" placeholder=" " required>
+            <input type="password" id="password" class="fadeIn third" name="password" placeholder=" " required>
             <label for="password" class="input-label">Mot de passe</label>
+
+            <!-- Bouton pour afficher/masquer le mot de passe -->
+            <button type="button" id="toggle-password" class="btn btn-link" style="position: absolute; top: 15px; right: 0; background: none; border: none;">
+              <i id="eye-icon" class="fas fa-eye"></i> <!-- Icône Font Awesome -->
+            </button>
           </div>
           <input type="submit" class="fadeIn fourth" value="Log In">
         </form>
@@ -185,5 +186,24 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Toggle pour afficher/masquer le mot de passe
+      document.getElementById('toggle-password').addEventListener('click', function() {
+        var passwordField = document.getElementById('password');
+        var icon = document.getElementById('eye-icon');
+        
+        // Si le type est password, on le change en text et inversement
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordField.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    </script>
   </body>
 </html>

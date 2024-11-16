@@ -1,8 +1,14 @@
 {% extends "base.html" %}
-
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+    <li><a href="#">Détail </a></li>
+    <li class="active">{{ sheet.name }}</li>
+</ul>
+{% endblock %}
 {% block content %}
 <div class="container">
-    <h2 class="d-flex justify-content-between align-items-center">
+    <h2 class="d-flex justify-content-between align-items-center" style="padding-top: 20px;">
         Détails de la fiche
     </h2>
     
@@ -16,6 +22,7 @@
                     <p><strong>Etablissement d'enseignement :</strong> {{ object.etablissement_enseigne }}</p>
                     <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
                     <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
+                    <p><strong>Filière :</strong> {{ object.filiere }}</p>
                 </div>
                 <div class="col-6">
                     {% if object.is_permanent %}
@@ -35,7 +42,7 @@
                 {% elif object.is_validated == 0 %}
                     <span class="text-danger">Fiche rejetée</span>
                 {% elif object.is_validated == 1 %}
-                    <span class="text-success">Fiche validée</span>
+                    <span class="text-success">Fiche validée </span>
                 {% endif %}
             </p>
 
@@ -43,16 +50,46 @@
                 <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
             {% endif %}
 
-            {% if object.is_validated == Null %}
             <div>
-                {% if validate %}
-                    <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
-                {% endif %}
-                {% if invalidate %}
-                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                
+                {% if nomination.nomination_type == 'ufr' %}
+                    
+                    {% if object.validate_by_responsable_filiere and object.validate_by_responsable_ufr == null %}
+
+                        {% if validate %}
+                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                        {% endif %}
+                        {% if invalidate %}
+                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                        {% endif %}
+
+                    {% endif %}
+                        
+                    
+                {% elif nomination.nomination_type == 'vise-president' %}
+                {% if object.validate_by_responsable_ufr and object.validate_by_vice_presient == null %}
+                        {% if validate %}
+                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                        {% endif %}
+                        {% if invalidate %}
+                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                        {% endif %}
+
+                    {% endif %}
+                {% elif nomination.nomination_type == 'filiere' %}
+                    {% if object.validate_by_responsable_filiere == null %}
+                    
+                    {% if validate %}
+                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                        {% endif %}
+                        {% if invalidate %}
+                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                        {% endif %}
+
+                    {% endif %}
+                        
                 {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 
@@ -98,85 +135,112 @@
                                             </ul>
                                         </div>
                                         <div class="col-md-12">
-                                            <p><strong>Statut :</strong>
-                                                {% if enseignement.is_validated is None %}
-                                                    <span class="text-warning">En cours de traitement</span>
-                                                {% elif enseignement.is_validated == 0 %}
-                                                    <span class="text-danger">Fiche rejetée</span>
-                                                {% elif enseignement.is_validated == 1 %}
-                                                    <span class="text-success">Fiche validée</span>
-                                                {% endif %}
-                                            </p>
-                                            <a href="{% url 'fiche_management:enseignement-update' enseignement.id %}" class="btn btn-success">Modifier</a>
-        
-                                            {% if enseignement.is_validated == 0 %}
-                                                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
-                                            {% endif %}
-        
-                                            {% if enseignement.is_validated is None %}
-                                                <div>
-                                                    {% if validate %}
-                                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
-                                                    {% endif %}
-                                                    {% if invalidate %}
-                                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
-                                                    {% endif %}
+                            <p><strong>Statut :</strong>
+                                {% if enseignement.is_validated is None %}
+                                    <span class="text-warning">En cours de traitement</span>
+                                {% elif enseignement.is_validated == 0 %}
+                                    <span class="text-danger">Fiche rejetée</span>
+                                {% elif enseignement.is_validated == 1 %}
+                                    <span class="text-success">Fiche validée</span>
+                                {% endif %}
+                            </p>
+                
+                            {% if enseignement.is_validated == 0 %}
+                                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
+                            {% endif %}
+                            <div>
 
-                                                </div>
-                                            {% endif %}
+                            {% if nomination.nomination_type == 'ufr' %}
+                                {% if object.validate_by_responsable_filiere and object.validate_by_responsable_ufr == null %}
+
+                                    {% if validate %}
+                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
+                                    {% endif %}
+                                    {% if invalidate %}
+                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
+                                    {% endif %}
+                                {% endif %}
+                            
+                            {% elif nomination.nomination_type == 'vise-president' %}
+                                {% if object.validate_by_responsable_ufr and object.validate_by_vice_presient == null %}
+                                    {% if validate %}
+                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                                    {% endif %}
+                                    {% if invalidate %}
+                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                                    {% endif %}
+            
+                                {% endif %}
+
+                            {% elif nomination.nomination_type == 'filiere' %}
+                                {% if object.validate_by_responsable_filiere == null %}
+                                
+                                    {% if validate %}
+                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                                    {% endif %}
+                                    {% if invalidate %}
+                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                                    {% endif %}
+            
+                                {% endif %}
+
+                            {% endif %}
+                            <a href="{% url 'fiche_management:enseignement-update' enseignement.id %}" class="btn btn-success ">Modifier</a>
+                                
+                        </div>
         
-                                            <!-- Validation Modal -->
-                                            <div class="modal fade" id="confirmationModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="confirmationModalLabel{{ enseignement.id }}" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="confirmationModalLabel{{ enseignement.id }}">Confirmer la validation</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Êtes-vous sûr de vouloir valider cette fiche ?
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                            <a href="{% url 'fiche_management:valider_enseignement' enseignement.id %}" class="btn btn-success">Confirmer</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-        
-                                            <!-- Rejection Modal -->
-                                            <div class="modal fade" id="rejectionModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="rejectionModalLabel{{ enseignement.id }}" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="rejectionModalLabel{{ enseignement.id }}">Confirmer le rejet</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Êtes-vous sûr de vouloir rejeter cette fiche ?
-                                                            <form id="rejetForm-{{ enseignement.id }}" method="post" action="{% url 'fiche_management:rejeter_fiche' enseignement.id %}">
-                                                                {% csrf_token %}
-                                                                <div class="mb-3">
-                                                                    <label for="motif_rejet" class="form-label">Motif du rejet</label>
-                                                                    <textarea class="form-control" id="motif_rejet" name="motif_rejet" rows="4" required></textarea>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                            <button type="button" class="btn btn-danger" onclick="document.getElementById('rejetForm-{{ enseignement.id }}').submit();">Confirmer</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <!-- Validation Modal -->
+                    <div class="modal fade" id="confirmationModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="confirmationModalLabel{{ enseignement.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmationModalLabel{{ enseignement.id }}">Confirmer la validation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Êtes-vous sûr de vouloir valider cette fiche ?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <a href="{% url 'fiche_management:valider_enseignement' enseignement.id %}" class="btn btn-success">Confirmer</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
+
+                    <!-- Rejection Modal -->
+                    <div class="modal fade" id="rejectionModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="rejectionModalLabel{{ enseignement.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="rejectionModalLabel{{ enseignement.id }}">Confirmer le rejet</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Êtes-vous sûr de vouloir rejeter cette fiche ?
+                                    <form id="rejetForm-{{ enseignement.id }}" method="post" action="{% url 'fiche_management:rejeter_fiche' enseignement.id %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label for="motif_rejet" class="form-label">Motif du rejet</label>
+                                            <textarea class="form-control" id="motif_rejet" name="motif_rejet" rows="4" required></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="button" class="btn btn-danger" onclick="document.getElementById('rejetForm-{{ enseignement.id }}').submit();">Confirmer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        {% endfor %}
+        </div>
         {% endif %}
         
 
@@ -234,7 +298,48 @@
         </div>
     </div>
 </div>
-
+<style>
+    /* Styles généraux pour le breadcrumb */
+    .breadcrumb {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .breadcrumb li {
+        display: inline;
+        margin-right: 10px;
+    }
+    
+    .breadcrumb li a {
+        text-decoration: none;
+        color: #007bff;
+    }
+    
+    .breadcrumb li a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Remplacer le séparateur par un slash */
+    .breadcrumb li + li:before {
+        content: " / ";  /* Le séparateur est un slash */
+        margin-left: 10px;
+        color: #6c757d;
+    }
+    
+    .breadcrumb li.active {
+        color: #6c757d;
+        font-weight: bold;
+    }
+    
+    .breadcrumb li a i {
+        margin-right: 5px;
+    }
+    </style>
 <script>
     function confirmerRejet() {
         // Soumet le formulaire de rejet

@@ -104,10 +104,10 @@
                                 <a class="nav-link" href="#contact" data-bs-toggle="tab">Contact</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#competences" data-bs-toggle="tab">Compétences</a>
+                                <a class="nav-link" href="#competences" data-bs-toggle="tab">Enseignements</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#competences" data-bs-toggle="tab">Enseignements</a>
+                                <a class="nav-link" href="#competences" data-bs-toggle="tab">Compétences</a>
                             </li>
                         </ul>
                     </div>
@@ -159,11 +159,22 @@
                         <!-- Compétences -->
                         <div class="tab-pane fade" id="competences">
                             <div class="card-body">
-                                <p>Professionnel militaire hautement qualifié avec une formation spécialisée en tant
-                                    qu'artilleur, commando et tireur d'élite.</p>
-                                <p>Expert dans l'utilisation de divers systèmes d'armes lourdes, avec une capacité
-                                    avérée à fournir un appui-feu précis et efficace sur le champ de bataille.</p>
-                                <p>Compétent dans la reconnaissance, le renseignement et l'assaut tactique.</p>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3"><strong>Université :</strong></div>
+                                    <div class="col-sm-9">{{ object.structure_origine }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3"><strong>Grade :</strong></div>
+                                    <div class="col-sm-9">{{ object.grade }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3"><strong>Statut :</strong></div>
+                                    <div class="col-sm-9">{{ object.teacher_type }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3"><strong>Module(s) :</strong></div>
+                                    <div class="col-sm-9">{{ object.module }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -173,3 +184,8 @@
     </div>
 </section>
 {% endblock content %}
+
+{{ object.ufr }} 
+{{ object.departement }}
+{{ object.filiere }}
+{{ object.module }}

@@ -76,4 +76,38 @@ urlpatterns = [
         views.RoleCreateView.as_view(),
         name="nomination-create",
     ),
+    # Liste des nominations (Vue basée sur la classe)
+    path(
+        'nominations/list', views.NominationListView.as_view(), 
+        name='nominations-list'),
+
+    # Détail d'une nomination (Vue basée sur la classe)
+    path(
+        'nominations/<uuid:pk>/', views.NominationDetailView.as_view(),
+        name='nominations-detail'),
+
+    # Création d'une nouvelle nomination (Vue basée sur la classe)
+    path(
+        'nominations/new/', views.NominationCreateView.as_view(),
+        name='nominations-create'),
+
+    # Mise à jour d'une nomination (Vue basée sur la classe)
+    path(
+        'nominations/<uuid:pk>/edit/', views.NominationUpdateView.as_view(), 
+        name='nominations-update'),
+
+    # Suppression d'une nomination (Vue basée sur la classe)
+    path(
+        'nominations/<uuid:pk>/delete/', views.NominationDeleteView.as_view(), 
+        name='nominations-delete'),
+
+    path(
+        'nominations/<uuid:pk>/deactivate/', views.deactivate_nomination, 
+        name='nominations-deactivate'),
+    path(
+        "users/assign/<uuid:pk>/remove/",
+        views.AssignRemoveView.as_view(),
+        name="assign-remove",
+    ),
+
 ]

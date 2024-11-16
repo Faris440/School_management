@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+    <a href="{% url 'index-view' %}">Accueil</a> &gt;
+    <a href="#">Enregistrement</a> 
+    {{ filiere.name }}
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">

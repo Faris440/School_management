@@ -143,6 +143,49 @@
 }
 
 
+/* Styles généraux pour le breadcrumb */
+.breadcrumb {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb li {
+    display: inline;
+    margin-right: 10px;
+}
+
+.breadcrumb li a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.breadcrumb li a:hover {
+    text-decoration: underline;
+}
+
+/* Remplacer le séparateur par un slash */
+.breadcrumb li + li:before {
+    content: " / ";  /* Le séparateur est un slash */
+    margin-left: 10px;
+    color: #6c757d;
+}
+
+.breadcrumb li.active {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.breadcrumb li a i {
+    margin-right: 5px;
+}
+
+
+
  /*
 .main-sidebar .sidebar-menu .dropdown-menu .nav-link5 {
   border-left: 2px solid #3498db;  Trait vertical à gauche des sous-menus 

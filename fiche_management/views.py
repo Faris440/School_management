@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.views.generic import TemplateView, View
+from xauth.models import Nomination
 # Create your views here.
 
 class SheetCreateView(cviews.CustomFormCollectionView):
@@ -51,6 +52,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         enseignement_data = form_collection.cleaned_data.get('enseignement')
         user = self.request.user
         sheet = None
+        x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
         if not user.is_staff :
             if user.teacher_type == 'permanent':
                 sheet = Sheet.objects.create(
@@ -61,8 +63,10 @@ class SheetCreateView(cviews.CustomFormCollectionView):
                 abattement = sheet_data['abattement'],
                 volume_horaire_statuaire = sheet_data['volume_horaire_statuaire'],
                 motif_abattement = sheet_data['motif_abattement'],
-                v_h_obli_apres_abattement = sheet_data['v_h_obli_apres_abattement'],
+                v_h_obli_apres_abattement = x,
                 is_permanent = True,
+                filiere=sheet_data['filiere'],
+
                 )
             elif user.teacher_type == 'vacataire':
                 sheet = Sheet.objects.create(
@@ -71,6 +75,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
                 date_fin = sheet_data['date_fin'],
                 etablissement_enseigne = sheet_data['etablissement_enseigne'],
                 is_permanent = False,
+                filiere=sheet_data['filiere'],
                 )
         elif type == '0' :
             sheet = Sheet.objects.create(
@@ -81,7 +86,8 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             abattement = sheet_data['abattement'],
             volume_horaire_statuaire = sheet_data['volume_horaire_statuaire'],
             motif_abattement = sheet_data['motif_abattement'],
-            v_h_obli_apres_abattement = sheet_data['v_h_obli_apres_abattement']
+            v_h_obli_apres_abattement = x,
+            filiere=sheet_data['filiere'],
             )
         elif type == '1' :
             sheet = Sheet.objects.create(
@@ -89,6 +95,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
+            filiere=sheet_data['filiere'],
             )
 
         for ens in enseignement_data :
@@ -96,16 +103,15 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             enseignements = Enseignements.objects.create(
                 code = enseignement['code'],
                 sheet = sheet,
-                filiere = enseignement['filiere'],
                 niveau = enseignement['niveau'],
                 semestre = enseignement['semestre'],
                 module = enseignement['module'],
                 
                 ct_volume_horaire_confie = enseignement['ct_volume_horaire_confie'],
-                td_volume_horaire_confie = enseignement['td_volume_horaire_confie'],
-                tp_volume_horaire_confie = enseignement['tp_volume_horaire_confie'],
                 ct_volume_horaire_efectue = enseignement['ct_volume_horaire_efectue'],
+                td_volume_horaire_confie = enseignement['td_volume_horaire_confie'],
                 td_volume_horaire_efectue = enseignement['td_volume_horaire_efectue'],
+                tp_volume_horaire_confie = enseignement['tp_volume_horaire_confie'],
                 tp_volume_horaire_efectue = enseignement['tp_volume_horaire_efectue'],
             )
         
@@ -125,7 +131,7 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
         type = self.kwargs.get("type")
         sheet_data = form_collection.cleaned_data.get('sheet')
         enseignement_data = form_collection.cleaned_data.get('enseignement')
-        
+        x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
         sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
             date_debut = sheet_data['date_debut'],
@@ -134,8 +140,9 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
             abattement = sheet_data['abattement'],
             volume_horaire_statuaire = sheet_data['volume_horaire_statuaire'],
             motif_abattement = sheet_data['motif_abattement'],
-            v_h_obli_apres_abattement = sheet_data['v_h_obli_apres_abattement'],
+            v_h_obli_apres_abattement = x,
             is_permanent = True,
+            filiere=sheet_data['filiere'],
             )
 
         for ens in enseignement_data :
@@ -143,7 +150,6 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
             enseignements = Enseignements.objects.create(
                 code = enseignement['code'],
                 sheet = sheet,
-                filiere = enseignement['filiere'],
                 niveau = enseignement['niveau'],
                 semestre = enseignement['semestre'],
                 module = enseignement['module'],
@@ -178,6 +184,7 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
+            filiere=sheet_data['filiere'],
             is_permanent = False,
         )
 
@@ -186,7 +193,6 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
             enseignements = Enseignements.objects.create(
                 code = enseignement['code'],
                 sheet = sheet,
-                filiere = enseignement['filiere'],
                 niveau = enseignement['niveau'],
                 semestre = enseignement['semestre'],
                 module = enseignement['module'],
@@ -211,6 +217,25 @@ class SheetListView(cviews.CustomListView):
     def get_queryset(self):
         user = self.request.user
         if not user.is_staff :
+            nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
+            print(nomination)
+            if nomination :
+                queryset = Sheet.objects.none()
+
+                if nomination.ufr is not None:
+                    print(1, nomination.ufr)
+                    queryset |= Sheet.objects.filter(filiere__departement__ufr=nomination.ufr)
+                    return queryset
+                if nomination.departement is not None:
+                    print(2)
+                    queryset |= Sheet.objects.filter(filiere__departement=nomination.departement)
+                    return queryset
+                if nomination.filiere is not None:
+                    queryset |= Sheet.objects.filter(filiere=nomination.filiere)
+                    return queryset
+                if nomination.nomination_type == 'vise-president':
+                    queryset |= Sheet.objects.all()
+                    return queryset
             return Sheet.objects.filter(enseignant = user)
         return super().get_queryset()
 
@@ -247,6 +272,9 @@ class SheetDetailView(cviews.CustomDetailView):
         model_name = self.model._meta.model_name
         context["validate"] =self.request.user.has_perm(f"{app_name}.can_valide_{model_name}")
         context["invalidate"] =self.request.user.has_perm(f"{app_name}.can_invalide_{model_name}")
+        user = self.request.user
+        context['nomination'] = Nomination.objects.filter(user = user , is_desactivate = False).first()
+        print(user, context['nomination'])
         return context
     
 
@@ -275,13 +303,20 @@ class SheetDeleteView(cviews.CustomDeleteView):
     
 def valider_fiche(request, pk):
     fiche = get_object_or_404(Sheet, id=pk)
-
-    # Vérifie si la fiche est déjà validée
+    user = request.user
+    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
+    type = nomination.nomination_type
     if fiche.is_validated:
         messages.warning(request, "Cette fiche a déjà été validée.")
     else:
-
-        fiche.is_validated = True
+        if type == 'ufr':
+            fiche.validate_by_responsable_ufr = True
+        elif type == 'filiere':
+            fiche.validate_by_responsable_filiere = True
+            if not fiche.is_permanent :
+                fiche.validate_by_responsable_ufr = True
+        elif type == 'vise-president':
+            fiche.validate_by_vice_presient = True
         enseignements = Enseignements.objects.filter( sheet = fiche )
 
         for elem in enseignements :
@@ -295,16 +330,24 @@ def valider_fiche(request, pk):
 
 def valider_enseignement(request, pk):
     enseignement = get_object_or_404(Enseignements, id=pk)
-
+    user = request.user
+    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
+    type = nomination.nomination_type
     if enseignement.is_validated:
         messages.warning(request, "Cette fiche a déjà été validée.")
     else:
-        # Met à jour le statut de validation
-        enseignement.is_validated = True
+        if type == 'ufr':
+            enseignement.validate_by_responsable_ufr = True
+        elif type == 'filiere':
+            enseignement.validate_by_responsable_filiere = True
+            if not enseignement.is_permanent :
+                enseignement.validate_by_responsable_ufr = True
+        elif type == 'vise-president':
+            enseignement.validate_by_vice_presient = True
         enseignement.save()
         messages.success(request, "La fiche a été validée avec succès !")
 
-    return redirect( 'fiche_management:sheet-detail', pk=enseignement.sheet.id)
+    return redirect( 'fiche_management:sheet-detail', pk=enseignement.id) 
 
 
 def rejeter_fiche(request, pk):
@@ -360,6 +403,7 @@ class SheetConfirmView(View):
                 date_debut=sheet_data['date_debut'],
                 date_fin=sheet_data['date_fin'],
                 etablissement_enseigne=sheet_data['etablissement_enseigne'],
+                filiere=sheet_data['filiere'],
                 is_permanent=sheet_data.get('is_permanent', False)
             )
             
@@ -368,7 +412,6 @@ class SheetConfirmView(View):
                 Enseignements.objects.create(
                     sheet=sheet,
                     code=enseignement['code'],
-                    filiere=enseignement['filiere'],
                     niveau=enseignement['niveau'],
                     semestre=enseignement['semestre'],
                     module=enseignement['module'],

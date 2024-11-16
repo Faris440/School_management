@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+    <a href="{% url 'index-view' %}">Accueil</a> &gt;
+    <a href="#">Détail du départements</a> 
+    {{ departement.name }}
+{% endblock %}
+
+
 {% block content %}
 <!-- Begin Page Content -->
 <div class="container-fluid">

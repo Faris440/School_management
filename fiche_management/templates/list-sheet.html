@@ -3,8 +3,22 @@
 {% load humanize %}
 {% load static %}
 
+{% block breadcrumb %}
+    <div class="breadcrumb-container">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+            <li><a href="#">Détail</a></li>
+            <li class="active">{{ object.name }}</li>
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+
 {% block table-headers %}
 <th>Enseignant</th>
+<th>Filière</th>
 <th>Debut de la periode</th>
 <th>Fin de la periode</th>
 <th>Statut</th> <!-- Nouvelle colonne pour le statut -->
@@ -12,6 +26,7 @@
 
 {% block table-rows %}
 <td>{{ object.enseignant }}</td>
+<td>{{ object.filiere }}</td>
 <td>{{ object.date_debut }}</td>
 <td>{{ object.date_fin }}</td>
 <td>
@@ -48,3 +63,53 @@
     });
 </script>
 {% endblock javascript %}
+
+
+{% block stylesheet%}
+<style>
+/* Styles spécifiques pour le breadcrumb dans le conteneur */
+.breadcrumb-container {
+    margin: 20px 0; /* Pour séparer le breadcrumb des autres éléments */
+}
+
+.breadcrumb-container .breadcrumb {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-container .breadcrumb li {
+    display: inline;
+    margin-right: 10px;
+}
+
+.breadcrumb-container .breadcrumb li a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.breadcrumb-container .breadcrumb li a:hover {
+    text-decoration: underline;
+}
+
+/* Remplacer le séparateur par un slash */
+.breadcrumb-container .breadcrumb li + li:before {
+    content: " / ";  /* Le séparateur est un slash */
+    margin-left: 10px;
+    color: #6c757d;
+}
+
+.breadcrumb-container .breadcrumb li.active {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.breadcrumb-container .breadcrumb li a i {
+    margin-right: 5px;
+}
+</style>
+{% endblock stylesheet%}

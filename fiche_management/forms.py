@@ -21,7 +21,7 @@ class EnseignementsForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code','filiere', 'niveau', 'semestre', 'module',
+            'code', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
             'ct_volume_horaire_efectue', 'td_volume_horaire_efectue', 'tp_volume_horaire_efectue'
         ]
@@ -38,7 +38,7 @@ class SheetForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code','filiere', 'niveau', 'semestre', 'module',
+            'code', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
             'ct_volume_horaire_efectue', 'td_volume_horaire_efectue', 'tp_volume_horaire_efectue'
         ]
@@ -65,7 +65,7 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         'volume_horaire_statuaire',
         'abattement',
         'motif_abattement',
-        'v_h_obli_apres_abattement',
+        'filiere',
         ]
         widgets = {
             'date_fin' : DatePicker(attrs={
@@ -80,7 +80,11 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['etablissement_enseigne'].required = True
+        self.fields['volume_horaire_statuaire'].required = True
+        self.fields['abattement'].required = False
+        self.fields['motif_abattement'].required = False
         self.fields['enseignant'].queryset = User.objects.filter(teacher_type = 'permanent')
+        
         for field_name, field in self.fields.items():
             if field.required:
                 field.label = mark_safe(
@@ -99,7 +103,7 @@ class SheetAgentVacataireForm(FormMixin, forms.ModelForm):
     )
     class Meta:
         model = Sheet
-        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin']
+        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin','filiere']
         widgets = {
             'date_fin' : DatePicker(attrs={
                         'max': (now()).isoformat(),
@@ -138,7 +142,7 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
          'volume_horaire_statuaire',
          'abattement',
          'motif_abattement',
-         'v_h_obli_apres_abattement',
+         'filiere',
          ]
         widgets = {
             'date_fin' : DatePicker(attrs={
@@ -162,6 +166,7 @@ class SheetVacataireForm(FormMixin, forms.ModelForm):
          'date_debut',
          'date_fin',
          'etablissement_enseigne',
+         'filiere',
          ]
         widgets = {
             'date_fin' : DatePicker(attrs={
@@ -181,7 +186,7 @@ class SheetSelfForm(FormMixin, forms.ModelForm):
     )
     class Meta:
         model = Sheet
-        fields = ['date_debut', 'date_fin']
+        fields = ['date_debut', 'date_fin','filiere']
 
 
 class LogCollection(FormCollection):
@@ -235,7 +240,7 @@ class SheetFormu(FormMixin, forms.ModelForm):
     )
     class Meta:
         model = Sheet
-        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin']
+        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin','filiere']
         widgets = {
             'date_fin' : DatePicker(attrs={
                         'max': (now()).isoformat(),

@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+    <li><a href="#">Détail</a></li>
+    <li class="active">{{ filiere.name }}</li>
+</ul>
+{% endblock %}
+
 {% block content %}
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Détails de la filiere: {{ object.label }}</h1>
+    <h1 class="h3 mb-2 text-gray-800" style="padding-top: 20px;" >Détails de la filiere: {{ object.label }}</h1>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -45,6 +53,48 @@
             </div>
         </div>
     </div>
+<style>
+/* Styles généraux pour le breadcrumb */
+.breadcrumb {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb li {
+    display: inline;
+    margin-right: 10px;
+}
+
+.breadcrumb li a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.breadcrumb li a:hover {
+    text-decoration: underline;
+}
+
+/* Remplacer le séparateur par un slash */
+.breadcrumb li + li:before {
+    content: " / ";  /* Le séparateur est un slash */
+    margin-left: 10px;
+    color: #6c757d;
+}
+
+.breadcrumb li.active {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.breadcrumb li a i {
+    margin-right: 5px;
+}
+</style>
 
 </div>
 <!-- /.container-fluid -->

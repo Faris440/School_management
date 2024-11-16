@@ -175,3 +175,63 @@ class Assign(CommonAbstractModel):
 
 #     def __str__(self):
 #         return self.label
+
+
+class Nomination(CommonAbstractModel):
+    # Champ ForeignKey pour l'utilisateur (non nullable)
+    user = models.ForeignKey(
+        User,  # Si vous utilisez le modèle utilisateur par défaut de Django
+        on_delete=models.CASCADE,
+        related_name="nominations",
+        null=False
+    )
+
+    # Champ de type choix pour la nomination
+    NOMINATION_TYPE_CHOICES = [
+        ('filiere', 'Filière'),
+        ('ufr', 'UFR'),
+        ('vise-president', 'Vice-président'),
+    ]
+    nomination_type = models.CharField(
+        max_length=20,
+        choices=NOMINATION_TYPE_CHOICES,
+        null=False
+    )
+
+    # Champs ForeignKey pour les différentes entités (ufr, departement, filiere) avec possibilité d'être null
+    ufr = models.ForeignKey(
+        'parameter.UniteDeRecherche',  # Remplacez par le modèle réel pour UFR
+        on_delete=models.SET_NULL,
+        related_name="nominations_ufr",
+        null=True,
+        blank=True
+    )
+    
+    departement = models.ForeignKey(
+        'parameter.Departement',  # Remplacez par le modèle réel pour Département
+        on_delete=models.SET_NULL,
+        related_name="nominations_departement",
+        null=True,
+        blank=True
+    )
+
+    filiere = models.ForeignKey(
+        'parameter.Filiere',        # Remplacez par le modèle réel pour Filière
+        on_delete=models.SET_NULL,
+        related_name="nominations_filiere",
+        null=True,
+        blank=True
+    )
+
+    # Champ date_debut qui est obligatoire
+    date_debut = models.DateField(null=False)
+    date_fin = models.DateField(null=True)
+    is_desactivate = models.BooleanField("Est inactif", default=False)
+
+    def __str__(self):
+        return f"Nomination de {self.user} pour {self.nomination_type} - {self.date_debut}"
+
+    class Meta:
+        verbose_name = "Nomination"
+        verbose_name_plural = "Nominations"
+        ordering = ['date_debut']

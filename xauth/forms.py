@@ -17,14 +17,14 @@ from django.contrib.auth.forms import (
     
     
 )
-from formset.utils import FormsetErrorList
-from formset.collection import FormMixin
-from django.utils.safestring import mark_safe
-from django.conf import settings
-from formset.renderers.bootstrap import FormRenderer
+from formset.utils import FormsetErrorList 
+from formset.collection import FormMixin 
+from django.utils.safestring import mark_safe 
+from django.conf import settings 
+from formset.renderers.bootstrap import FormRenderer 
 from parameter import models as params_models
-from xauth.models import User, Assign, AccountActivationSecret
-from django.utils.timezone import now, timedelta
+from xauth.models import User, Assign, AccountActivationSecret, Nomination
+from django.utils.timezone import now, timedelta 
 
 
 from School_management.constants import *
@@ -129,6 +129,7 @@ class UserCreateForm( ModelForm):
         model = User
         fields = [
             "user_type",
+            "teacher_type",
             "first_name",
             "last_name",
             "birthdate",
@@ -246,8 +247,8 @@ class UserPublicActivationForm(FormMixin, forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        identifier = cleaned_data["identifier"]
-        secret = cleaned_data["secret"]
+        identifier = cleaned_data.get("identifier")
+        secret = cleaned_data.get("secret")
 
         user = User.objects.filter(Q(matricule=identifier) | Q(email=identifier))
 
@@ -316,4 +317,22 @@ class RoleForm(ModelForm):
       
         labels = {
             "group_assign": "Rôle",
+        }
+
+
+
+class NominationForm(ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
+    class Meta:
+        model = Nomination
+        fields = ['user', 'nomination_type', 'ufr', 'departement', 'filiere', 'date_debut']
+        widgets = {
+            'date_debut': DatePicker(attrs={
+                        'max': (now()).isoformat(),
+                    }),
         }

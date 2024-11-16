@@ -212,6 +212,7 @@ class UeListView(cviews.CustomListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["list_of"] = "Suppression d'une UE"
         return context
 
 
@@ -234,7 +235,15 @@ class UeDetailView(cviews.CustomDetailView):
     model = UE
     name = "ue"
     template_name = "ue/detail-ue.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["card_title"] = "Détails de l'UE"
+        context["update_url"] = "parameter:ue-update"
+        context["delete_url"] = "parameter:ue-delete"
+        context["list_url"] = "parameter:ue-list"
+        context["list_of"] = "Suppression d'une UE"
 
+        return context
 
 class UeDeleteView(cviews.CustomDeleteView):
     model = UE

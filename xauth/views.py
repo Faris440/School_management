@@ -19,10 +19,13 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import View
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from datetime import datetime
 from School_management import views as cviews
+from xauth.models import User, Assign, AccountActivationSecret, Nomination
+from .forms import *
+
 
 
 
@@ -34,6 +37,7 @@ from django.views.generic import CreateView, UpdateView, ListView, DeleteView, D
 from School_management import (
     mails as web_mail
 )
+from formset.views import FormViewMixin
 
 # Create your views here.
 
@@ -642,31 +646,36 @@ class CustomPasswordResetConfirmView(
         context = super().get_context_data(**kwargs)
         context["card_title"] = "Réinitialisation de votre mot de passe"
         return context
-
-
-class SetPasswordView(FormView):
+class SetPasswordView(FormViewMixin,FormView):
     template_name = "public/set-password.html"
     success_url = reverse_lazy("user-login")
-    form_class = forms.CustomSetPasswordForm
+    form_class = CustomSetPasswordForm
 
+    def dispatch(self, request, *args, **kwargs):
+        token = kwargs.get("token")
+        uid = force_str(urlsafe_base64_decode(kwargs.get("uidb64")))
+        self.user = get_object_or_404(User, pk=uid)
+        r = PasswordResetTokenGenerator().check_token(self.user, token)
+
+        if not r:
+            raise Http404()
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
+        kwargs["user"] = self.user
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["card_title"] = "Initialisation de votre mot de passe"
-        
         return context
 
     def form_valid(self, form):
-        print('activate///')
+        form.save()
         messages.success(self.request, "Votre compte a été activé avec succès.")
         return super().form_valid(form)
-
-
 class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "public/password-reset-complete.html"
     # success_url = reverse_lazy("password-reset-complete")
@@ -701,3 +710,111 @@ class User2CreateView(FormView):
         print("Form validation errors:", errors)
         
         return JsonResponse({"errors": errors}, status=400)
+
+
+
+# Liste des nominations (Vue basée sur la classe)
+class NominationListView(cviews.CustomListView):
+    model = Nomination
+    name = 'nominations'
+    app_name = 'auth'
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name
+    template_name = 'nomination_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+# Détail d'une nomination (Vue basée sur la classe)
+class NominationDetailView(cviews.CustomDetailView):
+    model = Nomination
+    template_name = 'nomination/nomination_detail.html'
+    name = 'nominations'
+    app_name = 'auth'
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name
+
+# Création d'une nomination (Vue basée sur la classe)
+class NominationCreateView(cviews.CustomCreateView):
+    model = Nomination
+    form_class = NominationForm
+    name = 'nominations'
+    app_name = 'auth'
+    success_url = reverse_lazy('auth:nominations-list')
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name 
+
+# Mise à jour d'une nomination (Vue basée sur la classe)
+class NominationUpdateView(cviews.CustomUpdateView):
+    model = Nomination
+    form_class = NominationForm
+    name = 'nominations'
+    app_name = 'auth'
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name
+
+    def get_success_url(self):
+        return reverse_lazy('auth:nominations-list')  # Redirection vers les détails de la nomination mise à jour
+
+# Suppression d'une nomination (Vue basée sur la classe)
+class NominationDeleteView(cviews.CustomDeleteView):
+    model = Nomination
+    name = 'nominations'
+    app_name = 'auth'
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name
+
+    success_url = reverse_lazy('auth:nominations-list')  # Redirige vers la liste après suppression
+
+
+def deactivate_nomination(request, pk):
+    nomination = get_object_or_404(Nomination, id=pk)
+
+    if nomination.is_desactivate:
+        messages.warning(request, "La nomination est déjà activée.")
+    else:
+        nomination.is_desactivate = True
+        nomination.date_fin = timezone.now()  # Enregistre l'heure et la date actuelles        
+        nomination.save()
+        messages.success(request, "La nomination a été desactivé avec succès !")
+
+    return redirect('auth:nominations-list')
+
+
+class AssignRemoveView(View):
+
+    def get_success_url(self):
+        return reverse("auth:user-list")
+        
+
+    def get(self, request, *args, **kwargs):
+        self.user = get_object_or_404(models.User, pk=self.kwargs.get("pk"))
+
+        if not hasattr(self.user, "assign"):
+            messages.warning(request, "Aucun rôle pour cette utilisateur")
+            return redirect("auth:user-list")
+        else:
+            assign = get_object_or_404(models.Assign, pk=self.user.assign.pk)
+            self.user.groups.remove(assign.group_assign)
+            assign.user = None
+            assign.save()
+            assign.delete()
+
+            messages.success(request, "Rôle retirer avec succès")
+            return redirect(self.get_success_url())

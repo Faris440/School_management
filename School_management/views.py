@@ -976,7 +976,7 @@ class CustomListView(CustomViewMixin, ListView):
         name, app_name = self.get_name()
         model_name = self.model.__name__.lower()
         url_name = app_name
-
+        print(app_name, name, model_name)
         if name in ["user"]:
             url_name = "auth"
         # context["import_url"] = reverse(
@@ -996,6 +996,7 @@ class CustomListView(CustomViewMixin, ListView):
             context["can_add"] = self.request.user.has_perm(
                 f"{app_name}.add_{model_name}"
             )
+            print(context["add_url"] , context["can_add"])
         except Exception as exp:
             context["can_add"] = False
             context["add_url"] = ""
