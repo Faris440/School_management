@@ -17,14 +17,14 @@
         <div class="card-body">
             <h5 class="d-flex justify-content-between align-items-center">Informations sur la fiche</h5>
             <div class="row">
-                <div class="col-6">
+                <div class="col-4">
                     <p><strong>Enseignant :</strong> {{ object.enseignant }}</p>
                     <p><strong>Etablissement d'enseignement :</strong> {{ object.etablissement_enseigne }}</p>
                     <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
                     <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
                     <p><strong>Filière :</strong> {{ object.filiere }}</p>
                 </div>
-                <div class="col-6">
+                <div class="col-4">
                     {% if object.is_permanent %}
                     <p><strong>Volume horaire statuaire :</strong> {{ object.volume_horaire_statuaire }}</p>
                     <p><strong>Abattement :</strong> {{ object.abattement }}</p>
@@ -32,18 +32,47 @@
                     <p><strong>Volume horaire après abattement :</strong> {{ object.v_h_obli_apres_abattement }}</p>
                     {% endif %}
                 </div>
+                <div class="col-4">
+                    <p><strong>Enseignement validé(s) : {{count_validate}}</strong></p>
+                    <p><strong>Enseignement rejeté(s) : {{count_invalidate}}</strong></p>
+                    <p><strong>En cours de traitement : {{count_inprocess}}</strong></p>
+
+                </div>
             </div>
     
             <!-- Affichage du statut de la fiche avec des codes couleurs -->
             <p>
-                <strong>Statut :</strong>
-                {% if object.is_validated == null %}
-                    <span class="text-warning">En cours de traitement</span>
-                {% elif object.is_validated == 0 %}
-                    <span class="text-danger">Fiche rejetée</span>
-                {% elif object.is_validated == 1 %}
-                    <span class="text-success">Fiche validée </span>
-                {% endif %}
+                {% if object.validate_by_responsable_filiere is None %}
+    Niveau filiere : <span class="text-warning">En cours de traitement</span> 
+    {% elif object.validate_by_responsable_filiere is False %} 
+    Niveau filiere : <span class="text-warning">Fiche traitée</span> 
+    {% else %}
+        
+        {% if object.is_permanent %}
+            {% if object.validate_by_responsable_ufr is None %}
+            Niveau UFR : <span class="text-warning">En cours de traitement</span> 
+            {% elif object.validate_by_responsable_ufr is False %} 
+            Niveau UFR : <span class="text-warning">Fiche traitée</span> 
+            {% else %}
+                {% if object.validate_by_vice_presient is None %}
+                Niveau Vice Presidence : <span class="text-warning">En cours de traitement</span> 
+                {% elif object.validate_by_vice_presient is False %} 
+                Niveau Vice Présidence : <span class="text-warning">Fiche traitée</span> 
+                {% else %}
+                
+                Niveau Vice Présidence : <span class="text-warning">Fiche traitée</span> 
+                {% endif %} 
+            {% endif %}
+        {% else %}
+        {% if object.validate_by_vice_presient is None %}
+                Niveau Vice Presidence : <span class="text-warning">En cours de traitement</span> 
+                {% else %}
+                
+                Niveau Vice Présidence : <span class="text-warning">Fiche traitée</span> 
+                {% endif %} 
+        {% endif %}
+            
+    {% endif %}
             </p>
 
             {% if object.is_validated == 0 %}
@@ -136,11 +165,11 @@
                                         </div>
                                         <div class="col-md-12">
                             <p><strong>Statut :</strong>
-                                {% if enseignement.is_validated is None %}
+                                {% if enseignement.validate_by_vice_presient is None %}
                                     <span class="text-warning">En cours de traitement</span>
-                                {% elif enseignement.is_validated == 0 %}
+                                {% elif enseignement.validate_by_vice_presient == 0 %}
                                     <span class="text-danger">Fiche rejetée</span>
-                                {% elif enseignement.is_validated == 1 %}
+                                {% elif enseignement.validate_by_vice_presient == 1 %}
                                     <span class="text-success">Fiche validée</span>
                                 {% endif %}
                             </p>

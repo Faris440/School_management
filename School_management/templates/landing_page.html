@@ -1,0 +1,365 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Page d'Accueil | Mon École</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Fixer la navbar en haut */
+        .navbar {
+            background-color: #009fe5;
+        }
+
+        .navbar.fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030; /* Assurez-vous que la navbar soit au-dessus du contenu */
+        }
+
+        .navbar-brand img {
+            height: 70px; /* Ajustez la taille du logo */
+            width: auto;
+        }
+
+        .navbar-nav .nav-link {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Souligner l'onglet actif */
+        .navbar-nav .nav-link.active {
+            border-bottom: 2px solid #fff;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #ddd;
+        }
+
+        /* Marge en haut pour compenser la navbar fixe */
+        .content {
+            margin-top: 80px; /* Ajustez cette valeur selon la hauteur de votre navbar */
+        }
+
+        /* Section */
+        .section {
+            padding: 60px 0;
+        }
+
+        /* Phrase déroulante */
+        .scrolling-text-container {
+            background-color: #fff;
+            color: rgb(247, 6, 6);
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden; /* Empêche le texte de sortir du conteneur */
+        }
+
+        .scrolling-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scroll-left 30s linear infinite;
+            will-change: transform; /* Optimisation pour le rendu */
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .scrolling-text:hover {
+            animation-play-state: paused;
+        }
+
+        /* Carrousel */
+        .carousel-inner img {
+            width: 100%;
+            height: 60vh;
+            object-fit: cover;
+        }
+
+        .carousel-caption {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .btn-custom {
+            background-color: transparent;
+            color: #fff;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #357ABD;
+        }
+
+        .about-section {
+            background-color: #f8f9fa;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+        }
+
+        /* Vidéos Tutoriels */
+        .video-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .video-container .video-item {
+            width: 30%;
+            margin-bottom: 20px;
+        }
+
+        .video-container .video-item iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+        }
+
+        .video-item.hidden {
+            display: none;
+        }
+
+        /* Section Tutoriels vidéo */
+        #videos {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("{% static 'img/tech1.jpg' %}");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            padding: 80px 0;
+            color: white;
+            position: relative;
+        }
+
+        /* Superposition transparente */
+        #videos::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <!-- Logo de l'école -->
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'img/logo-uv.png' %}" alt="Logo École">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#videos">Tutoriels Vidéo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#discover">Découvrir</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">À propos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user-login' %}">Connexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="content">
+        <!-- Phrase déroulante -->
+        <div class="scrolling-text-container">
+            <div class="scrolling-text">
+                Bienvenue dans notre espace d'administration innovant ! 
+                Cette page est un guide pour vous accompagner sur la prise en main de la plateforme
+                <span style="margin-left: 20px;">Elle contient des tutoriels explicatifs et des vidéos pour une prise en main rapide, facile et efficace.</span>
+            </div>
+        </div>
+
+        <!-- Slider -->
+        <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="https://via.placeholder.com/1600x600?text=Image+1" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <p>Un campus moderne avec des installations de pointe.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://via.placeholder.com/1600x600?text=Image+2" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <p>Des programmes éducatifs adaptés aux besoins des étudiants.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://via.placeholder.com/1600x600?text=Image+3" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <p>Une expérience d'apprentissage interactive et engageante.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Section Découvrir -->
+        <div id="discover" class="section">
+            <div class="container text-center">
+                <h2>Découvrir notre école</h2>
+                <p>Nous offrons des programmes de qualité, des infrastructures modernes et un environnement d'apprentissage stimulant.</p>
+                <a href="#login" class="btn btn-custom">Rejoindre</a>
+            </div>
+        </div>
+
+        <!-- Section Tutoriels vidéo -->
+        <div id="videos" class="section">
+            <div class="container">
+                <h2 class="text-center">Tutoriels Vidéo</h2>
+                <div class="video-container">
+                    <div class="video-item">
+                        <iframe src="https://youtu.be/5J1dOLpAiiw?list=PLdbqBcoIap2nvUrnX1HVpuLgaR4uhZ_x9" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-item">
+                        <iframe src="https://www.youtube.com/embed/kJQP7kiw5Fk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-item">
+                        <iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-item hidden">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button id="toggleVideos" class="btn btn-custom">Voir tout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section À propos -->
+        <div id="about" class="section about-section">
+            <div class="container text-center">
+                <h2>À propos de nous</h2>
+                <p>Notre école est dédiée à offrir un enseignement de qualité avec des enseignants passionnés et une approche pédagogique moderne.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 École - Tous droits réservés.</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+            window.addEventListener('scroll', function () {
+                let currentSection = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    if (window.scrollY >= sectionTop - 100 && window.scrollY < sectionTop + sectionHeight - 100) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === currentSection) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Fonction pour basculer l'affichage des vidéos cachées
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton = document.getElementById("toggleVideos");
+            const hiddenVideos = document.querySelectorAll(".video-item.hidden");
+
+            toggleButton.addEventListener("click", () => {
+                hiddenVideos.forEach(video => {
+                    video.classList.toggle("hidden");
+                });
+
+                if (toggleButton.textContent === "Voir tout") {
+                    toggleButton.textContent = "Réduire";
+                } else {
+                    toggleButton.textContent = "Voir tout";
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

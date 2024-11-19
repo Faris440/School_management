@@ -273,8 +273,26 @@ class SheetDetailView(cviews.CustomDetailView):
         context["validate"] =self.request.user.has_perm(f"{app_name}.can_valide_{model_name}")
         context["invalidate"] =self.request.user.has_perm(f"{app_name}.can_invalide_{model_name}")
         user = self.request.user
+        sheet = self.get_object()
         context['nomination'] = Nomination.objects.filter(user = user , is_desactivate = False).first()
-        print(user, context['nomination'])
+        context['count_validate'] = 0
+        context['count_invalidate'] = 0
+        context['count_inprocess'] = 0
+        enseignements = sheet.enseignement_sheet.all()
+        for enseignement in enseignements:
+            if enseignement.validate_by_vice_presient:
+                context['count_validate'] += 1
+            elif enseignement.validate_by_vice_presient is False:
+                context['count_invalidate'] += 1
+            elif enseignement.validate_by_responsable_ufr is False:
+                context['count_invalidate'] += 1
+            elif enseignement.validate_by_responsable_filiere is False:
+                context['count_invalidate'] += 1
+            else:
+                context['count_inprocess'] += 1
+
+
+        print()
         return context
     
 
@@ -309,24 +327,71 @@ def valider_fiche(request, pk):
     if fiche.is_validated:
         messages.warning(request, "Cette fiche a déjà été validée.")
     else:
+        enseignements = fiche.enseignement_sheet.all()
         if type == 'ufr':
             fiche.validate_by_responsable_ufr = True
+            for elem in enseignements :
+                elem.validate_by_responsable_ufr = True
+                elem.save()
         elif type == 'filiere':
             fiche.validate_by_responsable_filiere = True
+            for elem in enseignements :
+                elem.validate_by_responsable_filiere = True
+                elem.save()
             if not fiche.is_permanent :
                 fiche.validate_by_responsable_ufr = True
+                for elem in enseignements :
+                    elem.validate_by_responsable_ufr = True
+                    elem.save()
         elif type == 'vise-president':
             fiche.validate_by_vice_presient = True
-        enseignements = Enseignements.objects.filter( sheet = fiche )
-
-        for elem in enseignements :
-            elem.is_validated = True
-            elem.save()
+            for elem in enseignements :
+                elem.validate_by_vice_presient = True
+                elem.save()
         
         fiche.save()
         messages.success(request, "La fiche a été validée avec succès !")
 
     return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+
+
+
+def rejeter_fiche(request, pk):
+    fiche = get_object_or_404(Sheet, id=pk)
+
+    if request.method == "POST":
+        motif_rejet = request.POST.get("motif_rejet")
+        if motif_rejet:
+            enseignements = fiche.enseignement_sheet.all()
+        if type == 'ufr':
+            fiche.validate_by_responsable_ufr = False
+            for elem in enseignements :
+                elem.validate_by_responsable_ufr = False
+                elem.save()
+        elif type == 'filiere':
+            fiche.validate_by_responsable_filiere = False
+            for elem in enseignements :
+                elem.validate_by_responsable_filiere = False
+                elem.save()
+            if not fiche.is_permanent :
+                fiche.validate_by_responsable_ufr = False
+                for elem in enseignements :
+                    elem.validate_by_responsable_ufr = False
+                    elem.save()
+        elif type == 'vise-president':
+            fiche.validate_by_vice_presient = False
+            for elem in enseignements :
+                elem.validate_by_vice_presient = False
+                elem.save()
+            fiche.motif_de_rejet = motif_rejet
+            fiche.save()
+            messages.success(request, "La fiche a été rejetée avec le motif indiqué.")
+            return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+        else:
+            messages.error(request, "Veuillez fournir un motif pour le rejet.")
+    
+    return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+
 
 def valider_enseignement(request, pk):
     enseignement = get_object_or_404(Enseignements, id=pk)
@@ -350,22 +415,6 @@ def valider_enseignement(request, pk):
     return redirect( 'fiche_management:sheet-detail', pk=enseignement.id) 
 
 
-def rejeter_fiche(request, pk):
-    fiche = get_object_or_404(Sheet, id=pk)
-
-    if request.method == "POST":
-        motif_rejet = request.POST.get("motif_rejet")
-        
-        if motif_rejet:
-            fiche.is_validated = False
-            fiche.motif_de_rejet = motif_rejet
-            fiche.save()
-            messages.success(request, "La fiche a été rejetée avec le motif indiqué.")
-            return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
-        else:
-            messages.error(request, "Veuillez fournir un motif pour le rejet.")
-    
-    return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
 
 
 class SheetPreviewView(TemplateView):
@@ -431,36 +480,6 @@ class SheetConfirmView(View):
         else:
             messages.error(request, "Erreur: données de prévisualisation manquantes.")
             return redirect('fiche_management:sheet-create')
-
-# class SheetUpdateView(cviews.CustomUpdateView):
-#     model = Sheet
-#     name = "sheet"
-#     context_object_name = "sheets"
-#     template_name = "update-sheet.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-    
-# class SheetDetailView(cviews.CustomDetailView):
-#     model = Sheet
-#     name = "sheet"
-#     context_object_name = "sheets"
-#     template_name = "detail-sheet.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-    
-# class SheetDeleteView(cviews.CustomDeleteView):
-#     model = Sheet
-#     name = "sheet"
-#     context_object_name = "sheets"
-#     template_name = "delete-sheet.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
     
 
 class EnseignemtUpdateView(cviews.CustomUpdateView):

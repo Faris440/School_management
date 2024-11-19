@@ -39,6 +39,10 @@ class IndexTemplateView( TemplateView):
 class RedirectionView(RedirectView):
     url = "/home/"
 
+# Page d'atterrissage
+class LandingPageView(TemplateView):
+    template_name = 'landing_page.html'
+
         
     
 class CustomViewMixin:

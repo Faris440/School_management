@@ -26,6 +26,9 @@ class Sheet(CommonAbstractModel):
     validate_by_responsable_ufr = models.BooleanField(null=True)
     validate_by_vice_presient = models.BooleanField(null=True)
 
+    def __str__(self):
+        return self.enseignant
+    
     class Meta:
         ordering = ["-created"]
         verbose_name = "Fiche"
@@ -37,8 +40,6 @@ class Sheet(CommonAbstractModel):
                        
                        ]
         
-    def __str__(self):
-        return self.enseignant
     
 class Enseignements(CommonAbstractModel):
     code = models.CharField('code',null=True, max_length=Min_length, unique=True)
