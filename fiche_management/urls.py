@@ -44,10 +44,14 @@ urlpatterns = [
     path('management/sheet/<uuid:pk>/valider/',
          views.valider_fiche, 
          name='valider_fiche'),
-    path('management/enseignement/<uuid:pk>/valider/',
+
+    path('management/valider/enseignement/<uuid:pk>/',
         views.valider_enseignement, 
         name='valider_enseignement'),
-    
+    path('management/rejeter/enseignement/<uuid:pk>/',
+        views.rejeter_enseignement, 
+        name='rejeter_enseignement'),
+
     path('management/<uuid:pk>/rejeter/', 
          views.rejeter_fiche, 
          name='rejeter_fiche'),

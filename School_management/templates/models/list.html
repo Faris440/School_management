@@ -7,23 +7,24 @@
 <!-- <link rel="stylesheet" href="{# static 'css/searchbar.css' #}"> -->
 
 <style>
-    /* Styles pour une barre de recherche sans contours */
+    /* Styles pour la barre de recherche avec icône alignée */
     .search-bar {
         position: relative;
         display: flex;
         align-items: center;
-        max-width: 300px; /* Largeur maximale de la barre de recherche */
+        width: 100%; /* Ajustez la largeur selon vos besoins */
+        max-width: 400px; /* Largeur maximale de la barre de recherche */
     }
 
     .search-bar input {
         border: none;
         border-bottom: 2px solid #ccc;
         background: transparent;
-        padding: 2px 0; /* Padding réduit */
-        padding-left: 24px; /* Espace pour l'icône */
-        font-size: 14px; /* Taille de police réduite */
+        padding: 5px 0;
+        padding-left: 30px; /* Espace pour l'icône */
+        font-size: 14px;
         outline: none;
-        width: 100%;
+        flex-grow: 1; /* Remplit l'espace disponible */
         transition: border-color 0.3s ease;
     }
 
@@ -33,33 +34,18 @@
 
     .search-bar .search-icon {
         position: absolute;
-        left: 4px;
+        left: 8px; /* Ajustez selon la taille de l'icône */
         color: #888;
-        font-size: 14px; /* Taille de police réduite */
+        font-size: 16px; /* Taille de l'icône */
     }
 
-    /* Styles pour les boutons et le tableau */
-    .btn-group a, .btn-group button {
-        margin-right: 5px;
-    }
-
-    /* Styles pour le tableau */
-    .table-responsive {
-        margin-top: 20px;
-    }
-
-    /* Centre les éléments de la colonne action */
-    .table td:last-child {
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    /* Aligne le texte des autres colonnes à gauche */
-    .table td, .table th {
-        text-align: left;
-        vertical-align: middle;
+    .search-bar button {
+        margin-left: 10px;
+        padding: 5px 10px;
+        font-size: 14px;
     }
 </style>
+
 
 {% endblock stylesheet %}
 
@@ -81,7 +67,7 @@
         <div class="d-flex flex-row mb-5 justify-content-between">
             <div class="col-6">
                 <div class="search-bar">
-                    <i class="fas fa-search search-icon"></i>
+                    <i class="fas fa-search search-icon">âzertyuiklo</i>
                     <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Rechercher..." aria-label="Rechercher">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Recherche</button>
                 </div>

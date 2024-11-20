@@ -31,38 +31,10 @@
 <td>{{ object.date_fin }}</td>
 <td>
     
-    {% if object.validate_by_responsable_filiere is None %}
-    Niveau filiere : <span class="text-warning">En cours de traitement</span> 
-    {% elif object.validate_by_responsable_filiere is False %} 
-    Niveau filiere : <span class="text-warning">Fiche rejetée</span> 
+    {% if object.check_sheet %}
+        <span class="text-warning">En cours de traitement</span> 
     {% else %}
-        
-        {% if object.is_permanent %}
-            {% if object.validate_by_responsable_ufr is None %}
-            Niveau UFR : <span class="text-warning">En cours de traitement</span> 
-            {% elif object.validate_by_responsable_ufr is False %} 
-            Niveau UFR : <span class="text-warning">Fiche rejetée</span> 
-            {% else %}
-                {% if object.validate_by_vice_presient is None %}
-                Niveau Vice Presidence : <span class="text-warning">En cours de traitement</span> 
-                {% elif object.validate_by_vice_presient is False %} 
-                Niveau Vice Présidence : <span class="text-warning">Fiche rejetée</span> 
-                {% else %}
-                
-                Niveau Vice Présidence : <span class="text-warning">Fiche acceptée</span> 
-                {% endif %} 
-            {% endif %}
-        {% else %}
-        {% if object.validate_by_vice_presient is None %}
-                Niveau Vice Presidence : <span class="text-warning">En cours de traitement</span> 
-                {% elif object.validate_by_vice_presient is False %} 
-                Niveau Vice Présidence : <span class="text-warning">Fiche rejetée</span> 
-                {% else %}
-                
-                Niveau Vice Présidence : <span class="text-warning">Fiche acceptée</span> 
-                {% endif %} 
-        {% endif %}
-            
+        <span class="text-warning">Traitée</span>     
     {% endif %}
         
 </td> <!-- Affichage du statut -->

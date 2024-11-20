@@ -358,11 +358,13 @@ def valider_fiche(request, pk):
 
 def rejeter_fiche(request, pk):
     fiche = get_object_or_404(Sheet, id=pk)
-
+    user = request.user
+    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
+    type = nomination.nomination_type
     if request.method == "POST":
+        print('okjk')
         motif_rejet = request.POST.get("motif_rejet")
-        if motif_rejet:
-            enseignements = fiche.enseignement_sheet.all()
+        enseignements = fiche.enseignement_sheet.all()
         if type == 'ufr':
             fiche.validate_by_responsable_ufr = False
             for elem in enseignements :
@@ -383,11 +385,11 @@ def rejeter_fiche(request, pk):
             for elem in enseignements :
                 elem.validate_by_vice_presient = False
                 elem.save()
-            fiche.motif_de_rejet = motif_rejet
-            fiche.save()
-            messages.success(request, "La fiche a été rejetée avec le motif indiqué.")
-            return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
-        else:
+        fiche.motif_de_rejet = motif_rejet
+        fiche.save()
+        messages.success(request, "La fiche a été rejetée avec le motif indiqué.")
+        return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
+    else:
             messages.error(request, "Veuillez fournir un motif pour le rejet.")
     
     return redirect( 'fiche_management:sheet-detail', pk=fiche.id) 
@@ -398,24 +400,43 @@ def valider_enseignement(request, pk):
     user = request.user
     nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
     type = nomination.nomination_type
-    if enseignement.is_validated:
-        messages.warning(request, "Cette fiche a déjà été validée.")
-    else:
-        if type == 'ufr':
+    if type == 'ufr':
+        enseignement.validate_by_responsable_ufr = True
+    elif type == 'filiere':
+        enseignement.validate_by_responsable_filiere = True
+        if not enseignement.sheet.is_permanent :
             enseignement.validate_by_responsable_ufr = True
+    elif type == 'vise-president':
+        enseignement.validate_by_vice_presient = True
+    enseignement.save()
+    messages.success(request, "La fiche a été validée avec succès !")
+    print(enseignement.validate_by_responsable_filiere)
+    return redirect( 'fiche_management:sheet-detail', pk=enseignement.sheet.id) 
+
+
+# vue pour rejeter un enseignement
+
+def rejeter_enseignement(request, pk):
+    enseignement = get_object_or_404(Enseignements, id=pk)
+    user = request.user
+    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
+    type = nomination.nomination_type
+    if request.method == "POST":
+        motif_rejet = request.POST.get("motif_rejet")
+            
+        if type == 'ufr':
+            enseignement.validate_by_responsable_ufr = False
         elif type == 'filiere':
-            enseignement.validate_by_responsable_filiere = True
-            if not enseignement.is_permanent :
-                enseignement.validate_by_responsable_ufr = True
+            enseignement.validate_by_responsable_filiere = False
         elif type == 'vise-president':
-            enseignement.validate_by_vice_presient = True
+            enseignement.validate_by_vice_presient = False
+        else:
+            messages.error(request, "Veuillez fournir un motif pour le rejet.")
+        enseignement.motif_de_rejet = motif_rejet
         enseignement.save()
-        messages.success(request, "La fiche a été validée avec succès !")
-
-    return redirect( 'fiche_management:sheet-detail', pk=enseignement.id) 
-
-
-
+        messages.success(request, "L'enseignement a été rejeté avec le motif indiqué.")
+    
+    return redirect( 'fiche_management:sheet-detail', pk=enseignement.sheet.id) 
 
 class SheetPreviewView(TemplateView):
     template_name = "sheet_preview.html"

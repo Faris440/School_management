@@ -1,7 +1,7 @@
 from datetime import timedelta, date
 from django import forms as fm
 from formset.widgets import (
-    DualSortableSelector,DatePicker
+    DualSortableSelector,DatePicker,UploadedFileInput,
     )
 # from typing import Any
 from django.forms import forms, fields, widgets
@@ -90,6 +90,7 @@ class UserCreateForm( ModelForm):
         form_css_classes="row",
         field_css_classes={
             "*": "mb-2 col-md-6 h-100 input100",
+            "photo": "mb-5 col-md-6",
         },
     )
 
@@ -128,6 +129,7 @@ class UserCreateForm( ModelForm):
     class Meta:
         model = User
         fields = [
+            "photo",
             "user_type",
             "teacher_type",
             "first_name",
@@ -152,6 +154,7 @@ class UserCreateForm( ModelForm):
             "first_name": fm.TextInput(
                 attrs={"placeholder": "Saisir votre nom", "class":"form-control"},
             ),
+            "photo": UploadedFileInput(attrs={"max-size": 1024 * 1024 * 3}),
             "last_name": fm.TextInput(
                 attrs={"placeholder": "Saisir votre prénom", "class":"form-control"},
             ),
@@ -178,12 +181,14 @@ class UserChangeForm( ModelForm):
         form_css_classes="row",
         field_css_classes={
             "*": "mb-2 col-md-12 h-100 input100",
+            "photo": "mb-5 col-md-6",
         },
     )
 
     class Meta:
         model = User
         fields = [
+            "photo",
             "user_type",
             "first_name",
             "last_name",
@@ -193,6 +198,10 @@ class UserChangeForm( ModelForm):
             "address",
             "phone",
         ]
+        widgets = {
+            "photo": UploadedFileInput(attrs={"max-size": 1024 * 1024 * 3}),
+        }
+
        
         labels = {
             "email": "Adresse email",

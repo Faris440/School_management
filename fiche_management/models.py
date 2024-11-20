@@ -29,6 +29,16 @@ class Sheet(CommonAbstractModel):
     def __str__(self):
         return self.enseignant
     
+    def check_sheet(self):
+        enseignements = self.enseignement_sheet.all()
+        status = None
+        for enseignement in enseignements:
+            if enseignement.validate_by_responsable_filiere is None:
+                status = True
+            elif enseignement.validate_by_vice_presient is not None or enseignement.validate_by_responsable_ufr is False or enseignement.validate_by_responsable_filiere is False:
+                return False
+        return status
+    
     class Meta:
         ordering = ["-created"]
         verbose_name = "Fiche"
