@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from . import views
+from . import views 
 from xauth import views as xauth_views
 
 
@@ -38,6 +38,7 @@ urlpatterns = [
     path('parameter/', include('parameter.urls')),   
     path('management/', include('fiche_management.urls')), 
     path("signup/", xauth_views.User2CreateView.as_view(), name="user-signup"),
+    path('retour/', views.back_button_view, name='back-button'),
     # path(
     #     "account-activation/<uuid:pk>/set-password/",
     #     xauth_views.SetPasswordView.as_view(),

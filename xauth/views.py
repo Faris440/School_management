@@ -350,7 +350,7 @@ class UserDetailView(cviews.CustomDetailView):
     model = models.User
 
     def get_template_names(self):
-        template_name = "private/user-profile.html"
+        template_name = "private/user-profile-admin-view.html"
 
         return [template_name]
 

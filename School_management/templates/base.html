@@ -44,12 +44,18 @@
     <div class="main-wrapper main-wrapper-1">
       <div class="main-content">
 
-    {% block breadcrumb %}
-    <ul class="breadcrumb">
-        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-    </ul>
-    {% endblock %}
+        {% block breadcrumb %}
+        <div class="breadcrumb-container">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+                <li><a href="#">Liste</a></li>
+                <li><a href="#">Détails</a></li>
+                <li class="active">{{ object.name }}</li>
+            </ul>
+        </div>
+        {% endblock %}
         {% block content %}
+
 
       <button class="tooltip" data-tooltip="Ceci est un exemple d'infobulle.">Survolez-moi</button>
 

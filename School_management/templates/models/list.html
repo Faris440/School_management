@@ -44,6 +44,9 @@
         padding: 5px 10px;
         font-size: 14px;
     }
+    .back-button {
+        padding-left: 20px; /* Pousse le bouton à l'extrême droite */
+    }
 </style>
 
 
@@ -58,21 +61,34 @@
 
 
 {% block content %}
+
 <div class="card" >
-    <div class="card-header" >
-        <h2 >{{card_title}}</h2>
-        {% block more-info %}{% endblock more-info %}
-    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ card_title }}</h2>
+        {% include 'components/back_button.html' %}
+    </div>    
     <div class="card-body">
-        <div class="d-flex flex-row mb-5 justify-content-between">
-            <div class="col-6">
-                <div class="search-bar">
-                    <i class="fas fa-search search-icon">âzertyuiklo</i>
-                    <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Rechercher..." aria-label="Rechercher">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Recherche</button>
-                </div>
+        <div class="d-flex flex-row mb-4 justify-content-between">
+            <div>
+                <form class="d-flex flex-row mb-4 justify-content-between" method="get" action="{{ search_url }}">
+                    <div>
+                        <input type="search" class="form-control rounded" placeholder="recherche..." aria-label="Search"
+                            aria-describedby="search-addon" name="query" />
+                    </div>
+                    <div>
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-outline-success">
+                                {% icon "search" size=option_size %}&nbsp;Recherche
+                            </button>
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">
+                                {% icon "filter" size=option_size %}
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="d-flex flex-row mb-5 justify-content-between">
+            <div>
                 {% block toolbar %}
                 {% include "components/toolbar.html" %}
                 {% block toolbar-plus %}{% endblock toolbar-plus %}

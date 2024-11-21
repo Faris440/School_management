@@ -1197,3 +1197,11 @@ class CustomEditCollectionView(CustomViewMixin, EditCollectionView):
                 context["detail_url"] = ""
 
         return context
+    
+def back_button_view(request):
+    """
+    Vue pour gérer le bouton "Retour".
+    Redirige vers l'URL précédente ou vers une URL par défaut.
+    """
+    previous_url = request.META.get('HTTP_REFERER', '/')
+    return redirect(previous_url)

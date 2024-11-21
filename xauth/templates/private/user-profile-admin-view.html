@@ -66,9 +66,16 @@
 
 {% block breadcrumb %}
 {% if request.user.is_staff or request.user.assign %}
-    <li class="breadcrumb-item"><a href="{{list_url}}">{{list_of}}</a></li>
+<div class="breadcrumb-container">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+        <li><a href="#">Liste</a></li>
+        <li class="active">{{ object.name }}</li>
+    </ul>
+</div>   
+  
 {% endif %}
-<li class="breadcrumb-item active" aria-current="page">{{object.get_full_name}}</li>
+
 {% endblock breadcrumb %}
 
 {% block content %}
@@ -189,3 +196,5 @@
 {{ object.departement }}
 {{ object.filiere }}
 {{ object.module }}
+
+

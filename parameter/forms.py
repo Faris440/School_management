@@ -7,6 +7,7 @@ from formset.widgets import (
     SelectizeMultiple,
     DualSortableSelector,
     DualSelector,
+    Selectize,
 )
 from formset.collection import FormMixin
 from formset.richtext.widgets import RichTextarea
@@ -65,13 +66,18 @@ class FiliereForm(forms.ModelForm):
     )
     class Meta:
         model = Filiere
-        fields = ['code','departement', 'label', 'description']
+        fields = ['code', 'departement', 'label', 'description']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la filière'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            'departement': forms.Select(attrs={'class': 'form-control'}),
+            'departement': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un département",
+            ),
         }
+        
         
 
 class NiveauForm(forms.ModelForm):
@@ -131,9 +137,24 @@ class UEForm(forms.ModelForm):
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'UE'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            'filiere': forms.Select(attrs={'class': 'form-control'}),
+            'filiere': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez la filiere",
+            ),
+            # 'departement': Selectize(
+            #     attrs={'class': 'form-control', 'incomplete': True},
+            #     search_lookup="label__icontains",
+            #     placeholder="Sélectionnez un département",
+            #     filter_by={"ufr": "ufr__id"},
+            # ),
+            # 'filiere': Selectize(
+            #     attrs={'class': 'form-control', 'incomplete': True},
+            #     search_lookup="label__icontains",
+            #     placeholder="Sélectionnez une filière",
+            #     filter_by={"departement": "departement__id"},  # Liaison au département sélectionné
+            # ),
         }
-
 
 class ModuleForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -144,14 +165,40 @@ class ModuleForm(forms.ModelForm):
     )
     class Meta:
         model = Module
-        fields = ['code', 'label', 'description','ufr','departement','filiere','niveau','semestre','ue','volume_horaire','credit']  # Ajout du champ 'ue'
+        fields = [
+            'code', 'label', 'description', 'ufr', 'departement', 
+            'filiere', 'niveau', 'semestre', 'ue', 'volume_horaire', 'credit'
+        ]
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du module'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            'ue': forms.Select(attrs={'class': 'form-control'}),
+            'ufr': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une UFR",
+            ),
+            'departement': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un département",
+                filter_by={"ufr": "ufr__id"},
+            ),
+            'filiere': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+                filter_by={"departement": "departement__id"},  # Liaison au département sélectionné
+            ),
+            'ue': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une unité d'enseignement",
+                filter_by={"filiere": "filiere__id"},  # Liaison au département sélectionné
+            ),
+
         }
-        
+       
 class CustomModelForm(forms.ModelForm):
     default_renderer = default_renderer
     # submit = submit
