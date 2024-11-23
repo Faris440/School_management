@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Récapitulatif de la fiche</h2>
+
+    <h4>Détails de la fiche :</h4>
+    <ul>
+        <li><strong>Enseignant :</strong> {{ sheet_data.enseignant.name }}</li>
+        <li><strong>Promotion :</strong> {{ sheet_data.promotion.label }}</li>
+        <li><strong>Établissement :</strong>Université Virtuelle du Burkina Faso (UVBF)</li>
+        <li><strong>Filière :</strong> {{ sheet_data.filiere.label }}</li>
+    </ul>
+
+    <h4>Enseignements :</h4>
+    <ul>
+        {% for ens in enseignement_data %}
+        <li>
+            <strong>Module :</strong> {{ ens.log.module }} |
+            <strong>Niveau :</strong> {{ ens.log.niveau }} |
+            <strong>Semestre :</strong> {{ ens.log.semestre }}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Confirmer et soumettre</button>
+        <a href="{% url 'fiche_management:sheet-create' %}" class="btn btn-secondary">Retour</a>
+    </form>
+</div>
+{% endblock %}

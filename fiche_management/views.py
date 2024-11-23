@@ -57,6 +57,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             if user.teacher_type == 'permanent':
                 sheet = Sheet.objects.create(
                 enseignant = user,
+                promotion = sheet_data['promotion'],
                 date_debut = sheet_data['date_debut'],
                 date_fin = sheet_data['date_fin'],
                 etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -71,6 +72,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             elif user.teacher_type == 'vacataire':
                 sheet = Sheet.objects.create(
                 enseignant = user,
+                promotion = sheet_data['promotion'],
                 date_debut = sheet_data['date_debut'],
                 date_fin = sheet_data['date_fin'],
                 etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -80,6 +82,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         elif type == '0' :
             sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
+            promotion = sheet_data['promotion'],
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -92,6 +95,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         elif type == '1' :
             sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
+            promotion = sheet_data['promotion'],
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -134,6 +138,7 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
         x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
         sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
+            promotion = sheet_data['promotion'],
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -171,43 +176,67 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
     model = Sheet
     name = "sheet"
     collection_class = FinalAgentVacataireFormCollection
-    
-    def get_success_url(self):
-        return reverse('fiche_management:sheet-list')
-    
-    def form_collection_valid(self, form_collection):
-        sheet_data = form_collection.cleaned_data.get('sheet')
-        enseignement_data = form_collection.cleaned_data.get('enseignement')
-        
-        sheet = Sheet.objects.create(
-            enseignant = sheet_data['enseignant'],
-            date_debut = sheet_data['date_debut'],
-            date_fin = sheet_data['date_fin'],
-            etablissement_enseigne = sheet_data['etablissement_enseigne'],
-            filiere=sheet_data['filiere'],
-            is_permanent = False,
-        )
 
-        for ens in enseignement_data :
-            enseignement = ens['log']
-            enseignements = Enseignements.objects.create(
-                code = enseignement['code'],
-                sheet = sheet,
-                niveau = enseignement['niveau'],
-                semestre = enseignement['semestre'],
-                module = enseignement['module'],
-                
-                ct_volume_horaire_confie = enseignement['ct_volume_horaire_confie'],
-                td_volume_horaire_confie = enseignement['td_volume_horaire_confie'],
-                tp_volume_horaire_confie = enseignement['tp_volume_horaire_confie'],
-                ct_volume_horaire_efectue = enseignement['ct_volume_horaire_efectue'],
-                td_volume_horaire_efectue = enseignement['td_volume_horaire_efectue'],
-                tp_volume_horaire_efectue = enseignement['tp_volume_horaire_efectue'],
-            )
-        
-        messages.success(self.request, f'Le dossier a été enregistré avec succès!')
+    def get_success_url(self):
+        return reverse('fiche_management:sheet_preview')
+
+    def form_collection_valid(self, form_collection):
+        # Stocker les données temporairement dans la session
+        sheet_data = form_collection.cleaned_data.get('sheet')
+        enseignements = form_collection.cleaned_data.get('enseignement')
+        enseignant = sheet_data['enseignant']
+        promotion = sheet_data['promotion']
+        filiere = sheet_data['filiere']
+
+        # Conversion des UUID en chaînes pour éviter l'erreur
+        self.request.session['sheet_data'] = {
+            'enseignant': {
+                'id': str(enseignant.id) if enseignant else None,
+                'lastname': f"{enseignant.last_name}",
+                'firstname': f"{enseignant.first_name}"
+            },
+            'promotion': {
+                'id': str(promotion.id) if promotion else None,
+                'label': promotion.name
+            },
+            'filiere': {
+                'id': str(filiere.id) if filiere else None,
+                'label': filiere.label
+            }
+        }
+
+        self.request.session['enseignement_data'] = {}
+        for enseignement in enseignements:
+            enseignement = enseignement['log']
+            niveau = enseignement['niveau']
+            semestre = enseignement['semestre']
+            module = enseignement['module']
+            ens = {
+                "code": enseignement['code'],
+                "niveau": {
+                    "id": str(niveau.id),
+                    "label": niveau.label
+                },
+                "semestre": {
+                    "id": str(semestre.id),
+                    "label": semestre.label
+                },
+                "module": {
+                    "id": str(module.id),
+                    "label": module.label
+                },
+                "ct_volume_horaire_confie": enseignement['ct_volume_horaire_confie'],
+                "td_volume_horaire_confie": enseignement['td_volume_horaire_confie'],
+                "tp_volume_horaire_confie": enseignement['tp_volume_horaire_confie'],
+            }
+
+            # Utilisation de str() pour sérialiser les UUID
+            self.request.session['enseignement_data'][enseignement['code']] = ens
+
+    # Rediriger vers la vue de prévisualisation
         return JsonResponse({'success_url': self.get_success_url()})
-    
+
+ 
     
 class SheetListView(cviews.CustomListView):
     model = Sheet
@@ -438,24 +467,6 @@ def rejeter_enseignement(request, pk):
     
     return redirect( 'fiche_management:sheet-detail', pk=enseignement.sheet.id) 
 
-class SheetPreviewView(TemplateView):
-    template_name = "sheet_preview.html"
-
-    def post(self, request, *args, **kwargs):
-        # Récupère les données soumises par le formulaire
-        form_data = request.POST.dict()
-        form_collection = FinalAgentPermanentFormCollection(form_data)
-
-        # Vérifie la validité des données du formulaire
-        if form_collection.is_valid():
-            context = {
-                'sheet_data': form_collection.cleaned_data['sheet'],
-                'enseignement_data': form_collection.cleaned_data.get('enseignement', []),
-            }
-            return render(request, self.template_name, context)
-        else:
-            return render(request, "form_template.html", {"form_collection": form_collection})
-
 
 
 class SheetConfirmView(View):
@@ -516,3 +527,56 @@ class EnseignemtUpdateView(cviews.CustomUpdateView):
         return context
     
 
+
+class SheetPreviewView(View):
+    template_name = 'sheet_preview.html'
+
+    def get(self, request):
+        # Récupérer les données de la session
+        sheet_data = request.session.get('sheet_data')
+        enseignement_data = request.session.get('enseignement_data')
+        print(enseignement_data)
+        if not sheet_data or not enseignement_data:
+            messages.error(request, "Aucune donnée à prévisualiser.")
+            return redirect('fiche_management:sheet_create')
+
+        # Afficher le récapitulatif
+        context = {
+            'sheet_data': sheet_data,
+            'enseignement_data': enseignement_data,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        # Soumission finale des données
+        sheet_data = request.session.pop('sheet_data', None)
+        enseignement_data = request.session.pop('enseignement_data', None)
+
+        if not sheet_data or not enseignement_data:
+            messages.error(request, "Erreur lors de la soumission.")
+            return redirect('fiche_management:sheet_create')
+
+        # Enregistrer les données dans la base de données
+        sheet = Sheet.objects.create(
+            enseignant=sheet_data['enseignant'],
+            promotion=sheet_data['promotion'],
+            etablissement_enseigne=sheet_data['etablissement_enseigne'],
+            filiere=sheet_data['filiere'],
+            is_permanent=False,
+        )
+
+        for ens in enseignement_data:
+            enseignement = ens['log']
+            Enseignements.objects.create(
+                code=enseignement['code'],
+                sheet=sheet,
+                niveau=enseignement['niveau'],
+                semestre=enseignement['semestre'],
+                module=enseignement['module'],
+                ct_volume_horaire_confie=enseignement['ct_volume_horaire_confie'],
+                td_volume_horaire_confie=enseignement['td_volume_horaire_confie'],
+                tp_volume_horaire_confie=enseignement['tp_volume_horaire_confie'],
+            )
+
+        messages.success(request, "Le dossier a été soumis avec succès!")
+        return redirect('fiche_management:sheet_success')

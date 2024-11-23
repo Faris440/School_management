@@ -3,12 +3,10 @@
 <div class="breadcrumb-container">
     <ul class="breadcrumb">
         <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-        <li><a href="#">Liste</a></li>
-        <li><a href="#">Détail</a></li>
-        <li class="active">{{ object.name }}</li>
+        <li><a href="{{ list_url }}">{{ list_of }}</a></li>
+        <li class="active">{{ card_title }}</li>
     </ul>
 </div>
-        
 {% endblock %}
 {% block content %}
 <div class="container">
@@ -24,6 +22,7 @@
                 <div class="col-4">
                     <p><strong><i class="fa fa-chalkboard-teacher primary"></i>Enseignant :</strong> {{ object.enseignant }}</p>
                     <p><strong>Etablissement d'enseignement :</strong> {{ object.etablissement_enseigne }}</p>
+                    <p><strong>Année Universitaire :</strong> {{ object.promotion }}</p>
                     <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
                     <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
                     <p><strong>Filière :</strong> {{ object.filiere }}</p>

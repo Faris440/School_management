@@ -1,5 +1,9 @@
 from django.db import models
 from School_management.cmodels import CONSTRAINT, CommonAbstractModel
+import uuid
+from django.core.exceptions import ValidationError
+
+
 
 # Définitions des longueurs par convention
 Max_length = 100
@@ -136,3 +140,22 @@ class Module(BaseModel):
 
     def __str__(self):
         return self.label
+    
+
+
+class Promotion(CommonAbstractModel):
+    name = models.CharField(max_length=20, unique=True, verbose_name="Nom de la promotion")
+    start_date = models.DateField(verbose_name="Date de début")
+    end_date = models.DateField(verbose_name="Date de fin")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "promotion"
+        verbose_name_plural = "promotions"
+        permissions = [("list_module", f"Peut lister {verbose_name}")]
+
+    def __str__(self):
+        return self.name
+    
+
+

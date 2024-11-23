@@ -25,7 +25,8 @@ from datetime import datetime
 from School_management import views as cviews
 from xauth.models import User, Assign, AccountActivationSecret, Nomination
 from .forms import *
-
+from formset.views import FileUploadMixin
+from django.views.generic import TemplateView
 
 
 
@@ -249,7 +250,8 @@ class StaffListView(ListView):
     name="dispatch",
 )
 
-class UserCreateView(cviews.CustomCreateView):
+
+class UserCreateView(FileUploadMixin,cviews.CustomCreateView):
     model = models.User
     success_url = reverse_lazy("auth:user-list")
     
@@ -283,7 +285,7 @@ class UserCreateView(cviews.CustomCreateView):
     permission_required("xauth.change_user", raise_exception=True),
     name="dispatch",
 )
-class UserUpdateView(cviews.CustomUpdateView):
+class UserUpdateView(FileUploadMixin,cviews.CustomUpdateView):
     model = models.User
     form_class = forms.UserChangeForm
 
@@ -326,7 +328,7 @@ class UserUpdateView(cviews.CustomUpdateView):
     permission_required("xauth.change_user", raise_exception=True),
     name="dispatch",
 )
-class UserProfilePhotoUpdateView(cviews.CustomUpdateView):
+class UserProfilePhotoUpdateView(FileUploadMixin , cviews.CustomUpdateView):
     model = models.User
     form_class = forms.UserChangeProfilePhotoForm
 
@@ -818,3 +820,33 @@ class AssignRemoveView(View):
 
             messages.success(request, "Rôle retirer avec succès")
             return redirect(self.get_success_url())
+
+
+class UserCreateReviewView(FileUploadMixin):
+    template_name = 'user_create_review.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Récupérer les données du formulaire à partir de la session
+        form_data = self.request.session.get('form_data', {})
+        context['form_data'] = form_data
+        return context
+
+
+
+
+class UserCreateSubmitView(View):
+    def post(self, request, *args, **kwargs):
+        # Récupérer les données enregistrées dans la session
+        form_data = request.session.get('form_data', {})
+        
+        # Créer un utilisateur avec les données
+        form = UserCreateForm(data=form_data)
+        
+        if form.is_valid():
+            form.save()  # Sauvegarde de l'utilisateur dans la base de données
+            # Vous pouvez ensuite rediriger vers une page de succès
+            return redirect('success')
+        else:
+            # Si le formulaire n'est pas valide, renvoyer à la page de récapitulatif
+            return redirect('user_create_review')

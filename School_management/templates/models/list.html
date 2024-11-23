@@ -54,7 +54,13 @@
 
 
 {% block breadcrumb %}
-<li class="breadcrumb-item active" aria-current="page">{{card_title}}</li>
+<div class="breadcrumb-container">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+        <li><a href="{{ list_url }}">{{ list_of }}</a></li>
+        <li class="active">{{ card_title }}</li>
+    </ul>
+</div>
 {% endblock breadcrumb %}
 
 {% block title %} {{card_title}} {% endblock title %}
@@ -65,7 +71,6 @@
 <div class="card" >
     <div class="d-flex justify-content-between align-items-center">
         <h2>{{ card_title }}</h2>
-        {% include 'components/back_button.html' %}
     </div>    
     <div class="card-body">
         <div class="d-flex flex-row mb-4 justify-content-between">
@@ -73,7 +78,8 @@
                 <form class="d-flex flex-row mb-4 justify-content-between" method="get" action="{{ search_url }}">
                     <div>
                         <input type="search" class="form-control rounded" placeholder="recherche..." aria-label="Search"
-                            aria-describedby="search-addon" name="query" />
+                            aria-describedby="search-addon" name="query" 
+                            data-toggle="tooltip" title="Faire une recherche"/>
                     </div>
                     <div>
                         <div class="btn-group" role="group">
@@ -114,23 +120,27 @@
                                 {% block list-options %}
                                 <a href="{% url info_url object.slug|default:object.id %}">
                                     <button type="button" class="btn btn-md btn-outline-info" data-bs-toggle="popover"
-                                        data-bs-content="Voir les détails" data-bs-container="body" data-bs-placement="top">
+                                        data-bs-content="Voir les détails" data-bs-container="body" data-bs-placement="top" 
+                                        data-toggle="tooltip" title="Voir les infos">
                                         {% icon "info" height=option_size width=option_size %}
                                     </button>
                                 </a>
                                 
                                     <a href="{% url update_url object.slug|default:object.id %}">
                                         <button type="button" class="btn btn-md btn-outline-success" data-bs-toggle="popover" data-bs-content="Modifier"
-                                            data-bs-container="body" data-bs-placement="top">
+                                            data-bs-container="body" data-bs-placement="top"
+                                            data-toggle="tooltip" title="Modifier">
                                             {% icon "edit" height=option_size width=option_size %}
                                         </button>
                                     </a>
                                         <a href="{% url delete_url object.slug|default:object.id %}" class="delete-btn">
                                             <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="Supprimer"
-                                                data-bs-container="body" data-bs-placement="top">
+                                                data-bs-container="body" data-bs-placement="top"
+                                                data-toggle="tooltip" title="Supprimer">
                                                 {% icon "trash" height=option_size width=option_size %}
                                             </button>
                                         </a>
+
                                 {% block other-options %}
                                 
                                 {% endblock other-options %}
@@ -152,4 +162,10 @@
     </div>
     {% block add-more %}{% endblock add-more %}
 </div>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
 {% endblock content %}

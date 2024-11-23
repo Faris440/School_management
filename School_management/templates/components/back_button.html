@@ -1,3 +1,6 @@
-<a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-outline-secondary btn-sm">
-    <i class="fa fa-arrow-left"></i> Retour
+{% load icon %}
+
+<a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-outline-secondary ">
+    <i>{% icon "corner-up-left" class="css-class" %}</i> Retour
 </a>
+

@@ -1,0 +1,42 @@
+{% extends "models/list.html" %}
+{% load icon %}
+{% load humanize %}
+{% load static %}
+
+{% block table-headers %}
+<th>Nom</th>
+<th>Date de Début</th>
+<th>Date de Fin</th>
+{% endblock table-headers %}
+
+{% block table-rows %}
+<td>{{ object.name }}</td>
+<td>{{ object.start_date|date:"d/m/Y" }}</td>
+<td>{{ object.end_date|date:"d/m/Y" }}</td>
+{% endblock table-rows %}
+
+{% block other-options %}
+<!-- Vous pouvez ajouter ici d'autres options si nécessaire -->
+{% endblock other-options %}
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let searchValue = this.value.toLowerCase();
+        let rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            let name = row.cells[0].textContent.toLowerCase();
+            let start_date = row.cells[1].textContent.toLowerCase();
+            let end_date = row.cells[2].textContent.toLowerCase();
+
+            if (name.includes(searchValue) || start_date.includes(searchValue) || end_date.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock javascript %}

@@ -4,7 +4,7 @@ from formset.widgets import (
     DualSortableSelector,DatePicker,UploadedFileInput,
     )
 # from typing import Any
-from django.forms import forms, fields, widgets
+from django.forms import forms, fields, widgets, DateInput
 from django.forms.models import ModelForm, ModelChoiceField
 from django.db.models import Q
 from django.contrib.auth.models import Group, Permission, User
@@ -85,7 +85,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         return self.user
 
 
-class UserCreateForm( ModelForm):
+class UserCreateForm(FormMixin, ModelForm):
     default_renderer = FormRenderer(
         form_css_classes="row",
         field_css_classes={
@@ -139,6 +139,7 @@ class UserCreateForm( ModelForm):
             "email",
             "matricule",
             "grade",
+            "date_nomination",
             "diplome",
             "ufr",
             "departement",
@@ -155,6 +156,7 @@ class UserCreateForm( ModelForm):
                 attrs={"placeholder": "Saisir votre nom", "class":"form-control"},
             ),
             "photo": UploadedFileInput(attrs={"max-size": 1024 * 1024 * 3}),
+
             "last_name": fm.TextInput(
                 attrs={"placeholder": "Saisir votre prénom", "class":"form-control"},
             ),
@@ -164,9 +166,14 @@ class UserCreateForm( ModelForm):
             "email": fm.EmailInput(
                 attrs={"placeholder": "Saisir votre adresse e-mail", "class":"form-control"},
             ),
-            "birthdate" : DatePicker(attrs={
-                        'max': (now()).isoformat(),
-                    }),
+            "birthdate" : DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            "date_nomination" : DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
             
 }
        
@@ -227,7 +234,7 @@ class UserConfirmDeleteForm(forms.Form):
         return matricule
 
 
-class UserChangeProfilePhotoForm( ModelForm):
+class UserChangeProfilePhotoForm(FormMixin, ModelForm):
     default_renderer = FormRenderer(
         form_css_classes="row",
         field_css_classes={
@@ -236,7 +243,10 @@ class UserChangeProfilePhotoForm( ModelForm):
     )
     class Meta:
         model = User
-        fields = ("photo",)
+        fields = ["photo"]
+        widgets = {
+            "photo": UploadedFileInput(attrs={"max-size": 1024 * 1024 * 3}),
+        }
 
 
 
@@ -314,6 +324,7 @@ class RoleForm(ModelForm):
     #
     def __init__(self, user: User = None, **kwargs):
         super().__init__( **kwargs)
+        self.fields['group_assign'].required = True
         if "instance" in kwargs and kwargs["instance"] is not None:
             # self.fields["structure"].widget.attrs["readonly"] = True
             pass

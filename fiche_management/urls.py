@@ -60,4 +60,5 @@ urlpatterns = [
         view=views.EnseignemtUpdateView.as_view(),
         name="enseignement-update",
     ),
+path('sheet/preview/', views.SheetPreviewView.as_view(), name='sheet_preview'),
 ]

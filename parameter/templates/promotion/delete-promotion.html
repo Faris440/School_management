@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Supprimer la Promotion</h4>
+                </div>
+                <div class="card-body">
+                    <p>Êtes-vous sûr de vouloir supprimer la promotion <strong>{{ object.name }}</strong> ?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Oui, Supprimer</button>
+                        <a href="{%  url 'parameter:promotion-list' %}" class="btn btn-secondary">Annuler</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

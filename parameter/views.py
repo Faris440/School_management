@@ -8,6 +8,11 @@ from .forms import *
 from django.views.generic import ListView, UpdateView, DeleteView,DetailView,CreateView
 from .models import *
 from School_management import views as cviews
+from .forms import PromotionForm
+from django.contrib import messages
+from django.db import IntegrityError
+
+
 
 
 class ContentListView(cviews.CustomListView):
@@ -55,7 +60,7 @@ class UfrCreateView(cviews.CustomCreateView):
     model = UniteDeRecherche
     form_class = UniteDeRechercheForm
     name = "uniteDeRecherche"
-    success_url = reverse_lazy("parameter:ufr-list")
+    success_url = reverse_lazy("parameter:uniteDeRecherche-list")
     
 
 
@@ -331,10 +336,43 @@ class NiveauDeleteView(cviews.CustomDeleteView):
     template_name = "niveau/delete-niveau.html"
     success_url = reverse_lazy("parameter:niveau-list")
     
-    
-    
-    
-    
+# promotion
+class PromotionListView(cviews.CustomListView):
+    model = Promotion
+    name = "promotion"
+    template_name = "promotion/list-promotion.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class PromotionCreateView(cviews.CustomCreateView):
+    model = Promotion
+    name = "promotion"
+    form_class = PromotionForm
+    success_url = reverse_lazy("parameter:promotion-list")
+
+
+
+class PromotionUpdateView(cviews.CustomUpdateView):
+    model = Promotion
+    name = "promotion"
+    form_class = PromotionForm
+    success_url = reverse_lazy("parameter:promotion-list")
+
+
+class PromotionDetailView(cviews.CustomDetailView):
+    model = Promotion
+    name = "promotion"
+    template_name = "promotion/detail-promotion.html"
+
+
+class PromotionDeleteView(cviews.CustomDeleteView):
+    model = Promotion
+    name = "promotion"
+    template_name = "promotion/delete-promotion.html"
+    success_url = reverse_lazy("parameter:promotion-list")
+
 
 
 

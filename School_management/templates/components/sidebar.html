@@ -25,6 +25,7 @@
           </ul>
         </li>
 
+        {% if perms.xauth.access_parameter%}
         <li class="menu-header">PARAMETRES</li>
         <li class="dropdown">
           <a href="#" class="nav-link has-dropdown" data-toggle="dropdown" ><i class="fas fa fa-graduation-cap"></i> <span>Gestion des cours</span></a>
@@ -32,14 +33,17 @@
             <li><a class="nav-link5" href="{% url 'parameter:uniteDeRecherche-list' %}">UFR</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:departement-list' %}">Départements</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:filiere-list' %}">Filières</a></li>
+            <li><a class="nav-link5" href="{% url 'parameter:promotion-list' %}">Promotion</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:semestre-list' %}">Semestre</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:niveau-list' %}">Niveau</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:ue-list' %}">Unité d'Enseignements</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:module-list' %}">Module(s)</a></li>
           </ul>
         </li>
+        {% endif %}
 
 
+        {% if perms.xauth.access_account %}
         <li class="menu-header">GESTION DES UTILISATEURS</li>
         <li class="dropdown">
           <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-fw fa-folder"></i> <span>Utilisateurs</span></a>
@@ -49,6 +53,8 @@
             <li><a class="nav-link5" href="{% url 'auth:nominations-list' %}">Nomination</a></li>
           </ul>
         </li>
+        {% endif %}
+
         <li><a class="nav-link1" href="#"><i class="fas fa-fw fa-chart-area"></i> <span>Statistiques</span></a></li>  
       </div>
     </aside>

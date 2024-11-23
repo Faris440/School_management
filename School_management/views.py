@@ -24,6 +24,7 @@ from formset.views import (
     IncompleteSelectResponseMixin,
 )
 from xauth.models import User
+from formset.views import FileUploadMixin
 
 
 LIST_MAX_ROWS = getattr(settings, "LIST_MAX_ROWS", 10)

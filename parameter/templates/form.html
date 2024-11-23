@@ -18,8 +18,13 @@
 {% endblock stylesheet %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{{ list_url }}">{{ list_of }}</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ card_title }}</li>
+<div class="breadcrumb-container">
+	<ul class="breadcrumb">
+		<li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+		<li><a href="{{ list_url }}">{{ list_of }}</a></li>
+		<li class="active">{{ card_title }}</li>
+	</ul>
+</div>
 {% endblock breadcrumb %}
 
 {% block content %}

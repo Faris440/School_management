@@ -17,15 +17,23 @@
 <script type="module" src="{% static 'formset/js/django-formset.js' %}" nonce="{{ request.csp_nonce }}"></script>
 {% endblock stylesheet %}
 
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{{ list_url }}">{{ list_of }}</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ card_title }}</li>
+{% block breadcrumb %}<div class="breadcrumb-container">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+        <li><a href="#">Liste</a></li>
+        <li><a href="#">Détail</a></li>
+        <li class="active">{{ object.name }}</li>
+    </ul>
+</div>
 {% endblock breadcrumb %}
 
 {% block content %}
 <div class="card mb-5">
-	<div class="card-header">
+	<div class="card-header" style="flex-direction: row;">
 		<h2 class="float-start">{{ card_title }}</h2>
+        <h2 style="padding-left: 50%;">
+            {% include 'components/back_button.html' %}
+        </h2>
 		{% if back_url %}
         <a href="{{ back_url }}">
             <button type="button" class="btn btn-md btn-outline-secondary float-end" 
@@ -47,11 +55,14 @@
 				{% render_form form  %}
 				{% endif %}
 				<div class="offset-sm-3 my-5">
-					{% include 'button.html' with label="Enregistrer" color="btn-success" icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
+					{% include 'button.html' with label="Enregistrer" color="btn btn-outline-success " icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
 					{% if can_rerender %}
-					{% include 'button.html' with label="Enregistrer et Continuer" color="btn-info" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
+					{% include 'button.html' with label="Enregistrer et Continuer" color="btn btn-outline-primary" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
 					{% endif %}
-					<a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}</a>
+					<a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn btn-outline-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}</a>
+                    <a href="#" class="btn btn-outline-primary ">
+                        Prévisualiser
+                    </a>
 				</div>
 			</django-formset>
 		</div>

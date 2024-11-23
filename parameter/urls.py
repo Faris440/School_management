@@ -204,7 +204,35 @@ urlpatterns = [
         view=views.ModuleDeleteView.as_view(),
         name="module-delete",
     ),
-    
+
+# Promotion
+
+    path(
+        "parameters/promotion/list/",
+        view=views.PromotionListView.as_view(),
+        name="promotion-list",
+    ),
+    path(
+        "parameters/promotion/create/",
+        view=views.PromotionCreateView.as_view(),
+        name="promotion-create",
+    ),
+    path(
+    "parameters/promotion/<uuid:pk>/detail/",
+    view=views.PromotionDetailView.as_view(),
+    name="promotion-detail",
+        ),
+
+    path(
+        "parameters/promotion/<uuid:pk>/update/",
+        view=views.PromotionUpdateView.as_view(),
+        name="promotion-update",
+    ),
+    path(
+        "parameters/promotion/<uuid:pk>/delete/",
+        view=views.PromotionDeleteView.as_view(),
+        name="promotion-delete",
+    ),
 
 
 ]

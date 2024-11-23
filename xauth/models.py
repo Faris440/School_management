@@ -45,7 +45,8 @@ class User(AbstractUser, CommonAbstractModel):
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     diplome = models.CharField(_("diplome"),null=True, max_length=MEDIUM_LENGTH)
     structure_origine = models.CharField(_("Struture d'origine"), max_length=MEDIUM_LENGTH)
-    grade = models.CharField(_("grade"), max_length=MEDIUM_LENGTH)
+    date_nomination = models.DateField(_("Date de nomination"), max_length=MEDIUM_LENGTH)
+    birthdate = models.DateField("Date de naissance")
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     email = models.EmailField(_("email address"), unique=True)
     birthdate = models.DateField("Date de naissance")
@@ -57,6 +58,7 @@ class User(AbstractUser, CommonAbstractModel):
         null=True,
         blank=True,
         help_text="Une image dont la taille n'excède pas 3 Mo",
+        upload_to="profil/",
     )
     phone = PhoneNumberField("Numéro de téléphone", unique=True)
     is_admin = models.BooleanField(verbose_name="Est un(e) administrateur(e)", default=False)
@@ -131,6 +133,8 @@ class User(AbstractUser, CommonAbstractModel):
             ("deactivate_user", "Can deactivate user"),
             ("change_right_user", "Can change user right"),
             ("access_parameter", "Can access to parameter module"),
+            ("access_fiche_management", "Can access to fiche_management module"),
+            ("access_xauth", "Can access to xauth module"),
             ("access_account", "Can access to account module"),
             ("can_submit_programmatic_sheet", "Peut soumettre une fiche programmatique"),
             ("can_update_programmatic_sheet", "Peut modifier une fiche programmatique"),

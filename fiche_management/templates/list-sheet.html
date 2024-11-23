@@ -4,27 +4,29 @@
 {% load static %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <ul class="breadcrumb">
-            <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-            <li><a href="#">Liste</a></li>
-            <li class="active">{{ object.name }}</li>
-        </ul>
-    </div>
-{% endblock %}
+<div class="breadcrumb-container">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
+        <li><a href="{{ list_url }}">{{ list_of }}</a></li>
+        <li class="active">{{ card_title }}</li>
+    </ul>
+</div>
+{% endblock breadcrumb %}
 {% block table-headers %}
 <th>Enseignant</th>
 <th>Filière</th>
-<th>Debut de la periode</th>
-<th>Fin de la periode</th>
+<th>Année Universitaire</th>
+<!-- <th>Debut de la periode</th>
+<th>Fin de la periode</th> -->
 <th>Statut</th> 
 {% endblock table-headers %}
 
 {% block table-rows %}
 <td>{{ object.enseignant }}</td>
 <td>{{ object.filiere }}</td>
-<td>{{ object.date_debut }}</td>
-<td>{{ object.date_fin }}</td>
+<td>{{ object.promotion }}</td>
+<!-- <td>{{ object.date_debut }}</td>
+<td>{{ object.date_fin }}</td> -->
 <td>
     
     {% if object.check_sheet %}

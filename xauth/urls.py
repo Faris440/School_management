@@ -109,5 +109,7 @@ urlpatterns = [
         views.AssignRemoveView.as_view(),
         name="assign-remove",
     ),
+        # path('inscription/review/', views.UserCreateReviewView.as_view(), name='user_create_review'),  # Récapitulatif
+
 
 ]
