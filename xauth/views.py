@@ -287,7 +287,7 @@ class UserCreateView(FileUploadMixin,cviews.CustomCreateView):
 )
 class UserUpdateView(FileUploadMixin,cviews.CustomUpdateView):
     model = models.User
-    form_class = forms.UserChangeForm
+    form_class = forms.UserCreateForm
 
     # def get_form_kwargs(self):
     #     kwargs = super().get_form_kwargs()
@@ -678,6 +678,7 @@ class SetPasswordView(FormViewMixin,FormView):
         form.save()
         messages.success(self.request, "Votre compte a été activé avec succès.")
         return super().form_valid(form)
+    
 class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "public/password-reset-complete.html"
     # success_url = reverse_lazy("password-reset-complete")
@@ -720,12 +721,17 @@ class NominationListView(cviews.CustomListView):
     model = Nomination
     name = 'nominations'
     app_name = 'auth'
+    template_name = 'nomination_list.html'
 
     def get_name(self) -> tuple[str, str]:
         if self.name != "":
             name = self.name
         return name, self.app_name
-    template_name = 'nomination_list.html'
+    
+    def get_queryset(self):
+        queryset = Nomination.objects.all()
+        print(queryset)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

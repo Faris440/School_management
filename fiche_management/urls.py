@@ -13,7 +13,7 @@ urlpatterns = [
         ),
     path(
         "management/create/",
-        view=views.SheetCreateView.as_view(),
+        view=views.SheetPermananteCreateByAgentView.as_view(),
         name="sheet-create",
         ),
     path(
@@ -60,5 +60,9 @@ urlpatterns = [
         view=views.EnseignemtUpdateView.as_view(),
         name="enseignement-update",
     ),
-path('sheet/preview/', views.SheetPreviewView.as_view(), name='sheet_preview'),
+    path('sheet/preview/', views.SheetPreviewView.as_view(),
+      name='sheet_preview'),
+
+    path('sheet/PermanentPreview/', views.SheetPermanantPreviewView.as_view(),
+      name='perm_sheet_preview'),
 ]

@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views 
 from xauth import views as xauth_views
+from django.views.i18n import JavaScriptCatalog
+
 
 
 MEDIA_ROOT = getattr (settings,"MEDIA_ROOT")
@@ -49,5 +51,7 @@ urlpatterns = [
         xauth_views.SetPasswordView.as_view(),
         name="user-set-password",
     ),
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 

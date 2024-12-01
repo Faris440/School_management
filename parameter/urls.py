@@ -234,5 +234,36 @@ urlpatterns = [
         name="promotion-delete",
     ),
 
+    # Année Universitaire
+
+    path(
+        "parameters/annee_univ/list/",
+        view=views.Annee_univListView.as_view(),
+        name="annee_univ-list",
+        ),
+    path(
+        "parameters/annee_univ/create/",
+        view=views.Annee_univCreateView.as_view(),
+        name="annee_univ-create",
+    ),
+    path(
+        "parameters/annee_univ/<uuid:pk>/detail/",
+        view=views.Annee_univDetailView.as_view(),
+        name="annee_univ-detail",
+        ),
+
+    path(
+        "parameters/annee_univ/<uuid:pk>/update/",
+        view=views.Annee_univUpdateView.as_view(),
+        name="annee_univ-update",
+    ),
+
+    
+    path(
+        "parameters/annee_univ/<uuid:pk>/delete/",
+        view=views.Annee_univDeleteView.as_view(),
+        name="annee_univ-delete",
+    ),
+
 
 ]

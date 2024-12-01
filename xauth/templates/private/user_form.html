@@ -15,17 +15,18 @@
 {{ form.media.css }}
 {% endif %}
 <script type="module" src="{% static 'formset/js/django-formset.js' %}" nonce="{{ request.csp_nonce }}"></script>
+<script src="{% url 'javascript-catalog' %}" nonce="{{request.csp_nonce}}"></script>
 {% endblock stylesheet %}
 
-{% block breadcrumb %}<div class="breadcrumb-container">
+{% block breadcrumb %}
+<div class="breadcrumb-container ">
     <ul class="breadcrumb">
         <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-        <li><a href="#">Liste</a></li>
-        <li><a href="#">Détail</a></li>
-        <li class="active">{{ object.name }}</li>
+        <li><a href="{{ list_url }}">{{ list_of }}</a></li>
+        <li class="active">{{ card_title }}</li>
     </ul>
 </div>
-{% endblock breadcrumb %}
+{% endblock %}
 
 {% block content %}
 <div class="card mb-5">
@@ -59,9 +60,8 @@
 					{% if can_rerender %}
 					{% include 'button.html' with label="Enregistrer et Continuer" color="btn btn-outline-primary" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
 					{% endif %}
-					<a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn btn-outline-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}</a>
-                    <a href="#" class="btn btn-outline-primary ">
-                        Prévisualiser
+					<a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn btn-outline-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}
+                        
                     </a>
 				</div>
 			</django-formset>

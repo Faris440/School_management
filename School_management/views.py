@@ -981,7 +981,7 @@ class CustomListView(CustomViewMixin, ListView):
         name, app_name = self.get_name()
         model_name = self.model.__name__.lower()
         url_name = app_name
-        print(app_name, name, model_name)
+        print(app_name)
         if name in ["user"]:
             url_name = "auth"
         # context["import_url"] = reverse(

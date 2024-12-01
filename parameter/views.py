@@ -8,7 +8,7 @@ from .forms import *
 from django.views.generic import ListView, UpdateView, DeleteView,DetailView,CreateView
 from .models import *
 from School_management import views as cviews
-from .forms import PromotionForm
+from .forms import PromotionForm, Annee_univForm
 from django.contrib import messages
 from django.db import IntegrityError
 
@@ -372,6 +372,44 @@ class PromotionDeleteView(cviews.CustomDeleteView):
     name = "promotion"
     template_name = "promotion/delete-promotion.html"
     success_url = reverse_lazy("parameter:promotion-list")
+
+# Année universitaire
+
+class Annee_univListView(cviews.CustomListView):
+    model = Annee_univ
+    name = "annee_univ"
+    template_name = "annee_univ/list-annee_univ.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+    
+
+class Annee_univCreateView(cviews.CustomCreateView):
+    model = Annee_univ
+    name = "annee_univ"
+    form_class = Annee_univForm
+    success_url = reverse_lazy("parameter:annee_univ-list")
+
+
+class Annee_univUpdateView(cviews.CustomUpdateView):
+    model = Annee_univ
+    name = "annee_univ"
+    form_class = Annee_univForm
+    success_url = reverse_lazy("parameter:annee_univ-list")
+
+
+class Annee_univDetailView(cviews.CustomDetailView):
+    model = Annee_univ
+    name = "annee_univ"
+    template_name = "annee_univ/detail-annee_univ.html"
+
+
+class Annee_univDeleteView(cviews.CustomDeleteView):
+    model = Annee_univ
+    name = "annee_univ"
+    template_name = "promotion/delete-annee_univ.html"
+    success_url = reverse_lazy("parameter:annee_univ-list")
 
 
 

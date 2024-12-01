@@ -7,7 +7,10 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.views.generic import TemplateView, View
-from xauth.models import Nomination
+from xauth.models import Nomination, User
+from parameter.models import Promotion, Filiere, Niveau, Semestre,Module
+from datetime import date
+
 # Create your views here.
 
 class SheetCreateView(cviews.CustomFormCollectionView):
@@ -52,7 +55,10 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         enseignement_data = form_collection.cleaned_data.get('enseignement')
         user = self.request.user
         sheet = None
-        x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
+        cond = sheet_data['gender']
+        x = 0
+        if cond == 'O':
+            x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
         if not user.is_staff :
             if user.teacher_type == 'permanent':
                 sheet = Sheet.objects.create(
@@ -127,48 +133,144 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
     model = Sheet
     name = "sheet"
     collection_class = FinalAgentPermanentFormCollection
-    
+
     def get_success_url(self):
-        return reverse('fiche_management:sheet-list')
+        return getattr(self, 'success_url', reverse('fiche_management:perm_sheet_preview'))
+    
+    def get_collection_class(self):
+        user = self.request.user
+        type = self.request.GET.get('for')
+        self.type = type
+        app_name = "fiche_management"
+        model_name = self.model._meta.model_name
+        add_multi =self.request.user.has_perm(f"{app_name}.can_add_multiple_{model_name}")
+        if not user.is_staff and not add_multi:
+            if user.teacher_type == 'permanent':
+                return FinalPermanentFormCollection
+            elif user.teacher_type == 'vacataire':
+                return FinalVacataireFormCollection
+        elif user.is_staff:
+            return FinalAgentPermanentFormCollection
+        return FinalVacataireFormCollection
     
     def form_collection_valid(self, form_collection):
-        type = self.kwargs.get("type")
+        # Stocker les données temporairement dans la session
         sheet_data = form_collection.cleaned_data.get('sheet')
-        enseignement_data = form_collection.cleaned_data.get('enseignement')
-        x = sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
-        sheet = Sheet.objects.create(
-            enseignant = sheet_data['enseignant'],
-            promotion = sheet_data['promotion'],
-            date_debut = sheet_data['date_debut'],
-            date_fin = sheet_data['date_fin'],
-            etablissement_enseigne = sheet_data['etablissement_enseigne'],
-            abattement = sheet_data['abattement'],
-            volume_horaire_statuaire = sheet_data['volume_horaire_statuaire'],
-            motif_abattement = sheet_data['motif_abattement'],
-            v_h_obli_apres_abattement = x,
-            is_permanent = True,
-            filiere=sheet_data['filiere'],
-            )
+        enseignements = form_collection.cleaned_data.get('enseignement')
+        print(sheet_data)
+        enseignant = sheet_data.get('enseignant')
+        if enseignant is None:
+            enseignant = self.request.user
+        promotion = sheet_data['promotion']
+        filiere = sheet_data['filiere']
+        date_debut = sheet_data.get('date_debut')
+        date_fin = sheet_data.get('date_fin')
+        cond = sheet_data.get('gender')
+        print(cond)
+        # Vérification des doublons dans les modules
+        modules_labels = set()
+        for enseignement in enseignements:
+            module = enseignement['log']['module']
+            if module.label in modules_labels:
+                return self.form_collection_invalid(form_collection)  # Invalider le formulaire
+            modules_labels.add(module.label)
+        # Conversion des UUID en chaînes pour éviter les problèmes de sérialisation
 
-        for ens in enseignement_data :
-            enseignement = ens['log']
-            enseignements = Enseignements.objects.create(
-                code = enseignement['code'],
-                sheet = sheet,
-                niveau = enseignement['niveau'],
-                semestre = enseignement['semestre'],
-                module = enseignement['module'],
+        if cond == 'O':
+            print('azertyuiop')
+            self.request.session['sheet_data'] = {
+                'enseignant': {
+                    'id': str(enseignant.id) if enseignant else None,
+                    'lastname': f"{enseignant.last_name}",
+                    'firstname': f"{enseignant.first_name}"
+                },
+                'promotion': {
+                    'id': str(promotion.id) if promotion else None,
+                    'label': promotion.name
+                },
+                'filiere': {
+                    'id': str(filiere.id) if filiere else None,
+                    'label': filiere.label
+                },
                 
-                ct_volume_horaire_confie = enseignement['ct_volume_horaire_confie'],
-                td_volume_horaire_confie = enseignement['td_volume_horaire_confie'],
-                tp_volume_horaire_confie = enseignement['tp_volume_horaire_confie'],
-                ct_volume_horaire_efectue = enseignement['ct_volume_horaire_efectue'],
-                td_volume_horaire_efectue = enseignement['td_volume_horaire_efectue'],
-                tp_volume_horaire_efectue = enseignement['tp_volume_horaire_efectue'],
-            )
+                
+                'etablissement_enseigne': sheet_data['etablissement_enseigne'],
+                # is permanent
+                
+                'is_permanent': True,
+                'volume_horaire_statuaire': sheet_data['volume_horaire_statuaire'],
+                'abattement': sheet_data['abattement'],
+                'motif_abattement': sheet_data['motif_abattement'],
+                'v_h_obli_apres_abattement': (
+                    sheet_data['volume_horaire_statuaire'] - sheet_data['abattement']
+                ),
+                'date_debut': {
+                    'id': str(date_debut) if date_debut else None,
+                    'label': str(date_debut) if date_debut else None
+                },
+                'date_fin': {
+                    'id': str(date_fin) if date_fin else None,
+                    'label': str(date_fin) if date_fin else None
+                },
+            }
+        else :
+            print('qsfghjklm')
+            self.request.session['sheet_data'] = {
+            'enseignant': {
+                'id': str(enseignant.id) if enseignant else None,
+                'lastname': f"{enseignant.last_name}",
+                'firstname': f"{enseignant.first_name}"
+            },
+            'promotion': {
+                'id': str(promotion.id) if promotion else None,
+                'label': promotion.name
+            },
+            'filiere': {
+                'id': str(filiere.id) if filiere else None,
+                'label': filiere.label
+            },
+            
+            'etablissement_enseigne': sheet_data['etablissement_enseigne'],
+            }
+
         
-        messages.success(self.request, f'Le dossier a été enregistré avec succès!')
+        
+
+        self.request.session['enseignement_data'] = {}
+        for enseignement in enseignements:
+            enseignement = enseignement['log']
+            niveau = enseignement['niveau']
+            semestre = enseignement['semestre']
+            module = enseignement['module']
+            ens = {
+                "code": enseignement['code'],
+                "niveau": {
+                    "id": str(niveau.id),
+                    "label": niveau.label
+                },
+                "semestre": {
+                    "id": str(semestre.id),
+                    "label": semestre.label
+                },
+                "module": {
+                    "id": str(module.id),
+                    "label": module.label
+                },
+                "ct_volume_horaire_confie": enseignement['ct_volume_horaire_confie'],
+                "td_volume_horaire_confie": enseignement['td_volume_horaire_confie'],
+                "tp_volume_horaire_confie": enseignement['tp_volume_horaire_confie'],
+            }
+
+            # Utilisation de str() pour sérialiser les UUID
+            self.request.session['enseignement_data'][enseignement['code']] = ens
+        if cond == 'O':
+                self.success_url = reverse('fiche_management:perm_sheet_preview')          
+        else :
+                self.success_url = reverse('fiche_management:sheet_preview')  
+
+        # Rediriger vers la vue de prévisualisation
         return JsonResponse({'success_url': self.get_success_url()})
+
     
 
 
@@ -187,6 +289,14 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
         enseignant = sheet_data['enseignant']
         promotion = sheet_data['promotion']
         filiere = sheet_data['filiere']
+        
+        modules_labels = set()  # Utiliser un set pour détecter les doublons
+        for enseignement in enseignements:
+            module = enseignement['log']['module']
+            if module.label in modules_labels:
+
+                return self.form_collection_invalid(form_collection)  # Invalider le formulaire
+            modules_labels.add(module.label)
 
         # Conversion des UUID en chaînes pour éviter l'erreur
         self.request.session['sheet_data'] = {
@@ -246,25 +356,22 @@ class SheetListView(cviews.CustomListView):
     def get_queryset(self):
         user = self.request.user
         if not user.is_staff :
-            nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
-            print(nomination)
-            if nomination :
-                queryset = Sheet.objects.none()
-
-                if nomination.ufr is not None:
-                    print(1, nomination.ufr)
-                    queryset |= Sheet.objects.filter(filiere__departement__ufr=nomination.ufr)
-                    return queryset
-                if nomination.departement is not None:
-                    print(2)
-                    queryset |= Sheet.objects.filter(filiere__departement=nomination.departement)
-                    return queryset
-                if nomination.filiere is not None:
-                    queryset |= Sheet.objects.filter(filiere=nomination.filiere)
-                    return queryset
-                if nomination.nomination_type == 'vise-president':
-                    queryset |= Sheet.objects.all()
-                    return queryset
+            access_vice_president = self.request.user.has_perm("xauth.vice_president")
+            access_programme = self.request.user.has_perm("xauth.responsable_programme")
+            access_responsable_filiere = self.request.user.has_perm("xauth.responsable_filiere")
+            queryset = Sheet.objects.none()
+            print(access_vice_president, access_programme,access_responsable_filiere)
+            if access_vice_president:
+                queryset |= Sheet.objects.all()
+                return queryset
+            if access_programme:
+                print(2)
+                queryset |= Sheet.objects.filter(filiere__departement=user.departement)
+                return queryset
+            if access_responsable_filiere:
+                print("azertyu")
+                queryset |= Sheet.objects.filter(filiere=user.filiere)
+                return queryset
             return Sheet.objects.filter(enseignant = user)
         return super().get_queryset()
 
@@ -304,24 +411,37 @@ class SheetDetailView(cviews.CustomDetailView):
         user = self.request.user
         sheet = self.get_object()
         context['nomination'] = Nomination.objects.filter(user = user , is_desactivate = False).first()
+        context['check'] = False
         context['count_validate'] = 0
         context['count_invalidate'] = 0
         context['count_inprocess'] = 0
+        context["card_title"] = sheet.enseignant
+        context['access_vice_president'] = self.request.user.has_perm("xauth.vice_president")
+        context['access_programme'] = self.request.user.has_perm("xauth.responsable_programme")
+        context['access_responsable_filiere'] = self.request.user.has_perm("xauth.responsable_filiere")
+        print(context['access_vice_president'],context['access_programme'],context['access_responsable_filiere'])
         enseignements = sheet.enseignement_sheet.all()
+
+        for enseignement in enseignements:
+            if enseignement.validate_by_vice_presient:
+                context['check'] = True
+            elif enseignement.validate_by_responsable_programme:
+                context['check'] = True
+            elif enseignement.validate_by_responsable_filiere:
+                context['check'] = True
+        
         for enseignement in enseignements:
             if enseignement.validate_by_vice_presient:
                 context['count_validate'] += 1
             elif enseignement.validate_by_vice_presient is False:
                 context['count_invalidate'] += 1
-            elif enseignement.validate_by_responsable_ufr is False:
+            elif enseignement.validate_by_responsable_programme is False:
                 context['count_invalidate'] += 1
             elif enseignement.validate_by_responsable_filiere is False:
                 context['count_invalidate'] += 1
             else:
                 context['count_inprocess'] += 1
 
-
-        print()
         return context
     
 
@@ -358,9 +478,9 @@ def valider_fiche(request, pk):
     else:
         enseignements = fiche.enseignement_sheet.all()
         if type == 'ufr':
-            fiche.validate_by_responsable_ufr = True
+            fiche.validate_by_responsable_programme = True
             for elem in enseignements :
-                elem.validate_by_responsable_ufr = True
+                elem.validate_by_responsable_programme = True
                 elem.save()
         elif type == 'filiere':
             fiche.validate_by_responsable_filiere = True
@@ -368,9 +488,9 @@ def valider_fiche(request, pk):
                 elem.validate_by_responsable_filiere = True
                 elem.save()
             if not fiche.is_permanent :
-                fiche.validate_by_responsable_ufr = True
+                fiche.validate_by_responsable_programme = True
                 for elem in enseignements :
-                    elem.validate_by_responsable_ufr = True
+                    elem.validate_by_responsable_programme = True
                     elem.save()
         elif type == 'vise-president':
             fiche.validate_by_vice_presient = True
@@ -395,9 +515,9 @@ def rejeter_fiche(request, pk):
         motif_rejet = request.POST.get("motif_rejet")
         enseignements = fiche.enseignement_sheet.all()
         if type == 'ufr':
-            fiche.validate_by_responsable_ufr = False
+            fiche.validate_by_responsable_programme = False
             for elem in enseignements :
-                elem.validate_by_responsable_ufr = False
+                elem.validate_by_responsable_programme = False
                 elem.save()
         elif type == 'filiere':
             fiche.validate_by_responsable_filiere = False
@@ -405,9 +525,9 @@ def rejeter_fiche(request, pk):
                 elem.validate_by_responsable_filiere = False
                 elem.save()
             if not fiche.is_permanent :
-                fiche.validate_by_responsable_ufr = False
+                fiche.validate_by_responsable_programme = False
                 for elem in enseignements :
-                    elem.validate_by_responsable_ufr = False
+                    elem.validate_by_responsable_programme = False
                     elem.save()
         elif type == 'vise-president':
             fiche.validate_by_vice_presient = False
@@ -427,15 +547,17 @@ def rejeter_fiche(request, pk):
 def valider_enseignement(request, pk):
     enseignement = get_object_or_404(Enseignements, id=pk)
     user = request.user
-    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
-    type = nomination.nomination_type
-    if type == 'ufr':
-        enseignement.validate_by_responsable_ufr = True
-    elif type == 'filiere':
+    access_vice_president = request.user.has_perm("xauth.vice_president")
+    access_programme = request.user.has_perm("xauth.responsable_programme")
+    access_responsable_filiere = request.user.has_perm("xauth.responsable_filiere")
+    queryset = Sheet.objects.none()
+    if access_programme:
+        enseignement.validate_by_responsable_programme = True
+    elif access_responsable_filiere:
         enseignement.validate_by_responsable_filiere = True
         if not enseignement.sheet.is_permanent :
-            enseignement.validate_by_responsable_ufr = True
-    elif type == 'vise-president':
+            enseignement.validate_by_responsable_programme = True
+    elif access_vice_president:
         enseignement.validate_by_vice_presient = True
     enseignement.save()
     messages.success(request, "La fiche a été validée avec succès !")
@@ -448,16 +570,18 @@ def valider_enseignement(request, pk):
 def rejeter_enseignement(request, pk):
     enseignement = get_object_or_404(Enseignements, id=pk)
     user = request.user
-    nomination = Nomination.objects.filter(user = user , is_desactivate = False).first()
-    type = nomination.nomination_type
+    access_vice_president = request.user.has_perm("xauth.vice_president")
+    access_programme = request.user.has_perm("xauth.responsable_programme")
+    access_responsable_filiere = request.user.has_perm("xauth.responsable_filiere")
+    queryset = Sheet.objects.none()
     if request.method == "POST":
         motif_rejet = request.POST.get("motif_rejet")
             
-        if type == 'ufr':
-            enseignement.validate_by_responsable_ufr = False
-        elif type == 'filiere':
+        if access_programme:
+            enseignement.validate_by_responsable_programme = False
+        elif access_responsable_filiere:
             enseignement.validate_by_responsable_filiere = False
-        elif type == 'vise-president':
+        elif access_vice_president:
             enseignement.validate_by_vice_presient = False
         else:
             messages.error(request, "Veuillez fournir un motif pour le rejet.")
@@ -535,15 +659,30 @@ class SheetPreviewView(View):
         # Récupérer les données de la session
         sheet_data = request.session.get('sheet_data')
         enseignement_data = request.session.get('enseignement_data')
-        print(enseignement_data)
         if not sheet_data or not enseignement_data:
             messages.error(request, "Aucune donnée à prévisualiser.")
             return redirect('fiche_management:sheet_create')
-
+        return_url = request.META.get('HTTP_REFERER', '/')
         # Afficher le récapitulatif
+        enseignant = get_object_or_404(User, id = sheet_data['enseignant']['id'])
+
+        total_ct = sum(item['ct_volume_horaire_confie'] for item in enseignement_data.values())
+        total_td = sum(item['td_volume_horaire_confie'] for item in enseignement_data.values())
+        total_tp = sum(item['tp_volume_horaire_confie'] for item in enseignement_data.values())
+
+        print(sheet_data)
+
+        today = date.today()
         context = {
             'sheet_data': sheet_data,
             'enseignement_data': enseignement_data,
+            'total_td': total_td,
+            'total_tp': total_tp,
+            'total_ct': total_ct,
+            'return_url' : return_url,
+            'today': today,
+            'grade' : enseignant.grade
+
         }
         return render(request, self.template_name, context)
 
@@ -557,26 +696,121 @@ class SheetPreviewView(View):
             return redirect('fiche_management:sheet_create')
 
         # Enregistrer les données dans la base de données
+        enseignant = get_object_or_404(User, id = sheet_data['enseignant']['id'])
+        promotion = get_object_or_404(Promotion, id = sheet_data['promotion']['id'])
+        filiere = get_object_or_404(Filiere, id = sheet_data['filiere']['id'])
+        print(enseignement_data)
         sheet = Sheet.objects.create(
-            enseignant=sheet_data['enseignant'],
-            promotion=sheet_data['promotion'],
-            etablissement_enseigne=sheet_data['etablissement_enseigne'],
-            filiere=sheet_data['filiere'],
+            enseignant=enseignant,
+            promotion=promotion,
+            filiere=filiere,
             is_permanent=False,
         )
 
-        for ens in enseignement_data:
-            enseignement = ens['log']
+        index = 1
+        keys = list(enseignement_data.keys())  # Liste ordonnée des clés
+        for idx, (key, value) in enumerate(enseignement_data.items()):
+            enseignement = value
+            niveau = get_object_or_404(Niveau, id = enseignement['niveau']['id'])
+            semestre = get_object_or_404(Semestre, id = enseignement['semestre']['id'])
+            module = get_object_or_404(Module, id = enseignement['module']['id'])
+
             Enseignements.objects.create(
                 code=enseignement['code'],
                 sheet=sheet,
-                niveau=enseignement['niveau'],
-                semestre=enseignement['semestre'],
-                module=enseignement['module'],
+                niveau=niveau,
+                semestre=semestre,
+                module=module,
                 ct_volume_horaire_confie=enseignement['ct_volume_horaire_confie'],
                 td_volume_horaire_confie=enseignement['td_volume_horaire_confie'],
                 tp_volume_horaire_confie=enseignement['tp_volume_horaire_confie'],
             )
 
         messages.success(request, "Le dossier a été soumis avec succès!")
-        return redirect('fiche_management:sheet_success')
+        return redirect('fiche_management:sheet-list')
+    
+
+
+class SheetPermanantPreviewView(View):
+    template_name = 'perm_sheet_preview.html'
+
+    def get(self, request):
+        # Récupérer les données de la session
+        sheet_data = request.session.get('sheet_data')
+        enseignement_data = request.session.get('enseignement_data')
+        if not sheet_data or not enseignement_data:
+            messages.error(request, "Aucune donnée à prévisualiser.")
+            return redirect('fiche_management:sheet_create')
+
+        return_url = request.META.get('HTTP_REFERER', '/')
+        print(sheet_data)
+        enseignant = get_object_or_404(User, id=sheet_data['enseignant']['id'])
+
+        # Calculer les totaux pour les volumes horaires
+        total_ct = sum(item['ct_volume_horaire_confie'] for item in enseignement_data.values())
+        total_td = sum(item['td_volume_horaire_confie'] for item in enseignement_data.values())
+        total_tp = sum(item['tp_volume_horaire_confie'] for item in enseignement_data.values())
+
+        # Calculer les champs spécifiques aux permanents
+        v_h_obli_apres_abattement = sheet_data['v_h_obli_apres_abattement']
+
+        today = date.today()
+        context = {
+            'sheet_data': sheet_data,
+            'enseignement_data': enseignement_data,
+            'total_td': total_td,
+            'total_tp': total_tp,
+            'total_ct': total_ct,
+            'v_h_obli_apres_abattement': v_h_obli_apres_abattement,
+            'return_url': return_url,
+            'today': today,
+            'grade': enseignant.grade,
+            'is_permanent': True,
+            'etablissement_enseigne': sheet_data['etablissement_enseigne'],
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        # Soumission finale des données
+        sheet_data = request.session.pop('sheet_data', None)
+        enseignement_data = request.session.pop('enseignement_data', None)
+
+        if not sheet_data or not enseignement_data:
+            messages.error(request, "Erreur lors de la soumission.")
+            return redirect('fiche_management:sheet_create')
+
+        # Enregistrer les données dans la base de données
+        enseignant = get_object_or_404(User, id=sheet_data['enseignant']['id'])
+        promotion = get_object_or_404(Promotion, id=sheet_data['promotion']['id'])
+        filiere = get_object_or_404(Filiere, id=sheet_data['filiere']['id'])
+
+        sheet = Sheet.objects.create(
+            enseignant=enseignant,
+            promotion=promotion,
+            filiere=filiere,
+            is_permanent=True,
+            volume_horaire_statuaire=sheet_data['volume_horaire_statuaire'],
+            abattement=sheet_data['abattement'],
+            motif_abattement=sheet_data['motif_abattement'],
+            v_h_obli_apres_abattement=sheet_data['v_h_obli_apres_abattement'],
+            etablissement_enseigne=sheet_data['etablissement_enseigne'],
+        )
+
+        for key, enseignement in enseignement_data.items():
+            niveau = get_object_or_404(Niveau, id=enseignement['niveau']['id'])
+            semestre = get_object_or_404(Semestre, id=enseignement['semestre']['id'])
+            module = get_object_or_404(Module, id=enseignement['module']['id'])
+
+            Enseignements.objects.create(
+                code=enseignement['code'],
+                sheet=sheet,
+                niveau=niveau,
+                semestre=semestre,
+                module=module,
+                ct_volume_horaire_confie=enseignement['ct_volume_horaire_confie'],
+                td_volume_horaire_confie=enseignement['td_volume_horaire_confie'],
+                tp_volume_horaire_confie=enseignement['tp_volume_horaire_confie'],
+            )
+
+        messages.success(request, "Le dossier permanent a été soumis avec succès!")
+        return redirect('fiche_management:sheet-list')

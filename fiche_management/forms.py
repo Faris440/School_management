@@ -9,6 +9,7 @@ from django.utils.timezone import now, timedelta
 from formset.collection import FormMixin
 from xauth.models import User
 from django.utils.safestring import mark_safe
+from django.forms import widgets
 
 
 class EnseignementsForm(forms.ModelForm):
@@ -67,8 +68,12 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         },
     )
     etablissement_enseigne = forms.CharField(label="Etablissement bénéficiaire")
-    volume_horaire_statuaire = forms.IntegerField(label="Volume horaire statuaire")
-
+    gender = forms.fields.ChoiceField(
+            label="Permanent",
+            choices=[('O', "Oui"), ('N', "Non")],
+            widget=widgets.RadioSelect,
+                )
+    
     class Meta:
         model = Sheet
         fields = [
@@ -82,17 +87,24 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
             'motif_abattement',
             'filiere',
             'promotion',
+            
         ]
+
         widgets = {
             'date_fin': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
+                'df-show': ".gender=='O'"
             }),
             'date_debut': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
+                'df-show': ".gender=='O'"
             }),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
+            'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
+            'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
+            'motif_abattement' : forms.TextInput(attrs={'df-show': ".gender=='O'"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -106,10 +118,13 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         self.fields['etablissement_enseigne'].disabled = True
 
         # Configurations spécifiques pour les champs obligatoires ou non
-        self.fields['etablissement_enseigne'].required = True
-        self.fields['volume_horaire_statuaire'].required = True
+        self.fields['etablissement_enseigne'].required = False
+        self.fields['volume_horaire_statuaire'].required = False
         self.fields['abattement'].required = False
         self.fields['motif_abattement'].required = False
+        self.fields['date_debut'].required = False
+        self.fields['date_fin'].required = False
+
 
         # Filtrer les enseignants de type "permanent"
         self.fields['enseignant'].queryset = User.objects.filter(teacher_type='permanent')
@@ -172,6 +187,12 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         },
     )
 
+    gender = forms.fields.ChoiceField(
+            label="Permanent",
+            choices=[('O', "Oui"), ('N', "Non")],
+            widget=widgets.RadioSelect,
+                )
+
     class Meta:
         model = Sheet
         fields = [
@@ -187,11 +208,16 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         widgets = {
             'date_fin': DatePicker(attrs={
                 'max': (now()).isoformat(),
+            'df-show': ".gender=='O'"
             }),
             'date_debut': DatePicker(attrs={
                 'max': (now()).isoformat(),
+            'df-show': ".gender=='O'"
             }),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
+            'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
+            'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
+            'motif_abattement' : forms.TextInput(attrs={'df-show': ".gender=='O'"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -203,6 +229,13 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
 
         # Désactiver le champ pour empêcher sa modification
         self.fields['etablissement_enseigne'].disabled = True
+
+        self.fields['etablissement_enseigne'].required = False
+        self.fields['volume_horaire_statuaire'].required = False
+        self.fields['abattement'].required = False
+        self.fields['motif_abattement'].required = False
+        self.fields['date_debut'].required = False
+        self.fields['date_fin'].required = False
 
         # Ajouter une indication visuelle pour les champs requis
         for field_name, field in self.fields.items():

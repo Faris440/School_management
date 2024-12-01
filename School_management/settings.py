@@ -74,13 +74,13 @@ INSTALLED_APPS = [
     "formset",
     "django_feather",
     "import_export",
-    "phonenumber_field",
     "django_filters",
     "fontawesomefree",
     "xauth.apps.XauthConfig",
     "parameter.apps.ParameterConfig",
     "ie_app.apps.IeAppConfig",
     "fiche_management",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -127,6 +127,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "School_management.wsgi.application"
 
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': 'auto',
+    },
+}
 
 
 USE_ONLINE_DB = env.bool("USE_ONLINE_DB")
@@ -198,10 +205,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "School_management/static",
+        ('node_modules', BASE_DIR / 'node_modules'),
+
 ]
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 MEDIA_URL = "/media/"

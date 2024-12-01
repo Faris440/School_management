@@ -45,7 +45,7 @@ class User(AbstractUser, CommonAbstractModel):
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     diplome = models.CharField(_("diplome"),null=True, max_length=MEDIUM_LENGTH)
     structure_origine = models.CharField(_("Struture d'origine"), max_length=MEDIUM_LENGTH)
-    date_nomination = models.DateField(_("Date de nomination"), max_length=MEDIUM_LENGTH)
+    date_nomination = models.DateField(_("Date de nomination"), null=True, max_length=MEDIUM_LENGTH)
     birthdate = models.DateField("Date de naissance")
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     email = models.EmailField(_("email address"), unique=True)
@@ -142,7 +142,10 @@ class User(AbstractUser, CommonAbstractModel):
             ("can_download_programmatic_sheet", "peut telecharger une fiche programmatique"),
             ("can_export_programmatic_sheet", "Peut exporter une fiche programmatique"),
             ("can_validate_programmatic_sheet", "peut valider une fiche programmatique"),
-            ("can_reject_programmatic_sheet", "peut rejeter une fiche programmatique"),
+            ("vice_president", "Est un vice président"),
+            ("responsable_ufr", "Est responsable d'une ufr"),
+            ("responsable_programme", "Est responsable d'un programme"),
+            ("responsable_filiere", "Est responsable d'une filière"),
         ]
 
 

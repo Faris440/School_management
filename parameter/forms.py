@@ -1,5 +1,5 @@
 from django import forms
-from .models import MailContent, UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau,Promotion
+from .models import MailContent, UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau,Promotion,Annee_univ
 from django.forms.models import ModelChoiceField , ModelMultipleChoiceField
 from formset.renderers.bootstrap import FormRenderer
 from formset.widgets import (
@@ -14,6 +14,10 @@ from formset.richtext.widgets import RichTextarea
 from django.utils.safestring import mark_safe
 from School_management.constants import control_elements , TEXTAREA
 from django.core.exceptions import ValidationError
+from ckeditor.fields import RichTextField
+from ckeditor.widgets import CKEditorWidget
+
+
 
 
 
@@ -38,8 +42,8 @@ class UniteDeRechercheForm(forms.ModelForm):
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'Unité de Recherche'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-        }
+            'description': CKEditorWidget(),  # Utilisation de CKEditorWidget
+            }
 
 class DepartementForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -262,6 +266,52 @@ class PromotionForm(forms.ModelForm):
     def clean_code(self):
         code = self.cleaned_data.get('code')
         if Promotion.objects.filter(code=code).exists():
+            raise ValidationError("Ce code est déjà utilisé. Veuillez en choisir un autre.")
+        return code
+
+    def clean(self):
+        """
+        Validation globale des dates.
+        """
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+
+        if start_date and end_date:
+            if start_date >= end_date:
+                raise forms.ValidationError(
+                    "La date de début doit être antérieure à la date de fin."
+                )
+        return cleaned_data
+    
+
+class Annee_univForm(forms.ModelForm):
+    class Meta:
+        model = Annee_univ
+        fields = ['name', 'start_date', 'end_date']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Exemple : 2024-2025',
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+        }
+        labels = {
+            'name': "Année universitaire",
+            'start_date': "Date de Début",
+            'end_date': "Date de Fin",
+        }
+
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if Annee_univ.objects.filter(code=code).exists():
             raise ValidationError("Ce code est déjà utilisé. Veuillez en choisir un autre.")
         return code
 

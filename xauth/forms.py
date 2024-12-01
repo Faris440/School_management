@@ -25,7 +25,7 @@ from formset.renderers.bootstrap import FormRenderer
 from parameter import models as params_models
 from xauth.models import User, Assign, AccountActivationSecret, Nomination
 from django.utils.timezone import now, timedelta 
-
+from formset.widgets import PhoneNumberInput
 
 from School_management.constants import *
 
@@ -85,7 +85,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         return self.user
 
 
-class UserCreateForm(FormMixin, ModelForm):
+class UserCreateForm(ModelForm):
     default_renderer = FormRenderer(
         form_css_classes="row",
         field_css_classes={
@@ -94,38 +94,7 @@ class UserCreateForm(FormMixin, ModelForm):
         },
     )
 
-    def __init__(self, user: User = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['user_type'].required = True
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-        self.fields['birthplace'].required = True
-        self.fields['email'].required = True
-        self.fields['address'].required = True
-        self.fields['phone'].required = True
-        self.fields['ufr'].required = False        
-        self.fields['departement'].required = False        
-        self.fields['filiere'].required = False        
-        self.fields['matricule'].required = False        
     
-
-       
-        for field in self.fields.values():
-            if field.required:
-                field.label = mark_safe(f"{field.label} <span style='color: red;'>*</span>")
-
-        
-    def clean(self):
-        cleaned_data = super().clean()
-        user_type = cleaned_data.get("user_type")
-
-        if user_type == User.USER_TYPES.teacher:
-            self.instance.is_teacher = True
-        elif user_type == User.USER_TYPES.agent_administratif:
-            self.instance.is_agent_administratif = True
-     
-        return cleaned_data
-
     class Meta:
         model = User
         fields = [
@@ -160,9 +129,10 @@ class UserCreateForm(FormMixin, ModelForm):
             "last_name": fm.TextInput(
                 attrs={"placeholder": "Saisir votre prénom", "class":"form-control"},
             ),
-            "phone": fm.TextInput(
-                attrs={"placeholder": "Saisir votre numéro de téléphone", "class":"form-control"},
-            ),
+            "phone": PhoneNumberInput(
+                attrs={
+                    "mobile-only": True,
+            }),
             "email": fm.EmailInput(
                 attrs={"placeholder": "Saisir votre adresse e-mail", "class":"form-control"},
             ),
@@ -175,13 +145,46 @@ class UserCreateForm(FormMixin, ModelForm):
                 'type': 'date',
             }),
             
-}
+        }
        
         labels = {
             "email": "Adresse email",
             "address": "Adresse",
             'matricule': "Matricule",
         }
+    
+    def __init__(self, user: User = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user_type'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['birthplace'].required = True
+        self.fields['email'].required = True
+        self.fields['address'].required = True
+        self.fields['phone'].required = True
+        self.fields['ufr'].required = False        
+        self.fields['departement'].required = False        
+        self.fields['filiere'].required = False        
+        self.fields['matricule'].required = False        
+    
+
+       
+        for field in self.fields.values():
+            if field.required:
+                field.label = mark_safe(f"{field.label} <span style='color: red;'>*</span>")
+
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        user_type = cleaned_data.get("user_type")
+
+        if user_type == User.USER_TYPES.teacher:
+            self.instance.is_teacher = True
+        elif user_type == User.USER_TYPES.agent_administratif:
+            self.instance.is_agent_administratif = True
+     
+        return cleaned_data
+
 
 class UserChangeForm( ModelForm):
     default_renderer = FormRenderer(

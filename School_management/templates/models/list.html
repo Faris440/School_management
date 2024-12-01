@@ -86,10 +86,10 @@
                             <button type="submit" class="btn btn-outline-success">
                                 {% icon "search" size=option_size %}&nbsp;Recherche
                             </button>
-                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                {% icon "filter" size=option_size %}
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#filterModal">
+                                {% icon "filter" size=option_size %}&nbsp;
                             </button>
+                            
                         </div>
                     </div>
                 </form>
@@ -159,6 +159,41 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Modal pour les filtres -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="get" action="{{ filter_url }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filtres</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Ajoutez ici vos champs de filtre -->
+                            <div class="mb-3">
+                                <label for="filter-name" class="form-label">Nom</label>
+                                <input type="text" class="form-control" id="filter-name" name="name" placeholder="Rechercher par nom">
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-status" class="form-label">Statut</label>
+                                <select class="form-select" id="filter-status" name="status">
+                                    <option value="">Tous</option>
+                                    <option value="actif">Actif</option>
+                                    <option value="inactif">Inactif</option>
+                                </select>
+                            </div>
+                            <!-- Ajoutez d'autres champs de filtre selon vos besoins -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
     {% block add-more %}{% endblock add-more %}
 </div>

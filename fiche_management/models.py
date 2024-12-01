@@ -12,6 +12,7 @@ class Sheet(CommonAbstractModel):
     enseignant = models.ForeignKey("xauth.User", on_delete=models.CASCADE, related_name="sheet_enseignant")
     etablissement_enseigne = models.CharField(max_length= BIG_LENGTH, verbose_name="Etablissement enseigné",null=True) 
     promotion = models.ForeignKey("parameter.Promotion", on_delete=models.CASCADE, related_name="sheets", verbose_name="Année Universitaire")
+    # annee_univ = models.ForeignKey("parameter.Annee_univ", on_delete=models.CASCADE, related_name="sheets", verbose_name="Annee_univ")
     volume_horaire_statuaire = models.IntegerField(null=True, verbose_name='Volume horaire statuaire')
     abattement = models.IntegerField(null=True, verbose_name='veuillez saisir l\'abattement')
     motif_abattement = models.CharField(max_length= BIG_LENGTH, verbose_name="Motif de l'abattement",null=True) 
@@ -24,7 +25,7 @@ class Sheet(CommonAbstractModel):
     filiere = models.ForeignKey("parameter.Filiere",on_delete=models.CASCADE,related_name="sheet_filiere", verbose_name="Filière consernée")
 
     validate_by_responsable_filiere = models.BooleanField(null=True)
-    validate_by_responsable_ufr = models.BooleanField(null=True)
+    validate_by_responsable_programme = models.BooleanField(null=True)
     validate_by_vice_presient = models.BooleanField(null=True)
 
     def __str__(self):
@@ -36,7 +37,7 @@ class Sheet(CommonAbstractModel):
         for enseignement in enseignements:
             if enseignement.validate_by_responsable_filiere is None:
                 status = True
-            elif enseignement.validate_by_vice_presient is not None or enseignement.validate_by_responsable_ufr is False or enseignement.validate_by_responsable_filiere is False:
+            elif enseignement.validate_by_vice_presient is not None or enseignement.validate_by_responsable_programme is False or enseignement.validate_by_responsable_filiere is False:
                 return False
         return status
     
@@ -64,11 +65,12 @@ class Enseignements(CommonAbstractModel):
     ct_volume_horaire_efectue = models.IntegerField(null=True, verbose_name='Volume horaire éffectué, CT')
     td_volume_horaire_efectue = models.IntegerField(null=True, verbose_name='Volume horaire éffectué, TD')
     tp_volume_horaire_efectue = models.IntegerField(null=True, verbose_name='Volume horaire éffectué, TP')
+    total_v_h = models.IntegerField(null=True, verbose_name='Volume horaire total')
     is_validated = models.BooleanField(null=True, verbose_name="Validé")
     motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True)
     
     validate_by_responsable_filiere = models.BooleanField(null=True)
-    validate_by_responsable_ufr = models.BooleanField(null=True)
+    validate_by_responsable_programme = models.BooleanField(null=True)
     validate_by_vice_presient = models.BooleanField(null=True)
 
     class Meta:

@@ -2,6 +2,8 @@ from django.db import models
 from School_management.cmodels import CONSTRAINT, CommonAbstractModel
 import uuid
 from django.core.exceptions import ValidationError
+from ckeditor.fields import RichTextField
+
 
 
 
@@ -14,7 +16,7 @@ Min_length = 25
 class BaseModel(CommonAbstractModel):
     code = models.CharField('Sigle', max_length=Min_length, unique=True)
     label = models.CharField(max_length=Max_length, blank=True, null=True)
-    description = models.CharField(max_length=250, blank=True, null=True)
+    description = RichTextField()  # Champ riche pour le modèle
 
     class Meta:
         abstract = True  # Modèle abstrait pour être réutilisé
@@ -152,6 +154,20 @@ class Promotion(CommonAbstractModel):
         ordering = ["name"]
         verbose_name = "promotion"
         verbose_name_plural = "promotions"
+        permissions = [("list_module", f"Peut lister {verbose_name}")]
+
+    def __str__(self):
+        return self.name
+
+class Annee_univ(CommonAbstractModel):
+    name = models.CharField(max_length=20, unique=True, verbose_name="Année universitaire")
+    start_date = models.DateField(verbose_name="Début")
+    end_date = models.DateField(verbose_name="Fin")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "annee_univ"
+        verbose_name_plural = "annee_univs"
         permissions = [("list_module", f"Peut lister {verbose_name}")]
 
     def __str__(self):

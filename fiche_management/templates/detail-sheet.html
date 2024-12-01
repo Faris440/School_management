@@ -1,129 +1,162 @@
 {% extends "base.html" %}
 {% block breadcrumb %}
-<div class="breadcrumb-container">
+<div class="breadcrumb-container ">
     <ul class="breadcrumb">
         <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
         <li><a href="{{ list_url }}">{{ list_of }}</a></li>
-        <li class="active">{{ card_title }}</li>
+        <li class="active">Informations sur la fiche</li>
     </ul>
 </div>
-{% endblock %}
+{% endblock breadcrumb%}
 {% block content %}
 <div class="container">
-    <h2 class="d-flex justify-content-between align-items-center" style="padding-top: 20px;">
-        Détails de la fiche
+    <h2 class="d-flex justify-content-between align-items-center  mb-4 " style="padding-top: 20px;">
         {% include 'components/back_button.html' %}
     </h2>
     <!-- Détails de la fiche -->
-    <div class="card">
-        <div class="card-body">
-            <h5 class="d-flex justify-content-between align-items-scenter">Informations sur la fiche</h5>
-            <div class="row">
-                <div class="col-4">
-                    <p><strong><i class="fa fa-chalkboard-teacher primary"></i>Enseignant :</strong> {{ object.enseignant }}</p>
-                    <p><strong>Etablissement d'enseignement :</strong> {{ object.etablissement_enseigne }}</p>
-                    <p><strong>Année Universitaire :</strong> {{ object.promotion }}</p>
-                    <p><strong>Date de début :</strong> {{ object.date_debut }}</p>
-                    <p><strong>Date de fin :</strong> {{ object.date_fin }}</p>
-                    <p><strong>Filière :</strong> {{ object.filiere }}</p>
-                </div>
-                <div class="col-4">
-                    {% if object.is_permanent %}
-                    <p><strong>Volume horaire statuaire :</strong> {{ object.volume_horaire_statuaire }}</p>
-                    <p><strong>Abattement :</strong> {{ object.abattement }}</p>
-                    <p><strong>Motif de l'abattement :</strong> {{ object.motif_abattement }}</p>
-                    <p><strong>Volume horaire après abattement :</strong> {{ object.v_h_obli_apres_abattement }}</p>
-                    {% endif %}
-                </div>
-                <div class="col-4">
-                    <p><strong>Enseignement validé(s) : {{count_validate}}</strong></p>
-                    <p><strong>Enseignement rejeté(s) : {{count_invalidate}}</strong></p>
-                    <p><strong>En cours de traitement : {{count_inprocess}}</strong></p>
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="m-0">Informations sur la fiche</h4>
+    
+            <!-- Vérification du motif de rejet -->
 
-                </div>
-                
-            </div>
-            <div class="row">
-                {% for enseignement in object.enseignement_sheet.all %}
-                <div class="col-6">
-                    {{ enseignement.module }} :
-                    
-                    {% if enseignement.validate_by_vice_presient is None %}
-                                    
-                                    {% if enseignement.validate_by_responsable_ufr is None %}
-
-                                        {% if enseignement.validate_by_responsable_filiere is None %}
-                                            <span class="text-warning">En cours de traitement</span>(Niveau Filière)
-                                        {% elif enseignement.validate_by_responsable_filiere is False %}
-                                            <span class="text-warning">Fiche rejetée</span>(Niveau Filière)
-                                        {% else %}
-                                            <span class="text-warning">En cours de traitement </span>(Niveau UFR)
-                                        {% endif %}
-
-                                    {% elif enseignement.validate_by_responsable_ufr is False %}
-                                        <span class="text-warning">Fiche rejetée</span>(Niveau UFR)
-                                    {% else %}
-                                        <span class="text-warning">En cours de traitement </span>(Niveau VP)
-                                    {% endif %}
-                                    
-                                {% elif enseignement.validate_by_vice_presient is False %}
-                                    <span class="text-warning">Fiche rejetée</span>(Niveau VP)
-                                {% elif enseignement.validate_by_vice_presient is True %}
-                                    <span class="text-warning">Fiche Validée</span>(Niveau VP)
-                                {% endif %}
-                </div>
-                {% endfor %}
-                
-            </div>
-            <!-- Affichage du statut de la fiche avec des codes couleurs -->
-
-            {% if object.is_validated == 0 %}
-                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
-            {% endif %}
-
+            <!-- Boutons de validation et rejet -->
             <div>
-                
-                {% if nomination.nomination_type == 'ufr' %}
-                    
-                    {% if object.validate_by_responsable_filiere and object.validate_by_responsable_ufr == null %}
-
-                        {% if validate %}
-                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                {% if access_programme %}
+                    {% if object.validate_by_responsable_filiere and object.validate_by_responsable_programme == null %}
+                        {% if count_invalidate == 0 and not check %}
+                            {% if validate %}
+                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                            {% endif %}
+                            {% if invalidate %}
+                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                            {% endif %}
                         {% endif %}
-                        {% if invalidate %}
-                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
-                        {% endif %}
-
                     {% endif %}
-                        
-                    
-                {% elif nomination.nomination_type == 'vise-president' %}
-                {% if object.validate_by_responsable_ufr and object.validate_by_vice_presient == null %}
-                        {% if validate %}
-                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                {% elif access_vice_president %}
+                    {% if object.validate_by_responsable_programme and object.validate_by_vice_presient == null %}
+                        {% if count_invalidate == 0 and not check %}
+                            {% if validate %}
+                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                            {% endif %}
+                            {% if invalidate %}
+                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                            {% endif %}
                         {% endif %}
-                        {% if invalidate %}
-                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
-                        {% endif %}
-
                     {% endif %}
-                {% elif nomination.nomination_type == 'filiere' %}
+                {% elif access_responsable_filiere %}
                     {% if object.validate_by_responsable_filiere == null %}
-                    
-                    {% if validate %}
-                            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                        {% if count_invalidate == 0 and not check %}
+                            {% if validate %}
+                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                            {% endif %}
+                            {% if invalidate %}
+                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                            {% endif %}
                         {% endif %}
-                        {% if invalidate %}
-                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
-                        {% endif %}
-
                     {% endif %}
-                        
                 {% endif %}
             </div>
         </div>
+    
+        <div class="card-body">
+            <div class="row mb-3 justify-content-between">
+                <div class="card mb-2 col-6 m-2">
+                    <p><strong>Enseignant :</strong> <span class="badge bg-info text-dark">{{ object.enseignant }}</span></p>
+    
+                    {% if object.is_permanent %}
+                        <p><strong>Etablissement d'enseignement :</strong> <span>{{ object.etablissement_enseigne }}</span></p>
+                    {% endif %}
+    
+                    <p><strong>Année Universitaire :</strong> <span>{{ object.promotion }}</span></p>
+                    <p><strong>Filière :</strong> <span>{{ object.filiere }}</span></p>
+                    <p><strong>Statut de l'enseignant :</strong> <span>{{ object.enseignant.teacher_type }}</span></p>
+                    <p><strong>Grade :</strong> <span>{{ object.enseignant.grade }}</span></p>
+    
+                    {% if object.is_permanent %}
+                        <div class="row">
+                            <div class="col-md-10">
+                                <p><strong>Période prévue pour la réalisation des enseignements :</strong> {{ object.date_debut }} - {{ object.date_fin }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+    
+                <div class="card col-5 m-2">
+                    {% if object.is_permanent %}
+                        <p><strong>Volume horaire statuaire :</strong> {{ object.volume_horaire_statuaire }}</p>
+                        <p><strong>Abattement :</strong> {{ object.abattement }}</p>
+                        <p><strong>Motif de l'abattement :</strong> {{ object.motif_abattement }}</p>
+                        <p><strong>Volume horaire après abattement :</strong> {{ object.v_h_obli_apres_abattement }}</p>
+                    {% endif %}
+                    <div class="row">
+                        {% for enseignement in object.enseignement_sheet.all %}
+                            <div class="col-12 mb-3">
+                                <p><strong>{{ enseignement.module }} :</strong></p>
+    
+                                <!-- Barre de progression pour chaque enseignement -->
+                                <div class="progress" style="height: 20px;">
+                                    {% if enseignement.validate_by_vice_presient is None %}
+                                        {% if enseignement.validate_by_responsable_programme is None %}
+                                            {% if enseignement.validate_by_responsable_filiere is None %}
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 25%;">Niveau Filière</div>
+                                            {% elif enseignement.validate_by_responsable_filiere is False %}
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 25%;">Rejeté (Filière)</div>
+                                            {% else %}
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 50%;">Niveau UFR</div>
+                                            {% endif %}
+                                        {% elif enseignement.validate_by_responsable_programme is False %}
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 50%;">Rejeté (UFR)</div>
+                                        {% else %}
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;">Niveau VP</div>
+                                        {% endif %}
+                                    {% elif enseignement.validate_by_vice_presient is False %}
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;">Rejeté (VP)</div>
+                                    {% elif enseignement.validate_by_vice_presient is True %}
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;">Validé</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if object.is_validated == 0 %}
+        <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
+    {% else %}
+        <p>Aucun motif de rejet disponible</p>
+    {% endif %}
+    <div class="mt-4">
+        {% if object.is_validated == 0 %}
+        <div class="col-12">
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="flush-headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                  Motif de rejet
+                </button>
+              </h2>
+              <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                {{ object.motif_de_rejet|default:"Aucun motif évoqué" }}              
+            </div>
+            </div>
+          </div>
+        {% endif %}
     </div>
+          
+          
+        <div class="card-footer bg-light d-flex justify-content-between">
+            <span><strong>Enseignement validé(s) :</strong> <span class="badge bg-success">{{ count_validate }}</span></span>
+            <span><strong>Enseignement rejeté(s) :</strong> <span class="badge bg-danger">{{ count_invalidate }}</span></span>
+            <span><strong>En cours de traitement :</strong> <span class="badge bg-warning">{{ count_inprocess }}</span></span>
+        </div>
+    </div>
+    
+    
+            <!-- Affichage du statut de la fiche avec des codes couleurs -->
 
+            
     <!-- Détails des enseignements associés sous forme de deux colonnes -->
     <div class="mt-4">
         <h3>Enseignements associés</h3>
@@ -138,7 +171,45 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="flush-heading{{ enseignement.id }}">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ enseignement.id }}" aria-expanded="false" aria-controls="flush-collapse{{ enseignement.id }}">
-                                        {{ enseignement.module }}
+                                        <p><strong>{{ enseignement.module }} :</strong>
+                                       
+                                            {% if enseignement.validate_by_vice_presient is None %}
+                                                
+                                                {% if enseignement.validate_by_responsable_programme is None %}
+            
+                                                    {% if enseignement.validate_by_responsable_filiere is None %}
+                                                        <span class="text-warning">En cours de traitement<i class="fas fa-spinner fa-spin "></i>
+                                                        </span>
+                                                    {% elif enseignement.validate_by_responsable_filiere is False %}
+                                                        <span class="text-danger">Rejetée
+                                                            <i class="fas fa-times-circle"></i>
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="text-warning">En cours de traitement 
+                                                            <i class="fas fa-spinner fa-spin"></i>
+                                                        </span>
+                                                    {% endif %}
+            
+                                                {% elif enseignement.validate_by_responsable_programme is False %}
+                                                    <span class="text-danger">Rejetée
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-warning">En cours de traitement 
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                    </span>
+                                                {% endif %}
+                                                
+                                            {% elif enseignement.validate_by_vice_presient is False %}
+                                                <span class="text-danger">Rejetée
+                                                    <i class="fas fa-times-circle"></i>
+                                                </span>
+                                            {% elif enseignement.validate_by_vice_presient is True %}
+                                                <span class="text-success">Validée
+                                                    <i class="fas fa-check-circle"></i>
+                                                </span>
+                                            {% endif %}
+                                        </p>
                                     </button>
                                 </h2>
                                 <div id="flush-collapse{{ enseignement.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ enseignement.id }}" data-bs-parent="#accordionFlushExample{{ enseignement.id }}">
@@ -166,10 +237,10 @@
                                             </ul>
                                         </div>
                                         <div class="col-md-12">
-                            <p><strong>Statut :</strong>
+                            <!-- <p><strong>Statut :</strong>
                                 {% if enseignement.validate_by_vice_presient is None %}
                                     
-                                    {% if enseignement.validate_by_responsable_ufr is None %}
+                                    {% if enseignement.validate_by_responsable_programme is None %}
 
                                         {% if enseignement.validate_by_responsable_filiere is None %}
                                             <span class="text-warning">En cours de traitement</span>
@@ -179,7 +250,7 @@
                                             <span class="text-warning">En cours de traitement </span>
                                         {% endif %}
 
-                                    {% elif enseignement.validate_by_responsable_ufr is False %}
+                                    {% elif enseignement.validate_by_responsable_programme is False %}
                                         <span class="text-warning">Fiche rejetée</span>
                                     {% else %}
                                         <span class="text-warning">En cours de traitement </span>
@@ -190,16 +261,15 @@
                                 {% elif enseignement.validate_by_vice_presient is True %}
                                     <span class="text-warning">Fiche Validée</span>
                                 {% endif %}
-                            </p>
+                            </p> -->
                 
                             {% if enseignement.is_validated == 0 %}
                                 <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
                             {% endif %}
                             <div>
 
-                            {% if nomination.nomination_type == 'ufr' %}
-                            {% if enseignement.validate_by_responsable_filiere and enseignement.validate_by_responsable_ufr == null %}
-                            <p>azertyuio</p>
+                            {% if access_programme %}
+                            {% if enseignement.validate_by_responsable_filiere and enseignement.validate_by_responsable_programme == null %}
 
                                     {% if validate %}
                                         <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
@@ -209,8 +279,8 @@
                                     {% endif %}
                                 {% endif %}
                             
-                            {% elif nomination.nomination_type == 'vise-president' %}
-                                {% if enseignement.validate_by_responsable_ufr and enseignement.validate_by_vice_presient == null %}
+                            {% elif access_vice_president %}
+                                {% if enseignement.validate_by_responsable_programme and enseignement.validate_by_vice_presient == null %}
                                     {% if validate %}
                                         <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
                                     {% endif %}
@@ -220,7 +290,7 @@
             
                                 {% endif %}
 
-                            {% elif nomination.nomination_type == 'filiere' %}
+                            {% elif access_responsable_filiere %}
                                 {% if enseignement.validate_by_responsable_filiere == null %}
                                     <p>azertyuio</p>
                                     {% if validate %}
@@ -236,7 +306,7 @@
                             {% if enseignement.validate_by_responsable_filiere is None %}
                             <a href="{% url 'fiche_management:enseignement-update' enseignement.id %}" class="btn btn-success ">Modifier</a>
                             {% endif %}
-   
+    
                         </div>
         
                         <!-- Validation Modal -->
@@ -292,14 +362,15 @@
                 {% endfor %}
             </div>
             {% endif %}
-           
+            
         </div>
         {% else %}
         <p>Aucun enseignement associé trouvé.</p>
         {% endif %}
     </div>
-    
+
 </div>
+
 
 <!-- Modal de confirmation pour la validation -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
@@ -349,6 +420,8 @@
         </div>
     </div>
 </div>
+
+
 <style>
     /* Styles généraux pour le breadcrumb */
     .breadcrumb {
