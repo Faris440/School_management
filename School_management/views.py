@@ -2,8 +2,9 @@ from django.views.generic import *
 from multiprocessing import context
 from typing import Any
 from django.db.models import Model, Q, QuerySet, Field
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from fiche_management.models import Sheet, Enseignements
 from django.views.generic import (
     ListView,
     DetailView,
@@ -23,19 +24,29 @@ from formset.views import (
     EditCollectionView,
     IncompleteSelectResponseMixin,
 )
+from fiche_management.models import Sheet
 from xauth.models import User
 from formset.views import FileUploadMixin
+
 
 
 LIST_MAX_ROWS = getattr(settings, "LIST_MAX_ROWS", 10)
 
 
 
-class IndexTemplateView( TemplateView):
-    template_name="index.html"
-    
+class IndexTemplateView(TemplateView):
+    template_name = "index.html"  # Spécifiez directement le nom du template
+
     def get_context_data(self, **kwargs):
-        context= super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        # Récupération dynamique du nombre de dossiers
+        context['nombre_fiches'] = Sheet.objects.count()
+        context['nombre_enseignements'] = Enseignements.objects.count()
+        context['fiches_validees'] = Sheet.objects.filter(is_validated = True).count()
+        context['fiches_rejetees'] = Sheet.objects.filter(is_validated = False).count()
+        context['fiches_en_cours'] = Sheet.objects.filter(is_validated = None).count()
+        
+        
         return context
 class RedirectionView(RedirectView):
     url = "/home/"
@@ -1206,3 +1217,20 @@ def back_button_view(request):
     """
     previous_url = request.META.get('HTTP_REFERER', '/')
     return redirect(previous_url)
+
+
+
+
+# def dashboard_view(request):
+#     fiches = Sheet.objects.all()
+#     total_Sheet = Sheet.count()
+#     total_validees = Sheet.filter(is_validated=True).count()
+#     total_rejetees = Sheet.filter(is_validated=False).count()
+#     total_encours = total_Sheet - (total_validees + total_rejetees)
+
+#     return render(request, 'dashboard.html', {
+#         'total_fiches': total_Sheet,
+#         'total_validees': total_validees,
+#         'total_rejetees': total_rejetees,
+#         'total_encours': total_encours,
+#     })

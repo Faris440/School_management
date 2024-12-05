@@ -24,7 +24,6 @@ class EnseignementsForm(forms.ModelForm):
         fields = [
             'code', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
-            'ct_volume_horaire_efectue', 'td_volume_horaire_efectue', 'tp_volume_horaire_efectue'
         ]
 
 class VacataireEnseignementsForm(forms.ModelForm):
@@ -55,7 +54,6 @@ class SheetForm(forms.ModelForm):
         fields = [
             'code', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
-            'ct_volume_horaire_efectue', 'td_volume_horaire_efectue', 'tp_volume_horaire_efectue'
         ]
 
 

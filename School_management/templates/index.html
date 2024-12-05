@@ -2,135 +2,248 @@
 {% load static %}
 {% block content %}
 
-<!-- Main Content -->
-
-  <section class="section">
-    <!-- Titre "TABLEAU DE BORD" stylisé -->
-    <div style="font-size: 1.3rem; font-weight: bold; color: black; margin-top: 40px; margin-bottom: 20px; ">
-      Tableau de bord
-    </div>
-    <div class="row">
-      <div class="col-lg-3 col-md-3 col-sm-12">
-        <div class="card card-statistic-2" style="background-color: #69aeff; height: 120px;">
-          <h4 style="font-size: 1rem; font-weight: bold; color: azure; padding-left: 10px; margin-top: 3px;">Total des fiches</h4>
-          <div style="flex-direction: row; text-align: center;">
-            <div class="card-icon shadow-primary" style="background-color: #69aeff; justify-content: center;">
-              <h5>30</h5>
-
-          </div>
-        </div>
-          <div class="card-header">
-  
-          </div>
-          <div class="card-chart">
-            <canvas id="sales-chart" height="80"></canvas>
-          </div>
-          <div class="card-wrap">
-            <div class="card-body">
-              <!-- Contenu ici -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-3 col-sm-12">
-        <div class="card card-statistic-2" style="background-color: #45ddbe; height: 120px;">
-          <div style="flex-direction: row; text-align: center;"></div>
-          <div class="card-icon shadow-primary" style="background-color: #45ddbe;">
-            <h5>13</h5>
-          </div>
-          <div class="card-header">
-            <h4 style="font-size: 1rem; font-weight: bold; color: azure;">Validées</h4>
-          </div>
-          <div class="card-chart">
-            <canvas id="sales-chart" height="80"></canvas>
-          </div>
-          <div class="card-wrap">
-            <div class="card-body">
-              <!-- Contenu ici -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-3 col-sm-12">
-        <div class="card card-statistic-2" style="background-color: #ff5b77; height: 120px;">
-          <div style="flex-direction: row; text-align: center;"></div>
-          <div class="card-icon shadow-primary" style="background-color: #ff5b77;">
-            <h5>10</h5>
-          </div>
-          <div class="card-header">
-            <h4 style="font-size: 1rem; font-weight: bold; color: azure;">Rejetées</h4>
-          </div>
-          <div class="card-chart">
-            <canvas id="sales-chart" height="80"></canvas>
-          </div>
-          <div class="card-wrap">
-            <div class="card-body">
-              <!-- Contenu ici -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-3 col-sm-12">
-        <div class="card card-statistic-2" style="background-color: #ffbd5d; height: 120px;">
-          <h4 style="font-size: 1rem; font-weight: bold; color: azure; text-align: center; margin-top: 3px;">En cours de traitement</h4>
-          <div style="flex-direction: row; text-align: center;">
-          <div class="card-icon shadow-primary" style="background-color: #ffbd5d; margin-bottom: 2px;">
-            <h5>07</h5>
-          </div>
-          <div class="card-header">
-            
-          </div>
-          <div class="card-chart">
-            <canvas id="sales-chart" height="80"></canvas>
-          </div>
-          <div class="card-wrap">
-            <div class="card-body">
-              <!-- Contenu ici -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="card mb-4 z-index-2 draggable">
-      <div class="card-header pb-0">
-          <h6 class="mb-1">Statistiques des fiches</h6>
-      </div>
-      <div class="card-body">
-          <canvas class="chart-bar-stacked" width="400" height="200"></canvas>
-      </div>
+<section class="section">
+  <!-- Tableau de bord -->
+  <div class="dashboard-title " style="text-align: left;">
+    Tableau de bord
   </div>
-    
- 
-</div>
+
+  <!-- Statistiques Résumées -->
+  <div class="stats-container">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Total des fiches</h4>
+        <p id="total-fiches">{{ nombre_fiches }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card validated">
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Fiches Validées</h4>
+        <p id="fiches-validees">{{ fiches_validees }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card rejected">
+      <div class="stat-icon">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Fiches Rejetées</h4>
+        <p id="fiches-rejetees">{{ fiches_rejetees }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card pending">
+      <div class="stat-icon">
+        <i class="fas fa-spinner"></i>
+      </div>
+      <div class="stat-info">
+        <h7>En cours de traitement</h7>
+        <p id="fiches-en-cours">{{ fiches_en_cours }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des Graphiques -->
+  <div class="row mt-4">
+    <div class="col-lg-6 col-md-6">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6 class="mb-1">Graphique en Barres</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="bar-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-6">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6 class="mb-1">Diagramme Circulaire</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="pie-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer class="main-footer">
   <div class="footer-left">
     Copyright UVBF &copy; 2024 <div class="bullet"></div> Design By <a href="#">Faris Rabo</a>
   </div>
-  <div class="footer-right">
-  </div>
 </footer>
-</div>
 
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Récupérer les données injectées dans les indicateurs
+    const totalFiches = parseInt(document.getElementById("total-fiches").textContent);
+    const fichesValidees = parseInt(document.getElementById("fiches-validees").textContent);
+    const fichesRejetees = parseInt(document.getElementById("fiches-rejetees").textContent);
+    const fichesEnCours = parseInt(document.getElementById("fiches-en-cours").textContent);
 
+    // Calcul des pourcentages
+    const valPercent = ((fichesValidees / totalFiches) * 100).toFixed(2);
+    const rejPercent = ((fichesRejetees / totalFiches) * 100).toFixed(2);
+    const pendingPercent = ((fichesEnCours / totalFiches) * 100).toFixed(2);
 
+    // Mise à jour des Graphiques
+
+    // Graphique en Cercle
+    const pieCtx = document.getElementById("pie-chart").getContext("2d");
+    new Chart(pieCtx, {
+      type: "pie",
+      data: {
+        labels: ["Validées", "Rejetées", "En cours"],
+        datasets: [
+          {
+            data: [valPercent, rejPercent, pendingPercent],
+            backgroundColor: ["#45ddbe", "#ff5b77", "#ffbd5d"],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+        },
+      },
+    });
+
+    // Graphique en Barres
+    const barCtx = document.getElementById("bar-chart").getContext("2d");
+    new Chart(barCtx, {
+      type: "bar",
+      data: {
+        labels: ["Validées", "Rejetées", "En cours"],
+        datasets: [
+          {
+            label: "Pourcentage des fiches",
+            data: [valPercent, rejPercent, pendingPercent],
+            backgroundColor: ["#45ddbe", "#ff5b77", "#ffbd5d"],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+          },
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  });
+</script>
 
 <style>
-  .card {
-      width: 600px; /* Ajuste la largeur du tableau */
-      height: 300px; /* Ajuste la hauteur du tableau */
+  .dashboard-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-align: center;
   }
 
-  .card-body .chart-bar-stacked {
-      width: 100%;
-      height: 200px; /* Ajuste la hauteur du graphique */
+  .stats-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .stat-card {
+    flex: 1 1 calc(25% - 15px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .stat-card:hover {
+    transform: scale(1.05);
+  }
+
+  .stat-icon {
+    font-size: 3rem;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-info h4 {
+    font-size: 1rem;
+    margin: 0;
+    color: #333;
+    font-weight: bold;
+  }
+
+  .stat-info p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 5px 0 0;
+  }
+
+  .stat-card.total {
+    background: #69aeff;
+    color: #fff;
+  }
+
+  .stat-card.validated {
+    background: #45ddbe;
+    color: #fff;
+  }
+
+  .stat-card.rejected {
+    background: #ff5b77;
+    color: #fff;
+  }
+
+  .stat-card.pending {
+    background: #ffbd5d;
+    color: #fff;
+  }
+
+  .stat-card.total .stat-icon {
+    background: #dbefff;
+    color: #69aeff;
+  }
+
+  .stat-card.validated .stat-icon {
+    background: #d7f6ef;
+    color: #45ddbe;
+  }
+
+  .stat-card.rejected .stat-icon {
+    background: #ffe6ec;
+    color: #ff5b77;
+  }
+
+  .stat-card.pending .stat-icon {
+    background: #ffeed8;
+    color: #ffbd5d;
   }
 </style>
-
-
-
 {% endblock content %}
-
-
-

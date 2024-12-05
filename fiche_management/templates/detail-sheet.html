@@ -237,31 +237,7 @@
                                             </ul>
                                         </div>
                                         <div class="col-md-12">
-                            <!-- <p><strong>Statut :</strong>
-                                {% if enseignement.validate_by_vice_presient is None %}
-                                    
-                                    {% if enseignement.validate_by_responsable_programme is None %}
 
-                                        {% if enseignement.validate_by_responsable_filiere is None %}
-                                            <span class="text-warning">En cours de traitement</span>
-                                        {% elif enseignement.validate_by_responsable_filiere is False %}
-                                            <span class="text-warning">Fiche rejetée</span>
-                                        {% else %}
-                                            <span class="text-warning">En cours de traitement </span>
-                                        {% endif %}
-
-                                    {% elif enseignement.validate_by_responsable_programme is False %}
-                                        <span class="text-warning">Fiche rejetée</span>
-                                    {% else %}
-                                        <span class="text-warning">En cours de traitement </span>
-                                    {% endif %}
-                                    
-                                {% elif enseignement.validate_by_vice_presient is False %}
-                                    <span class="text-warning">Fiche rejetée</span>
-                                {% elif enseignement.validate_by_vice_presient is True %}
-                                    <span class="text-warning">Fiche Validée</span>
-                                {% endif %}
-                            </p> -->
                 
                             {% if enseignement.is_validated == 0 %}
                                 <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
