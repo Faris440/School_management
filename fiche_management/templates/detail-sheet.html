@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load icon %}
 {% block breadcrumb %}
 <div class="breadcrumb-container ">
     <ul class="breadcrumb">
@@ -17,6 +18,13 @@
     <div class="card shadow-lg border-0 mb-5">
         <div class="card-header bg-primary text-white text-center">
             <h4 class="m-0">Informations sur la fiche</h4>
+{% block other-options %}
+        <div class="print-option">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                <i class="fa fa-print"></i> Imprimer
+            </button>
+        </div>
+{% endblock other-options %}
     
             <!-- Vérification du motif de rejet -->
 
@@ -69,7 +77,6 @@
                     {% endif %}
     
                     <p><strong>Année Universitaire :</strong> <span>{{ object.promotion }}</span></p>
-                    <p><strong>Filière :</strong> <span>{{ object.filiere }}</span></p>
                     <p><strong>Statut de l'enseignant :</strong> <span>{{ object.enseignant.teacher_type }}</span></p>
                     <p><strong>Grade :</strong> <span>{{ object.enseignant.grade }}</span></p>
     
@@ -91,11 +98,17 @@
                     {% endif %}
                     <div class="row">
                         {% for enseignement in object.enseignement_sheet.all %}
-                            <div class="col-12 mb-3">
-                                <p><strong>{{ enseignement.module }} :</strong></p>
-    
-                                <!-- Barre de progression pour chaque enseignement -->
-                                <div class="progress" style="height: 20px;">
+                        
+                        <!-- """"" parti 1 filiere -->
+                        {% if nomination.nomination_type == "filiere" %}
+                        
+                        <!-- """"" parti 1 filiere condition sur l'enseignement -->
+                        {% if enseignement.filiere == nomination.filiere %}
+                        
+                        
+                        <!-- Barre de progression pour chaque enseignement -->
+                        <p><strong>{{ enseignement.module }} :</strong></p>
+                                    <div class="progress" style="height: 20px;">
                                     {% if enseignement.validate_by_vice_presient is None %}
                                         {% if enseignement.validate_by_responsable_programme is None %}
                                             {% if enseignement.validate_by_responsable_filiere is None %}
@@ -117,6 +130,63 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% endif %}
+                                
+                            <!-- """"" parti 2 chef de programme -->
+                        {% elif nomination.nomination_type == "ufr" %}
+                                    <!-- """"" parti 2 chef de programme condition sur les enseignements -->
+                            {% if enseignement.filiere.departement == nomination.departement %}
+                            <p><strong>{{ enseignement.module }} :</strong></p>
+                            <div class="progress" style="height: 20px;">
+                                {% if enseignement.validate_by_vice_presient is None %}
+                                    {% if enseignement.validate_by_responsable_programme is None %}
+                                        {% if enseignement.validate_by_responsable_filiere is None %}
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 25%;">Niveau Filière</div>
+                                        {% elif enseignement.validate_by_responsable_filiere is False %}
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 25%;">Rejeté (Filière)</div>
+                                        {% else %}
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%;">Niveau UFR</div>
+                                        {% endif %}
+                                    {% elif enseignement.validate_by_responsable_programme is False %}
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 50%;">Rejeté (UFR)</div>
+                                    {% else %}
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;">Niveau VP</div>
+                                    {% endif %}
+                                {% elif enseignement.validate_by_vice_presient is False %}
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;">Rejeté (VP)</div>
+                                {% elif enseignement.validate_by_vice_presient is True %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;">Validé</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            <!-- dernier parti vise president -->
+                        {% else %}
+    
+                        <p><strong>{{ enseignement.module }} :</strong></p>
+                            <div class="progress" style="height: 20px;">
+                                {% if enseignement.validate_by_vice_presient is None %}
+                                    {% if enseignement.validate_by_responsable_programme is None %}
+                                        {% if enseignement.validate_by_responsable_filiere is None %}
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 25%;">Niveau Filière</div>
+                                        {% elif enseignement.validate_by_responsable_filiere is False %}
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 25%;">Rejeté (Filière)</div>
+                                        {% else %}
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%;">Niveau UFR</div>
+                                        {% endif %}
+                                    {% elif enseignement.validate_by_responsable_programme is False %}
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 50%;">Rejeté (UFR)</div>
+                                    {% else %}
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;">Niveau VP</div>
+                                    {% endif %}
+                                {% elif enseignement.validate_by_vice_presient is False %}
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;">Rejeté (VP)</div>
+                                {% elif enseignement.validate_by_vice_presient is True %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;">Validé</div>
+                                {% endif %}
+                            </div>
+    
+                        {% endif %}
+    
                         {% endfor %}
                     </div>
                 </div>
@@ -125,7 +195,6 @@
         {% if object.is_validated == 0 %}
         <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
     {% else %}
-        <p>Aucun motif de rejet disponible</p>
     {% endif %}
     <div class="mt-4">
         {% if object.is_validated == 0 %}
@@ -158,192 +227,156 @@
 
             
     <!-- Détails des enseignements associés sous forme de deux colonnes -->
-    <div class="mt-4">
-        <h3>Enseignements associés</h3>
 
-        {% if object.enseignement_sheet.all %}
+<div class="mt-4">
+    <h3>Enseignements associés</h3>
+
+    <!-- Vérifiez s'il y a des enseignements associés -->
+    {% if enseignements %}
+    <form id="batchValidationForm" method="post" action="{% url 'fiche_management:batch_validate_or_reject' %}">
+        {% csrf_token %}
+    
+        <!-- Champs cachés pour l'action -->
+        <input type="hidden" id="actionInput" name="action" value="">
+        
+        {% if check_in %}
+        <div class="mb-3">
+            <input type="checkbox" id="selectAllCheckbox" class="form-check-input me-2">
+            <label for="selectAllCheckbox" class="form-label">Tout sélectionner</label>
+        </div>
+        {% endif %}
+    
         <div class="row">
-            {% if object.enseignement_sheet.all %}
-            <div class="row">
-                {% for enseignement in object.enseignement_sheet.all %}
-                    <div class="col-12">
-                        <div class="accordion accordion-flush" id="accordionFlushExample{{ enseignement.id }}">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-heading{{ enseignement.id }}">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ enseignement.id }}" aria-expanded="false" aria-controls="flush-collapse{{ enseignement.id }}">
-                                        <p><strong>{{ enseignement.module }} :</strong>
-                                       
-                                            {% if enseignement.validate_by_vice_presient is None %}
-                                                
-                                                {% if enseignement.validate_by_responsable_programme is None %}
-            
-                                                    {% if enseignement.validate_by_responsable_filiere is None %}
-                                                        <span class="text-warning">En cours de traitement<i class="fas fa-spinner fa-spin "></i>
-                                                        </span>
-                                                    {% elif enseignement.validate_by_responsable_filiere is False %}
-                                                        <span class="text-danger">Rejetée
-                                                            <i class="fas fa-times-circle"></i>
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="text-warning">En cours de traitement 
-                                                            <i class="fas fa-spinner fa-spin"></i>
-                                                        </span>
-                                                    {% endif %}
-            
-                                                {% elif enseignement.validate_by_responsable_programme is False %}
-                                                    <span class="text-danger">Rejetée
-                                                        <i class="fas fa-times-circle"></i>
-                                                    </span>
-                                                {% else %}
-                                                    <span class="text-warning">En cours de traitement 
-                                                        <i class="fas fa-spinner fa-spin"></i>
-                                                    </span>
-                                                {% endif %}
-                                                
-                                            {% elif enseignement.validate_by_vice_presient is False %}
-                                                <span class="text-danger">Rejetée
-                                                    <i class="fas fa-times-circle"></i>
-                                                </span>
-                                            {% elif enseignement.validate_by_vice_presient is True %}
-                                                <span class="text-success">Validée
-                                                    <i class="fas fa-check-circle"></i>
-                                                </span>
-                                            {% endif %}
-                                        </p>
-                                    </button>
-                                </h2>
-                                <div id="flush-collapse{{ enseignement.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ enseignement.id }}" data-bs-parent="#accordionFlushExample{{ enseignement.id }}">
-                                    <div class="accordion-body row">
-                                        <div class="col-md-6">
-                                            <h4>Partie 1</h4>
-                                            <ul class="list-group">
-                                                <li class="list-group-item">
-                                                    <strong>Code :</strong> {{ enseignement.code }}<br>
-                                                    <strong>Filière :</strong> {{ enseignement.filiere }}<br>
-                                                    <strong>Niveau :</strong> {{ enseignement.niveau }}<br>
-                                                    <strong>Semestre :</strong> {{ enseignement.semestre }}<br>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h4>Partie 2</h4>
-                                            <ul class="list-group">
-                                                <li class="list-group-item">
-                                                    <strong>Module :</strong> {{ enseignement.module }}<br>
-                                                    <strong>CT Volume Horaire Confié :</strong> {{ enseignement.ct_volume_horaire_confie }}<br>
-                                                    <strong>TD Volume Horaire Confié :</strong> {{ enseignement.td_volume_horaire_confie }}<br>
-                                                    <strong>TP Volume Horaire Confié :</strong> {{ enseignement.tp_volume_horaire_confie }}<br>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-12">
-
-                
-                            {% if enseignement.is_validated == 0 %}
-                                <p><strong>Motif du rejet :</strong> {{ object.motif_de_rejet }}</p>
-                            {% endif %}
-                            <div>
-
-                            {% if access_programme %}
-                            {% if enseignement.validate_by_responsable_filiere and enseignement.validate_by_responsable_programme == null %}
-
-                                    {% if validate %}
-                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
+            <!-- Liste des enseignements -->
+            {% for enseignement in enseignements %}
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionFlushExample{{ enseignement.id }}">
+                    <div class="accordion-item">
+                        <h6 class="accordion-header d-flex align-items-center" id="flush-heading{{ enseignement.id }}">
+                            {% if nomination %}
+                                {% if nomination.nomination_type == "filiere" %}
+                                    {% if enseignement.validate_by_responsable_filiere is None %}
+                                    <input class="form-check-input me-3" type="checkbox" name="enseignement_ids" value="{{ enseignement.id }}" id="enseignement{{ enseignement.id }}">
                                     {% endif %}
-                                    {% if invalidate %}
-                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
+                                {% elif nomination.nomination_type == "ufr" %}
+                                    {% if enseignement.validate_by_responsable_filiere is True and enseignement.validate_by_responsable_programme is None %}
+                                    <input class="form-check-input me-3" type="checkbox" name="enseignement_ids" value="{{ enseignement.id }}" id="enseignement{{ enseignement.id }}">
+                                    {% endif %}
+                                {% else %}
+                                    {% if enseignement.validate_by_responsable_programme is True and enseignement.validate_by_vice_presient is None %}
+                                    <input class="form-check-input me-3" type="checkbox" name="enseignement_ids" value="{{ enseignement.id }}" id="enseignement{{ enseignement.id }}">
                                     {% endif %}
                                 {% endif %}
-                            
-                            {% elif access_vice_president %}
-                                {% if enseignement.validate_by_responsable_programme and enseignement.validate_by_vice_presient == null %}
-                                    {% if validate %}
-                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
-                                    {% endif %}
-                                    {% if invalidate %}
-                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
-                                    {% endif %}
-            
-                                {% endif %}
-
-                            {% elif access_responsable_filiere %}
-                                {% if enseignement.validate_by_responsable_filiere == null %}
-                                    <p>azertyuio</p>
-                                    {% if validate %}
-                                        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal-{{ enseignement.id }}">Valider</a>
-                                    {% endif %}
-                                    {% if invalidate %}
-                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal-{{ enseignement.id }}">Rejeter</a>
-                                    {% endif %}
-            
-                                {% endif %}
-
-                            {% endif %}
-                            {% if enseignement.validate_by_responsable_filiere is None %}
-                            <a href="{% url 'fiche_management:enseignement-update' enseignement.id %}" class="btn btn-success ">Modifier</a>
                             {% endif %}
     
-                        </div>
-        
-                        <!-- Validation Modal -->
-                        <div class="modal fade" id="confirmationModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="confirmationModalLabel{{ enseignement.id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="confirmationModalLabel{{ enseignement.id }}">Confirmer la validation</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Êtes-vous sûr de vouloir valider cette enseignement ?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <a href="{% url 'fiche_management:valider_enseignement' enseignement.id %}" class="btn btn-success">Confirmer</a>
-                                    </div>
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ enseignement.id }}" aria-expanded="false" aria-controls="flush-collapse{{ enseignement.id }}">
+                                <div class="col-6"><strong>{{ enseignement.module }}</strong>
+                                {% if enseignement.is_validated == 0 %}
+                                <span class="badge bg-danger ms-2">Rejetée</span>
+                                {% elif enseignement.validate_by_vice_presient is True %}
+                                <span class="badge bg-success ms-2">Validée</span>
+                                {% elif enseignement.validate_by_vice_presient is None %}
+                                <span class="badge bg-warning ms-2">En cours</span>
+                                {% endif %}
+                                </div>
+                                {% if enseignement.is_validated == 0 %}
+                                <div class="col-6">
+                                    Motif de rejet : {{ enseignement.motif_de_rejet }}
+                                </div>
+                                {% endif %}
+                            </button>
+                        </h6>
+                        <div id="flush-collapse{{ enseignement.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ enseignement.id }}" data-bs-parent="#accordionFlushExample{{ enseignement.id }}">
+                            <div class="accordion-body row">
+                                <div class="col-md-6">
+                                    <h5>Détails de l'enseignement</h5>
+                                    <ul class="list-group">
+                                        <li class="list-group-item"><strong>Code :</strong> {{ enseignement.code }}</li>
+                                        <li class="list-group-item"><strong>Filière :</strong> {{ enseignement.filiere }}</li>
+                                        <li class="list-group-item"><strong>Niveau :</strong> {{ enseignement.niveau }}</li>
+                                        <li class="list-group-item"><strong>Semestre :</strong> {{ enseignement.semestre }}</li>
+                                    </ul>
+                                    {% if enseignement.validate_by_responsable_filiere == None %}
+                                    <a href="{% url 'fiche_management:enseignement-update' enseignement.slug|default:enseignement.id %}">
+                                        <button type="button" class="btn btn-md btn-outline-success" data-bs-toggle="popover" data-bs-content="Modifier"
+                                            data-bs-container="body" data-bs-placement="top">
+                                            {% icon "edit" height=option_size width=option_size %}Modifier
+                                        </button>
+                                    </a>
+                                    <a href="{% url 'fiche_management:enseignement-delete' enseignement.slug|default:enseignement.id %}" class="delete-btn">
+                                        <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="Supprimer"
+                                            data-bs-container="body" data-bs-placement="top">
+                                            {% icon "trash" height=option_size width=option_size %}Supprimer
+                                        </button>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Volumes Horaires</h5>
+                                    <ul class="list-group">
+                                        <li class="list-group-item"><strong>Module :</strong> {{ enseignement.module }}</li>
+                                        <li class="list-group-item"><strong>CT Volume :</strong> {{ enseignement.ct_volume_horaire_confie }}</li>
+                                        <li class="list-group-item"><strong>TD Volume :</strong> {{ enseignement.td_volume_horaire_confie }}</li>
+                                        <li class="list-group-item"><strong>TP Volume :</strong> {{ enseignement.tp_volume_horaire_confie }}</li>
+                                    </ul>
+                                    
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Rejection Modal -->
-                        <div class="modal fade" id="rejectionModal-{{ enseignement.id }}" tabindex="-1" aria-labelledby="rejectionModalLabel{{ enseignement.id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="rejectionModalLabel{{ enseignement.id }}">Confirmer le rejet</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Êtes-vous sûr de vouloir rejeter cette enseignement ?
-                                        <form id="rejetForm-{{ enseignement.id }}" method="post" action="{% url 'fiche_management:rejeter_enseignement' enseignement.id %}">
-                                            {% csrf_token %}
-                                            <div class="mb-3">
-                                                <label for="motif_rejet" class="form-label">Motif du rejet</label>
-                                                <textarea class="form-control" id="motif_rejet" name="motif_rejet" rows="4" required></textarea>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="button" class="btn btn-danger" onclick="document.getElementById('rejetForm-{{ enseignement.id }}').submit();">Confirmer</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
+                    </div>
                 </div>
             </div>
-                                </div>
-                            </div>
+            {% endfor %}
+        </div>
+    
+        <!-- Modal pour le rejet -->
+        <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectModalLabel">Confirmer le rejet</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Vous avez sélectionné les éléments suivants :</p>
+                        <div id="selectedItemsList" class="list-group mb-3">
+                            <!-- Rempli par JavaScript -->
                         </div>
                     </div>
-                {% endfor %}
+                    <div class="modal-footer">
+                        <button type="button" id="confirmRejectButton" class="btn btn-danger">Confirmer le rejet</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    </div>
+                </div>
             </div>
-            {% endif %}
-            
         </div>
-        {% else %}
-        <p>Aucun enseignement associé trouvé.</p>
+    
+        
+        {% if check_in %}
+        <div class="d-flex justify-content-end mt-3">
+            <button type="button" id="openRejectModalButton" class="btn btn-danger me-2">
+                <i class="fas fa-times-circle"></i> Rejeter
+            </button>
+            <button type="submit" id="validateButton" class="btn btn-success">
+                <i class="fas fa-check-circle"></i> Valider
+            </button>
+        </div>
         {% endif %}
+            
+    </form>
+    
+    {% else %}
+    <p>Aucun enseignement associé trouvé.</p>
+    {% endif %}
+</div>
+
+        
+
+        
+        
     </div>
+    
 
 </div>
 
@@ -396,6 +429,95 @@
         </div>
     </div>
 </div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const batchValidationForm = document.getElementById("batchValidationForm");
+    const actionInput = document.getElementById("actionInput");
+
+    // Gestion du bouton Valider
+    document.getElementById("validateButton").addEventListener("click", function () {
+        actionInput.value = "validate";
+        batchValidationForm.submit();
+    });
+
+    // Gestion du bouton Rejeter
+    document.getElementById("confirmRejectButton").addEventListener("click", function () {
+        actionInput.value = "reject";
+        batchValidationForm.submit();
+    });
+});
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const openRejectModalButton = document.getElementById("openRejectModalButton");
+        const confirmRejectButton = document.getElementById("confirmRejectButton");
+        const selectedItemsList = document.getElementById("selectedItemsList");
+        const batchValidationForm = document.getElementById("batchValidationForm");
+        const rejectionReason = document.getElementById("rejectionReason");
+    
+        openRejectModalButton.addEventListener("click", function () {
+            // Récupérer les éléments sélectionnés
+            const selectedCheckboxes = document.querySelectorAll('input[name="enseignement_ids"]:checked');
+            
+            // Vider la liste actuelle
+            selectedItemsList.innerHTML = "";
+                                // Ajout dynamique des éléments sélectionnés dans la modal
+
+            if (selectedCheckboxes.length > 0) {
+                // Ajouter chaque élément sélectionné à la liste du modal
+                selectedCheckboxes.forEach(checkbox => {
+                    const enseignementId = checkbox.value;
+                    const enseignementLabel = checkbox.closest(".accordion-header").querySelector("strong").innerText;
+                    const itemHtml = `
+                        <div class="mb-3">
+                            <label for="motif_${enseignementId}" class="form-label">
+                                <strong>${enseignementLabel}</strong> - Motif de rejet :
+                            </label>
+                            <textarea name="reasons[${enseignementId}]" id="motif_${enseignementId}" class="form-control" rows="2" required></textarea>
+                        </div>`;
+                    const listItem = document.createElement("li");
+                    listItem.className = "list-group-item";
+                    listItem.textContent = enseignementLabel;
+                    selectedItemsList.insertAdjacentHTML("beforeend", itemHtml);
+                });
+    
+                // Ouvrir le modal
+                new bootstrap.Modal(document.getElementById("rejectModal")).show();
+            } else {
+                alert("Veuillez sélectionner au moins un élément avant de rejeter.");
+            }
+        });
+    
+        confirmRejectButton.addEventListener("click", function () {
+            // Ajouter le motif de rejet au formulaire
+            const reason = rejectionReason.value.trim();
+            if (reason === "") {
+                alert("Veuillez indiquer un motif de rejet.");
+                return;
+            }
+    
+            const reasonInput = document.createElement("input");
+            reasonInput.type = "hidden";
+            reasonInput.name = "rejection_reason";
+            reasonInput.value = reason;
+    
+            batchValidationForm.appendChild(reasonInput);
+    
+            // Soumettre le formulaire avec action="reject"
+            const actionInput = document.createElement("input");
+            actionInput.type = "hidden";
+            actionInput.name = "action";
+            actionInput.value = "reject";
+    
+            batchValidationForm.appendChild(actionInput);
+            batchValidationForm.submit();
+        });
+    });
+    </script>
+    
 
 
 <style>
@@ -464,6 +586,8 @@
         font-size: 0.8rem;
     }
 
+    
+
     </style>
 <script>
     function confirmerRejet() {
@@ -473,6 +597,32 @@
 </script>
 
 <script>
+    
+    document.addEventListener("DOMContentLoaded", function () {
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    const checkboxes = document.querySelectorAll('input[name="enseignement_ids"]');
+
+    // Action lors du clic sur la case "Tout sélectionner"
+    selectAllCheckbox.addEventListener("change", function () {
+        const isChecked = selectAllCheckbox.checked; // État du checkbox principal
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked; // Applique cet état à toutes les cases
+        });
+    });
+
+    // Action pour désactiver "Tout sélectionner" si un checkbox est décoché manuellement
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            if (!checkbox.checked) {
+                selectAllCheckbox.checked = false; // Décoche "Tout sélectionner"
+            } else if ([...checkboxes].every(cb => cb.checked)) {
+                selectAllCheckbox.checked = true; // Si toutes les cases sont cochées, coche "Tout sélectionner"
+            }
+        });
+    });
+});
+
+
     function confirmerValidation() {
         // Simule une action de validation
         alert("La fiche a été validée avec succès !");
@@ -482,6 +632,14 @@
         const modalInstance = bootstrap.Modal.getInstance(confirmationModal);
         modalInstance.hide();
     }
+            // Vérifiez si au moins une case est cochée avant de soumettre
+            document.getElementById('batchValidationForm').addEventListener('submit', function(event) {
+                const selectedItems = document.querySelectorAll('input[name="enseignement_ids"]:checked');
+                if (selectedItems.length === 0) {
+                    alert("Veuillez sélectionner au moins un enseignement.");
+                    event.preventDefault(); // Empêche la soumission du formulaire
+                }
+            });
 </script>
 
-{% endblock %}
+{% endblock content %}

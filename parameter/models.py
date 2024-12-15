@@ -14,7 +14,7 @@ Min_length = 25
 
 # Modèle de base avec des champs communs
 class BaseModel(CommonAbstractModel):
-    code = models.CharField('Sigle', max_length=Min_length, unique=True)
+    code = models.CharField('Code', max_length=Min_length, unique=True)
     label = models.CharField(max_length=Max_length, blank=True, null=True)
     description = RichTextField()  # Champ riche pour le modèle
 

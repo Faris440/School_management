@@ -25,7 +25,7 @@ from formset.views import (
     IncompleteSelectResponseMixin,
 )
 from fiche_management.models import Sheet
-from xauth.models import User
+from xauth.models import Nomination, User
 from formset.views import FileUploadMixin
 
 
@@ -33,21 +33,48 @@ from formset.views import FileUploadMixin
 LIST_MAX_ROWS = getattr(settings, "LIST_MAX_ROWS", 10)
 
 
-
 class IndexTemplateView(TemplateView):
     template_name = "index.html"  # Spécifiez directement le nom du template
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Récupération dynamique du nombre de dossiers
-        context['nombre_fiches'] = Sheet.objects.count()
-        context['nombre_enseignements'] = Enseignements.objects.count()
-        context['fiches_validees'] = Sheet.objects.filter(is_validated = True).count()
-        context['fiches_rejetees'] = Sheet.objects.filter(is_validated = False).count()
-        context['fiches_en_cours'] = Sheet.objects.filter(is_validated = None).count()
-        
-        
+        user = self.request.user
+
+        # Vérifiez les rôles ou permissions spécifiques de l'utilisateur
+        access_vice_president = user.has_perm("xauth.vice_president")
+        access_responsable_programme = user.has_perm("xauth.responsable_programme")
+        access_responsable_filiere = user.has_perm("xauth.responsable_filiere")
+
+        # Filtrer les enseignements en fonction des rôles
+        enseignements_queryset = Enseignements.objects.none()
+        if access_vice_president:
+            # Le vice-président voit tout
+            enseignements_queryset = Enseignements.objects.all()
+        else:
+            nomination = Nomination.objects.filter(user=user, is_desactivate=False).first()
+            if nomination:
+                if access_responsable_programme:
+                    # Responsable programme : enseignements liés au département
+                    enseignements_queryset = Enseignements.objects.filter(
+                        filiere__departement=nomination.departement
+                    )
+                elif access_responsable_filiere:
+                    # Responsable filière : enseignements liés à la filière
+                    enseignements_queryset = Enseignements.objects.filter(
+                        filiere=nomination.filiere
+                    )
+            else:
+                    # Enseignant : enseignements liés à ses propres fiches
+                enseignements_queryset = Enseignements.objects.filter(sheet__enseignant=user)
+
+        # Calcul des statistiques
+        context['nombre_enseignements'] = enseignements_queryset.count()
+        context['enseignements_validees'] = enseignements_queryset.filter(is_validated=True).count()
+        context['enseignements_rejetees'] = enseignements_queryset.filter(is_validated=False).count()
+        context['enseignements_en_cours'] = enseignements_queryset.filter(is_validated=None).count()
+
         return context
+
 class RedirectionView(RedirectView):
     url = "/home/"
 

@@ -22,7 +22,7 @@ class EnseignementsForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code', 'niveau', 'semestre', 'module',
+            'code', 'niveau', 'semestre', 'module','filiere',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
         ]
 
@@ -36,7 +36,7 @@ class VacataireEnseignementsForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code', 'niveau', 'semestre', 'module',
+            'code', 'filiere', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
         ]
 
@@ -83,7 +83,6 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
             'volume_horaire_statuaire',
             'abattement',
             'motif_abattement',
-            'filiere',
             'promotion',
             
         ]
@@ -147,7 +146,7 @@ class SheetAgentVacataireForm(FormMixin, forms.ModelForm):
 
     class Meta:
         model = Sheet
-        fields = ['enseignant', 'etablissement_enseigne', 'promotion', 'filiere']
+        fields = ['enseignant', 'etablissement_enseigne', 'promotion']
         widgets = {
             'enseignant': Selectize()
         }
@@ -201,7 +200,6 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
             'volume_horaire_statuaire',
             'abattement',
             'motif_abattement',
-            'filiere',
         ]
         widgets = {
             'date_fin': DatePicker(attrs={
@@ -258,7 +256,6 @@ class SheetVacataireForm(FormMixin, forms.ModelForm):
         fields = [
             'promotion',
             'etablissement_enseigne',
-            'filiere',
         ]
         widgets = {
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
@@ -292,7 +289,7 @@ class SheetSelfForm(FormMixin, forms.ModelForm):
     )
     class Meta:
         model = Sheet
-        fields = ['date_debut', 'date_fin','filiere']
+        fields = ['date_debut', 'date_fin']
 
 
 class LogCollection(FormCollection):
@@ -354,7 +351,7 @@ class SheetFormu(FormMixin, forms.ModelForm):
     )
     class Meta:
         model = Sheet
-        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin','filiere']
+        fields = ['enseignant','etablissement_enseigne','date_debut','date_fin']
         widgets = {
             'date_fin' : DatePicker(attrs={
                         'max': (now()).isoformat(),

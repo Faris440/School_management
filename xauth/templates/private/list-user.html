@@ -25,15 +25,15 @@
 
 {% block table-headers %}
 <th>Nom</th>
-<th>Prénom</th>
-<th>Contact</th>
+<th>Email</th>
+<th>Matricule</th>
 <th>Rôle</th>
 {% endblock table-headers %}
 
 {% block table-rows %}
-<td>{{object.last_name|title}}</td>
-<td>{{object.first_name|title}}</td>
-<td>{{object.phone}}</td>
+<td>{{object.first_name|title}} {{object.last_name|title}}</td>
+<td>{{object.email}}</td>
+<td>{{object.matricule}}</td>
 <td>{{object.get_role}}</td>
 {% endblock table-rows %}
 
@@ -44,6 +44,14 @@
   <button type="button" class="btn btn-md btn-outline-secondary" data-bs-toggle="popover"
     data-bs-content="Activer le compte" data-bs-container="body" data-bs-placement="top" 
     data-toggle="tooltip" data-placement="top" title="Activer le compte">
+    {% icon "key" height=option_size width=option_size %}
+  </button>
+</a>
+{% else %}
+<a href="{% url 'auth:user-send-key' object.id %}">
+  <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover"
+    data-bs-content="Activer le compte" data-bs-container="body" data-bs-placement="top" 
+    data-toggle="tooltip" data-placement="top" title="Désactiver le compte">
     {% icon "key" height=option_size width=option_size %}
   </button>
 </a>

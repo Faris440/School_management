@@ -1,11 +1,13 @@
 from django.urls import path
 from fiche_management import views
+# from .views import NotificationsListView
+
 
 
 app_name = 'fiche_management'
 
 urlpatterns = [
-
+    path('management/download/<uuid:pk>/',view=views.DynamicNameView.as_view(), name='download-view'),
     path(
         "management/list/",
         view=views.SheetListView.as_view(),
@@ -41,6 +43,18 @@ urlpatterns = [
         view=views.SheetDeleteView.as_view(),
         name="sheet-delete",
     ),
+
+    path(
+        "management/enseignement/<uuid:pk>/update/",
+        view=views.EnseignementUpdateView.as_view(),
+        name="enseignement-update",
+    ),
+    path(
+        "management/enseignement/<uuid:pk>/delete/",
+        view=views.EnseignementDeleteView.as_view(),
+        name="enseignement-delete",
+    ),
+
     path('management/sheet/<uuid:pk>/valider/',
          views.valider_fiche, 
          name='valider_fiche'),
@@ -65,4 +79,8 @@ urlpatterns = [
 
     path('sheet/PermanentPreview/', views.SheetPermanantPreviewView.as_view(),
       name='perm_sheet_preview'),
+
+    
+    path('sheet/batch-validate-or-reject/', views.batch_validate_or_reject, name='batch_validate_or_reject'),
+
 ]

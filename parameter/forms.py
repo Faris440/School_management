@@ -7,7 +7,6 @@ from formset.widgets import (
     SelectizeMultiple,
     DualSortableSelector,
     DualSelector,
-    Selectize,
 )
 from formset.collection import FormMixin
 from formset.richtext.widgets import RichTextarea
@@ -94,17 +93,9 @@ class NiveauForm(forms.ModelForm):
         },
     )
     
-    semestres = ModelMultipleChoiceField(
-        queryset=Semestre.objects.all(),
-        label="Semestres",
-        widget=SelectizeMultiple(
-            search_lookup="label__icontains",
-        )
-    )
-    
     class Meta:
         model = Niveau
-        fields = ['code', 'label', 'semestres','description']
+        fields = ['code', 'label','description']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du niveau'}),
@@ -119,9 +110,18 @@ class SemestreForm(forms.ModelForm):
             "*": "mb-2 col-md-6 input100s",
         },
     )
+
+    niveau = ModelMultipleChoiceField(
+            queryset=Niveau.objects.all(),
+            label="niveau",
+            widget=SelectizeMultiple(
+                search_lookup="label__icontains",
+            )
+        )
+
     class Meta:
         model = Semestre
-        fields = ['code', 'label', 'description',]  # Ajout du champ 'semestre'
+        fields = ['code', 'label','niveau', 'description',]  # Ajout du champ 'semestre'
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du semestre'}),
@@ -148,18 +148,18 @@ class UEForm(forms.ModelForm):
                 search_lookup="label__icontains",
                 placeholder="Sélectionnez la filiere",
             ),
-            # 'departement': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez un département",
-            #     filter_by={"ufr": "ufr__id"},
-            # ),
-            # 'filiere': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez une filière",
-            #     filter_by={"departement": "departement__id"},  # Liaison au département sélectionné
-            # ),
+            'niveau': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un niveau",
+            ),
+            'semestre': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un semestre",
+                filter_by={"niveau": "niveau__id"},
+            ),
+           
         }
 
 class ModuleForm(forms.ModelForm):
@@ -202,6 +202,13 @@ class ModuleForm(forms.ModelForm):
                 placeholder="Sélectionnez une unité d'enseignement",
                 filter_by={"filiere": "filiere__id"},  # Liaison au département sélectionné
             ),
+            'niveau': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un niveau",
+                filter_by={"semestre": "semestre__id"},  # Liaison au niveau 
+            ),
+
 
         }
        

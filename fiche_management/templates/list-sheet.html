@@ -21,6 +21,7 @@
 {% endblock table-headers %}
 
 {% block table-rows %}
+
 <td>{{ object.enseignant }}</td>
 <td>{{ object.filiere }}</td>
 <td>{{ object.promotion }}</td>
@@ -36,6 +37,16 @@
         
 </td> <!-- Affichage du statut -->
 {% endblock table-rows %}
+
+{% block other-options %}
+<a href="{% url 'fiche_management:download-view' object.slug|default:object.id %}">
+    <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="Imprimer"
+        data-bs-container="body" data-bs-placement="top" data-toggle="tooltip" title="Imprimer">
+        {% icon "printer" height=option_size width=option_size %}
+    </button>
+</a>
+
+{% endblock other-options %}
 
 
 {% block javascript %}
@@ -64,6 +75,18 @@
 
 {% block stylesheet%}
 <style>
+.print-option {
+    margin-top: 10px;
+    text-align: right; /* Place le bouton à droite */
+}
+
+.print-option .btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
 /* Styles spécifiques pour le breadcrumb dans le conteneur */
 .breadcrumb-container {
     margin: 20px 0; /* Pour séparer le breadcrumb des autres éléments */

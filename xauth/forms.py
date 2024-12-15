@@ -145,6 +145,7 @@ class UserCreateForm(ModelForm):
                 'type': 'date',
             }),
             
+            
         }
        
         labels = {

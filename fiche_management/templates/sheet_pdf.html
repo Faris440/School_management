@@ -1,0 +1,253 @@
+{% load static %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    .container {
+        width: 80%;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .header-logo {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .header-logo img.logo {
+        width: 250px; /* Ajustez la taille selon vos besoins */
+        height: auto;
+    }
+
+    .header-text {
+        text-align: left;
+    }
+
+    .header-text h1 {
+        font-size: 1.2em;
+        margin: 0;
+    }
+
+    .header-text h2 {
+        font-size: 1.4em;
+        margin-top: 1px;
+    }
+
+    .academic-year {
+        text-align: right;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        margin-right: 50px;
+    }
+
+    .custom-section {
+        background-color: #fffee8; 
+        padding: 5px;
+        border: 3px solid #000000; 
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        margin: 15px auto; 
+        margin-top: 10px;
+        width: 80%; 
+    }
+
+    .text-center1 {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #333; /* Couleur du texte */
+    }
+
+    .teacher-info h3 {
+        text-decoration: underline;
+        margin-bottom: 10px;
+    }
+
+    .teacher-info p {
+        margin: 5px 0;
+    }
+
+    .teaching-details h3 {
+        text-decoration: underline;
+        margin-bottom: 10px;
+    }
+
+    .teaching-details table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+
+    .teaching-details table th,
+    .teaching-details table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .teaching-details p {
+        font-size: 0.9em;
+        color: #666;
+    }
+    .teacher-details {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Ajuste l'espace entre les éléments */
+    margin: 10px 0;
+    }
+
+    .teachers-details {
+        display: flex;
+        justify-content: space-between;
+        margin-right: 30px;
+    }
+
+    .spacer {
+        flex-grow: 1; /* Ajoute un espace flexible entre les éléments */
+    }
+
+
+    .footer {
+        margin-top: 30px;
+    }
+
+    .signature-section,
+    .approval-section {
+        margin-bottom: 20px;
+    }
+
+    .signature-section p,
+    .approval-section p {
+        margin: 5px 0;
+    }
+</style>
+
+<div class="container">
+    <header class="header">
+        <div class="col-6 header-logo">
+            <img src="{% static 'img/logo-uvbf.png' %}" alt="Logo de l'université" class="logo">
+        </div>
+        <div class="col-6 header-text">
+            <h1 class="text-center">UNIVERSITÉ VIRTUELLE <br> DU BURKINA FASO</h1>
+             <p class="text-center" style="font-size: 40px;"> -------- </p>
+            <h2 class="text-center">PRESIDENCE</h2>
+        </div>
+    </header>
+
+    <section class="academic-year">
+        <p><strong>Année universitaire : </strong>{{object.promotion.label}}</p>
+    </section>
+
+    <section class="rounded-2 rounded-pill border-3 custom-section mt-Z">
+        <h3 class="text-center1 text-center">FICHE PROGRAMMATIQUE</h3>
+    </section>
+
+    <section class="teacher-info">
+        <p class="text-center"><strong>Pour enseignant vacataire</strong></p>
+    </section>
+    
+    <section class="teacher-info">
+        <p>
+            <strong>Nom :</strong> {{object.enseignant.first_name}}
+            <strong>Prénom(s) :</strong> {{object.enseignant.last_name}}
+        </p>
+        <p><strong>Structure d'origine :</strong> {{object.enseignant.structure_origine}}</p>
+        <p><strong>Grade/Titre :</strong> {{ object.enseignant.grade }} </p>
+        <p><strong>Établissement bénéficiaire des enseignements :</strong> Université Virtuelle du Burkina Faso (UV-BF)</p>
+    </section>
+
+    <section class="teaching-details mt-5">
+        <h6 class="text-center">Tableau descriptif des enseignements confiés</h6>
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">CODE</th>
+                    <th rowspan="2">PARCOURS</th>
+                    <th rowspan="2">ECUE ou UE <br>(Matières enseignées)</th>
+                    <th colspan="3">Volume horaire confié</th>
+                    <th rowspan="2">Statut</th>
+                    
+                </tr>
+                <tr>
+                    <th>CT</th>
+                    <th>TD</th>
+                    <th>TP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in object.enseignement_sheet.all %}
+                <tr>
+                    <td>{{ value.code }}</td>
+                    <td>{{ value.niveau.label }} - {{ value.semestre.label }}</td>
+                    <td>{{ value.module.label }}</td>
+                    <td>{{ value.ct_volume_horaire_confie }}</td>
+                    <td>{{ value.td_volume_horaire_confie }}</td>
+                    <td>{{ value.tp_volume_horaire_confie }}</td>
+                    {% if value.is_validated == True %}
+                    <td>Validée</td>
+                    {% elif value.is_validated == False %}
+                    <td>Rejetée</td>
+                    {% else %}
+                    <td>en cours</td>
+                    {% endif %}
+                    
+
+
+
+
+                </tr>
+                {% endfor %}
+                
+                <tr>
+                    <td colspan="3"><strong>TOTAL :</strong></td>
+                    <td>{{ total_ct }}</td>
+                    <td>{{ total_td }}</td>
+                    <td>{{ total_tp }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>CT : Cours Théorique &nbsp; | &nbsp; TD : Travaux Dirigés &nbsp; | &nbsp; TP : Travaux Pratiques</p>
+
+    </section>
+
+    <footer class="footer">
+        <div class="signature-section text-right">
+            <p>Ouagadougou le : {{ today|date:"d/m/Y" }}</p>
+            <p>L'enseignant : ______________________________</p>
+        </div>
+        <div class="approval-section">
+            <p class="text-center"><strong>Vu et approuvé par :</strong></p>
+            <div class="row mt-3">
+                
+                <div class="col-5">
+                    <p class="text-left">Le Responsable de la filière 
+                    </p>
+                    
+                    {% if object.is_validated %}
+                <img src="{% static 'img/sign_R_F.jpg' %}" 
+                alt="Signature du responsable de la filière">
+                    {% endif %}
+                </div>
+                <div class="col-5">
+                    <p class="text-right">Le Vice-Président de l'UV-BF</p>
+                    <p class="text-right mt-5">Pr Tizane DAHO</p>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+</div>
+

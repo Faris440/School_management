@@ -463,9 +463,11 @@ class UserSendSecreteKey(View):
             )
 
         else:
+            self.object.is_active = False
+            self.object.save()
             messages.warning(
                 self.request,
-                f"Le compte de {self.object.get_full_name()} est déjà actif.",
+                f"Le compte de {self.object.get_full_name()} est  desactivé.",
             )
 
         return HttpResponseRedirect(self.get_success_url())

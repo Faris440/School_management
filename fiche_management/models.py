@@ -22,7 +22,6 @@ class Sheet(CommonAbstractModel):
     is_validated = models.BooleanField(null=True, verbose_name="Validé")
     motif_de_rejet = models.CharField(max_length= BIG_LENGTH, verbose_name="motif_refus",null=True)
     is_permanent = models.BooleanField(null=True, verbose_name="type_fiche_permanent")
-    filiere = models.ForeignKey("parameter.Filiere",on_delete=models.CASCADE,related_name="sheet_filiere", verbose_name="Filière consernée")
 
     validate_by_responsable_filiere = models.BooleanField(null=True)
     validate_by_responsable_programme = models.BooleanField(null=True)
@@ -56,6 +55,7 @@ class Sheet(CommonAbstractModel):
 class Enseignements(CommonAbstractModel):
     code = models.CharField('code',null=True, max_length=Min_length, unique=True)
     sheet = models.ForeignKey(Sheet, on_delete=models.CASCADE, related_name="enseignement_sheet")
+    filiere = models.ForeignKey("parameter.Filiere",on_delete=models.CASCADE,related_name="enseignement_filiere", verbose_name="Filière consernée")
     niveau = models.ForeignKey("parameter.Niveau",on_delete=models.CASCADE,related_name="sheet_niveau", verbose_name="Niveau de la filière")
     semestre = models.ForeignKey("parameter.Semestre",on_delete=models.CASCADE,related_name="sheet_semestre", verbose_name="Semestre du cours")
     module = models.ForeignKey("parameter.Module",on_delete=models.CASCADE,related_name="sheet_module", verbose_name="Module enseigné")

@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     "ie_app.apps.IeAppConfig",
     "fiche_management",
     "ckeditor",
+    "notifications",
+    
 ]
 
 MIDDLEWARE = [
