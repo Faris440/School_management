@@ -6,12 +6,14 @@
 
 {% block table-headers %}
 <th>Code</th>
+<th>Niveau</th>
 <th>Libellé</th>
 {% endblock table-headers %}
 
 
 {% block table-rows %}
 <td>{{ object.code }}</td>
+<td>{{ object.niveau }}</td>
 <td>{{ object.label }}</td>
 {% endblock table-rows %}
 

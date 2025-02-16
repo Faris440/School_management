@@ -1,0 +1,86 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid py-4">
+    <!-- Card Wrapper -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h5 class="m-0 font-weight-bold">Informations sur l'année universitaire</h5>
+        </div>
+        <div class="card-body px-4">
+            <!-- Two-Column Layout -->
+            <div class="row">
+                <!-- Colonne Gauche -->
+                <div class="col-md-4">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Année universitaire:</th>
+                                <td>{{ object.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Colonne Droite -->
+                <div class="col-md-4">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Date de début:</th>
+                                <td>{{ object.start_date|date:"d/m/Y" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Date de fin:</th>
+                                <td>{{ object.end_date|date:"d/m/Y" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Pied de page de la carte -->
+        <div class="card-footer bg-light text-right">
+            <a href="{% url 'parameter:annee_univ-update' object.pk %}" class="btn btn-outline-warning btn-sm">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <!-- Bouton de suppression intégré avec le modal -->
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmationLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette année universitaire? : <strong>{{ object.name }}</strong> ?</p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'parameter:annee_univ-delete' object.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

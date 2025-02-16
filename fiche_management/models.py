@@ -1,6 +1,7 @@
 from django.db import models
 from School_management.cmodels import CONSTRAINT, CommonAbstractModel
 from School_management.constants import BIG_LENGTH
+from parameter.models import Filiere, Niveau, Semestre
 
 
  # Définitions des longueurs par convention
@@ -11,8 +12,8 @@ Min_length = 25
 class Sheet(CommonAbstractModel):
     enseignant = models.ForeignKey("xauth.User", on_delete=models.CASCADE, related_name="sheet_enseignant")
     etablissement_enseigne = models.CharField(max_length= BIG_LENGTH, verbose_name="Etablissement enseigné",null=True) 
-    promotion = models.ForeignKey("parameter.Promotion", on_delete=models.CASCADE, related_name="sheets", verbose_name="Année Universitaire")
-    # annee_univ = models.ForeignKey("parameter.Annee_univ", on_delete=models.CASCADE, related_name="sheets", verbose_name="Annee_univ")
+    promotion = models.ForeignKey("parameter.Promotion", on_delete=models.CASCADE, related_name="sheets", verbose_name="Promotion")
+    annee_univ = models.ForeignKey("parameter.Annee_univ", on_delete=models.CASCADE, related_name="sheets", verbose_name="Année Universitaire",null=True)
     volume_horaire_statuaire = models.IntegerField(null=True, verbose_name='Volume horaire statuaire')
     abattement = models.IntegerField(null=True, verbose_name='veuillez saisir l\'abattement')
     motif_abattement = models.CharField(max_length= BIG_LENGTH, verbose_name="Motif de l'abattement",null=True) 
@@ -56,9 +57,9 @@ class Enseignements(CommonAbstractModel):
     code = models.CharField('code',null=True, max_length=Min_length, unique=True)
     sheet = models.ForeignKey(Sheet, on_delete=models.CASCADE, related_name="enseignement_sheet")
     filiere = models.ForeignKey("parameter.Filiere",on_delete=models.CASCADE,related_name="enseignement_filiere", verbose_name="Filière consernée")
-    niveau = models.ForeignKey("parameter.Niveau",on_delete=models.CASCADE,related_name="sheet_niveau", verbose_name="Niveau de la filière")
-    semestre = models.ForeignKey("parameter.Semestre",on_delete=models.CASCADE,related_name="sheet_semestre", verbose_name="Semestre du cours")
-    module = models.ForeignKey("parameter.Module",on_delete=models.CASCADE,related_name="sheet_module", verbose_name="Module enseigné")
+    niveau = models.ForeignKey("parameter.Niveau",on_delete=models.CASCADE,related_name="enseignement_niveau", verbose_name="Niveau de la filière")
+    semestre = models.ForeignKey("parameter.Semestre",on_delete=models.CASCADE,related_name="enseignement_semestre", verbose_name="Semestre du cours")
+    module = models.ForeignKey("parameter.Module",on_delete=models.CASCADE,related_name="enseignement_module", verbose_name="Module enseigné")
     ct_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, CT')
     td_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, TD')
     tp_volume_horaire_confie = models.IntegerField(null=False, verbose_name='Volume_horaire confié, TP')

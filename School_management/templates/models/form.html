@@ -57,7 +57,6 @@
                     {% if can_rerender %}
                     {% include 'button.html' with label="Enregistrer et Continuer" color="btn-info" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
                     {% endif %}
-                    <a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}</a>
                 </div>
             </django-formset>
         </div>

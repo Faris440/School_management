@@ -10,6 +10,7 @@ from formset.collection import FormMixin
 from xauth.models import User
 from django.utils.safestring import mark_safe
 from django.forms import widgets
+from parameter.models import Module
 
 
 class EnseignementsForm(forms.ModelForm):
@@ -22,9 +23,38 @@ class EnseignementsForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code', 'niveau', 'semestre', 'module','filiere',
+            'code','filiere', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
         ]
+        widgets = {
+            'code': forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Code'
+            }),
+            'filiere': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+            ),
+            'niveau': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un niveau",
+            ),
+            'semestre': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un semestre",
+                filter_by={"niveau": "niveau__id"},
+            ),
+            'module': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un module",
+                filter_by={"semestre": "semestre__id"},
+            ),
+        }
+
 
 class VacataireEnseignementsForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -38,8 +68,39 @@ class VacataireEnseignementsForm(forms.ModelForm):
         fields = [
             'code', 'filiere', 'niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
-        ]
-
+        ]  
+    widgets = {
+            'code': forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Code'
+            }),
+            'filiere': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+            ),
+            'niveau': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un niveau",
+                filter_by={"filiere": "filiere__id"},
+            ),
+            'semestre': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un semestre",
+                filter_by={"niveau": "niveau__id"},
+            ),
+            'module': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un module",
+                filter_by={"semestre": "semestre__id"},
+            ),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
 
 class SheetForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -52,10 +113,41 @@ class SheetForm(forms.ModelForm):
     class Meta:
         model = Enseignements
         fields = [
-            'code', 'niveau', 'semestre', 'module',
+            'code', 'filiere','niveau', 'semestre', 'module',
             'ct_volume_horaire_confie', 'td_volume_horaire_confie', 'tp_volume_horaire_confie',
         ]
-
+                
+        widgets = {
+            'code': forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Code'
+            }),
+            'filiere': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+            ),
+            'niveau': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un niveau",
+                filter_by={"filiere": "filiere__id"},
+            ),
+            'semestre': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un semestre",
+                filter_by={"niveau": "niveau__id"},
+            ),
+            'module': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez un module",
+                filter_by={"semestre": "semestre__id"},
+            ),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 # Soumission d'une fiche d'un enseignant permanant par un admin
 class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
@@ -76,7 +168,7 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         model = Sheet
         fields = [
             'enseignant',
-            'promotion',
+            'annee_univ',
             'date_debut',
             'date_fin',
             'etablissement_enseigne',
@@ -98,6 +190,11 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
                 'type': 'date',
                 'df-show': ".gender=='O'"
             }),
+            'annee_univ': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez l'année universitaire'",
+            ),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
             'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
             'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
@@ -121,6 +218,8 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         self.fields['motif_abattement'].required = False
         self.fields['date_debut'].required = False
         self.fields['date_fin'].required = False
+        self.fields['annee_univ'].required = False
+        self.fields['promotion'].required = False
 
 
         # Filtrer les enseignants de type "permanent"
@@ -146,7 +245,7 @@ class SheetAgentVacataireForm(FormMixin, forms.ModelForm):
 
     class Meta:
         model = Sheet
-        fields = ['enseignant', 'etablissement_enseigne', 'promotion']
+        fields = ['enseignant', 'etablissement_enseigne', 'promotion','annee_univ']
         widgets = {
             'enseignant': Selectize()
         }
@@ -195,6 +294,7 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         fields = [
             'date_debut',
             'date_fin',
+            'annee_univ',
             'promotion',
             'etablissement_enseigne',
             'volume_horaire_statuaire',
@@ -210,6 +310,16 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
                 'max': (now()).isoformat(),
             'df-show': ".gender=='O'"
             }),
+            'annee_univ': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez l'année universitaire",
+            ),
+            'promotion': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez la promotion",
+            ),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
             'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
             'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
@@ -232,6 +342,8 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         self.fields['motif_abattement'].required = False
         self.fields['date_debut'].required = False
         self.fields['date_fin'].required = False
+        self.fields['annee_univ'].required = False
+        self.fields['promotion'].required = False
 
         # Ajouter une indication visuelle pour les champs requis
         for field_name, field in self.fields.items():
@@ -254,6 +366,7 @@ class SheetVacataireForm(FormMixin, forms.ModelForm):
     class Meta:
         model = Sheet
         fields = [
+            'annee_univ',
             'promotion',
             'etablissement_enseigne',
         ]
@@ -296,6 +409,7 @@ class LogCollection(FormCollection):
     min_siblings = 1
     add_label = "Ajouter un enseignement"
     log = EnseignementsForm()
+    log_field = log.fields
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -305,6 +419,7 @@ class LogVacataireCollection(FormCollection):
     min_siblings = 1
     add_label = "Ajouter un enseignement"
     log = VacataireEnseignementsForm()
+    log_field = log.fields
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -314,11 +429,17 @@ class FinalAgentPermanentFormCollection(FormCollection):
     sheet = SheetAgentPermanantForm()
     enseignement = LogCollection()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    
+
     
 # form final d'une fiche d'un enseignant vacataire par un admin
 class FinalAgentVacataireFormCollection(FormCollection):
     sheet = SheetAgentVacataireForm()
     enseignement = LogVacataireCollection()
+    ensseignement_field = enseignement.log_field
 
 
 # form finale d'une fiche d'un enseignant permanant
@@ -326,13 +447,27 @@ class FinalPermanentFormCollection(FormCollection):
     default_renderer = FormRenderer(field_css_classes='mb-3')
     sheet = SheetPermanentForm()
     enseignement = LogCollection()
+    enseignement_field = enseignement.log_field
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user :
+            u = user.module.all()
+            self.enseignement_field.get("module").queryset = u
 
 # form finale d'une fiche d'un enseignant vacataire
 class FinalVacataireFormCollection(FormCollection):
     default_renderer = FormRenderer(field_css_classes='mb-3')
     sheet = SheetVacataireForm()
     enseignement = LogVacataireCollection()
+    enseignement_field = enseignement.log_field
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        u = user.module.all()
+        self.enseignement_field.get("module").queryset = u
 
 class FinalSelfFormCollection(FormMixin ,FormCollection):
     default_renderer = FormRenderer(field_css_classes='mb-3')

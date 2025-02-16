@@ -3,21 +3,20 @@
 {% load humanize %}
 {% load static %}
 
-code', 'label', 'description','ufr','departement','filiere','niveau','semestre','ue','volume_horaire','credit
 
 {% block table-headers %}
 <th>Code</th>
-<th>Libellé</th>
-<th>Departement</th>
 <th>Filière</th>
+<th>UE</th>
+<th>Libellé</th>
 {% endblock table-headers %}
 
 
 {% block table-rows %}
 <td>{{ object.code }}</td>
-<td>{{ object.label }}</td>
-<td>{{ object.departement }}</td>
 <td>{{ object.filiere }}</td>
+<td>{{ object.ue }}</td>
+<td>{{ object.label }} ( {{ object.niveau }} / {{ object.semestre }})</td>
 {% endblock table-rows %}
 
 

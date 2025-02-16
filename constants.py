@@ -11,7 +11,7 @@ MEDIUM_LENGTH = 100
 LONG_LENGTH = 250
 BIG_LENGTH = 400
 
-OPTIONS_ICONS_SIZE = "16"
+OPTIONS_ICONS_SIZE = "5"
 SIDEBAR_ICONS_SIZE = "16"
 HEADER_ICONS_SIZE = "20"
 
@@ -19,7 +19,7 @@ TEXTAREA = {
     "rows": 4,
     "cols": 50,
     "maxlength": 5000,
-    "placeholder": "une description …",
+    "placeholder": "une description…",
 }
 
 control_elements = [

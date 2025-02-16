@@ -16,6 +16,12 @@
 {% endif %}
 <script type="module" src="{% static 'formset/js/django-formset.js' %}" nonce="{{ request.csp_nonce }}"></script>
 <script src="{% url 'javascript-catalog' %}" nonce="{{request.csp_nonce}}"></script>
+
+<style>
+    .conditional-field {
+        display: none;
+    }
+</style>
 {% endblock stylesheet %}
 
 {% block breadcrumb %}
@@ -30,12 +36,12 @@
 
 {% block content %}
 <div class="card mb-5">
-	<div class="card-header" style="flex-direction: row;">
-		<h2 class="float-start">{{ card_title }}</h2>
+    <div class="card-header" style="flex-direction: row;">
+        <h2 class="float-start">{{ card_title }}</h2>
         <h2 style="padding-left: 50%;">
             {% include 'components/back_button.html' %}
         </h2>
-		{% if back_url %}
+        {% if back_url %}
         <a href="{{ back_url }}">
             <button type="button" class="btn btn-md btn-outline-secondary float-end" 
                 data-bs-toggle="popover" data-bs-content="Retour"
@@ -44,71 +50,73 @@
             </button>
         </a>
         {% endif %}
-		{% block more-info %}{% endblock more-info %}
-	</div>
-	<div class="card-body">
-		<div>
-			<django-formset enctype="multipart/form-data" endpoint="{{request.path}}" csrf-token="{{csrf_token}}"
-				withhold-feedback="errors warnings success">
-				{% if form_collection %}
-				{{form_collection}}
-				{% else %}
-				{% render_form form  %}
-				{% endif %}
-				<div class="offset-sm-3 my-5">
-					{% include 'button.html' with label="Enregistrer" color="btn btn-outline-success " icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
-					{% if can_rerender %}
-					{% include 'button.html' with label="Enregistrer et Continuer" color="btn btn-outline-primary" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
-					{% endif %}
-					<a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn btn-outline-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}
+        {% block more-info %}{% endblock more-info %}
+    </div>
+    <div class="card-body">
+        <div>
+            <django-formset enctype="multipart/form-data" endpoint="{{request.path}}" csrf-token="{{csrf_token}}"
+                withhold-feedback="errors warnings success">
+                {% if form_collection %}
+                {{ form_collection }}
+                {% else %}
+                {% render_form form %}
+                {% endif %}
+                <div class="offset-sm-3 my-5">
+                    {% include 'button.html' with label="Enregistrer" color="btn btn-outline-success " icon_name='"save"' process="spinner -> submit -> okay(2000) -> proceed !~ bummer(10000) -> scrollToError" %}
+                    {% if can_rerender %}
+                    {% include 'button.html' with label="Enregistrer et Continuer" color="btn btn-outline-primary" icon_name='"refresh-cw"' process="spinner -> submit -> okay(2000) -> proceed -> reload !~ bummer(10000)" %}
+                    {% endif %}
+                    <a href="{{ list_url }}">{% include 'button.html' with label="Annuler" color="btn btn-outline-warning" icon_name='"x"' process="spinner -> reset -> proceed({{request.META.HTTP_REFERER}})" %}
                         
                     </a>
-				</div>
-			</django-formset>
-		</div>
-	</div>
+                </div>
+            </django-formset>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
-{% block javascript %}
 {% if form_collection %}
 {{ form_collection.media.js }}
 {% else %}
 {{ form.media.js }}
 {% endif %}
 
+{% block javascript %}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Récupère les éléments du formulaire
     const userTypeField = document.getElementById("id_user_type");
     const teacherTypeField = document.getElementById("id_teacher_type");
+    const matriculeFieldWrapper = document.querySelector(".field-matricule");
     const gradeFieldWrapper = document.querySelector(".field-grade");
-    const diplomeFieldWrapper = document.querySelector(".field-diplome");
+    const dateNominationFieldWrapper = document.querySelector(".field-date_nomination");
 
-    // Fonction pour afficher/masquer les champs grade et diplome
-    function toggleTeacherFields() {
+    // Fonction pour afficher/masquer les champs conditionnels
+    function toggleConditionalFields() {
         const userType = userTypeField ? userTypeField.value : null;
         const teacherType = teacherTypeField ? teacherTypeField.value : null;
 
         if (userType === "teacher" && teacherType === "permanent") {
+            matriculeFieldWrapper.style.display = "block";
             gradeFieldWrapper.style.display = "block";
-            diplomeFieldWrapper.style.display = "block";
+            dateNominationFieldWrapper.style.display = "block";
         } else {
+            matriculeFieldWrapper.style.display = "none";
             gradeFieldWrapper.style.display = "none";
-            diplomeFieldWrapper.style.display = "none";
+            dateNominationFieldWrapper.style.display = "none";
         }
     }
 
-    // Attache la fonction aux événements de changement
+    // Attache les événements de changement
     if (userTypeField) {
-        userTypeField.addEventListener("change", toggleTeacherFields);
+        userTypeField.addEventListener("change", toggleConditionalFields);
     }
     if (teacherTypeField) {
-        teacherTypeField.addEventListener("change", toggleTeacherFields);
+        teacherTypeField.addEventListener("change", toggleConditionalFields);
     }
 
-    // Exécute la fonction au chargement de la page
-    toggleTeacherFields();
+    // Exécution initiale au chargement
+    toggleConditionalFields();
 });
 </script>
 {% endblock javascript %}

@@ -5,13 +5,13 @@
 
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <ul class="breadcrumb">
-            <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-            <li><a href="#">Liste</a></li>
-            <li class="active">{{ object.name }}</li>
-        </ul>
-    </div>
+<div class="breadcrumb-container">
+  <ul class="breadcrumb">
+      <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a>
+      <li><a href="{{ list_url }}">{{ list_of }}</a></li>
+      <li class="active">{{ card_title }}</li>
+  </ul>
+</div>
 {% endblock %}
 
 {% block toolbar-plus %}
@@ -29,7 +29,7 @@
 <th>Matricule</th>
 <th>Rôle</th>
 {% endblock table-headers %}
-
+{% include 'models/paginates.html' %}
 {% block table-rows %}
 <td>{{object.first_name|title}} {{object.last_name|title}}</td>
 <td>{{object.email}}</td>
@@ -59,7 +59,7 @@
 {% endif %}
 {% if can_assign %}
 {% if object.assign %}
-<a href="{% url 'auth:assign-remove' object.id %}">
+<a href="{% url 'auth:nominations-deactivate' object.id %}">
   <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="retirer un rôle"
     data-bs-container="body" data-bs-placement="top"  data-toggle="tooltip" data-placement="top" title="retirer un rôle">
     {% icon "briefcase" height=option_size width=option_size %}
@@ -74,4 +74,20 @@
 </a>
 {% endif %}
 {% endif %}
+
+{% if object.user_type == "teacher" %}
+<a href="{% url 'auth:attributmodule-update' object.id %}">
+  <button class="btn btn-outline-primary btn-sm" title="Attribuer un module">
+    {% icon "plus-circle" %} 
+  </button>
+</a>
+{% for module in object.teachermoduleassignment_set.all %}
+<a href="{% url 'auth:assign-modules' object.pk %}">
+  <button class="btn btn-outline-danger btn-sm" title="Retirer {{ module.module.name }}">
+    {% icon "minus-circle" %}  {{ module.module.name }}
+  </button>
+</a>
+{% endfor %}
+{% endif %}
+
 {% endblock other-options %}

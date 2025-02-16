@@ -30,7 +30,7 @@ from formset.views import FileUploadMixin
 
 
 
-LIST_MAX_ROWS = getattr(settings, "LIST_MAX_ROWS", 10)
+LIST_MAX_ROWS = 10
 
 
 class IndexTemplateView(TemplateView):
@@ -1012,34 +1012,25 @@ class CustomListView1(CustomViewMixin, ListView):
 
 
 class CustomListView(CustomViewMixin, ListView):
-    paginate_by = LIST_MAX_ROWS
+    
+    def get_paginate_by(self, queryset):
+        paginate_by = LIST_MAX_ROWS
+        return paginate_by
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         name, app_name = self.get_name()
         model_name = self.model.__name__.lower()
         url_name = app_name
-        print(app_name)
-        if name in ["user"]:
+
+        if name in ["user", "attributmodule"]:
             url_name = "auth"
-        # context["import_url"] = reverse(
-        #     "ie_app:import-view", kwargs={"model_name": f"{app_name}.{model_name}"}
-        # )
-        # context["export_url"] = reverse(
-        #     "ie_app:export-view",
-        #     kwargs={"model_name": f"{app_name}.{model_name}", "with_data": 1},
-        # )
-        # context["model_url"] = reverse(
-        #     "ie_app:export-view",
-        #     kwargs={"model_name": f"{app_name}.{model_name}", "with_data": 0},
-        # )
 
         try:
             context["add_url"] = reverse(f"{url_name}:{name}-create")
             context["can_add"] = self.request.user.has_perm(
                 f"{app_name}.add_{model_name}"
             )
-            print(context["add_url"] , context["can_add"])
         except Exception as exp:
             context["can_add"] = False
             context["add_url"] = ""
@@ -1069,7 +1060,6 @@ class CustomListView(CustomViewMixin, ListView):
                 )
             else:
                 context["can_detail"] = False
-
         try:
             reverse(f"{url_name}:{name}-delete")
             context["can_delete"] = self.request.user.has_perm(
@@ -1096,7 +1086,6 @@ class CustomListView(CustomViewMixin, ListView):
                 )
             else:
                 context["can_update"] = False
-
         try:
             reverse(f"{url_name}:{name}-print")
             context["can_print"] = self.request.user.has_perm(
@@ -1110,79 +1099,8 @@ class CustomListView(CustomViewMixin, ListView):
                 )
             else:
                 context["can_print"] = False
-
         context["card_title"] = f"Liste des {self.model._meta.verbose_name_plural}"
         return context
-
-    def get_queryset(self):
-        if hasattr(self.model, "available_objects"):
-            queryset = self.model.available_objects.all()
-            ordering = self.get_ordering()
-            if ordering:
-                if isinstance(ordering, str):
-                    ordering = (ordering,)
-                queryset = queryset.order_by(*ordering)
-        else:
-            queryset = super().get_queryset()
-
-        query: str = self.request.GET.get("query", None)
-        if query is None:
-            return queryset
-        else:
-            queryset = self.search(self.model._meta.fields, queryset, query)
-            return queryset
-
-    def search(self, fields: list[Field], queryset: QuerySet, query: str):
-        from django.db.models import (
-            CharField,
-            TextField,
-            IntegerField,
-            FloatField,
-            DecimalField,
-            ForeignKey,
-        )
-
-        searchable_fields = (
-            CharField,
-            TextField,
-            IntegerField,
-            FloatField,
-            DecimalField,
-        )
-
-        field_list = [field for field in fields if isinstance(field, searchable_fields)]
-        foreign_keys = [
-            (field.name, field)
-            for field in self.model._meta.fields
-            if isinstance(field, ForeignKey)
-        ]
-        foreign_keys = [
-            (name, field.related_model._meta.fields) for name, field in foreign_keys
-        ]
-        foreign_keys = [
-            (name, field) for name, sublist in foreign_keys for field in sublist
-        ]
-        foreign_keys = [
-            (name, field)
-            for name, field in foreign_keys
-            if isinstance(field, searchable_fields)
-        ]
-
-        queries = [
-            Q(**{field.name + "__icontains": query.strip()}) for field in field_list
-        ]
-        queries += [
-            Q(**{name + "__" + field.name + "__icontains": query.strip()})
-            for name, field in foreign_keys
-        ]
-
-        q_object = Q()
-        for q in queries:
-            q_object = q_object | q
-        queryset = queryset.filter(q_object)
-        return queryset.distinct()
-
-
 class CustomFormCollectionView(CustomViewMixin, FormCollectionView):
     template_name = "models/form.html"
 

@@ -102,14 +102,46 @@ urlpatterns = [
         name='nominations-delete'),
 
     path(
-        'nominations/<uuid:pk>/deactivate/', views.deactivate_nomination, 
+        'nominations/<uuid:pk>/deactivate/', views.AssignRemoveView.as_view(), 
         name='nominations-deactivate'),
     path(
         "users/assign/<uuid:pk>/remove/",
         views.AssignRemoveView.as_view(),
         name="assign-remove",
+        ),
+    # path('users/<uuid:pk>/assign-modules/', views.AssignModuleListView.as_view(), name='assign-modules'),
+    path(
+        "users/nomination/<uuid:pk>/create/",
+        views.RoleCreateView.as_view(),
+        name="nomination-create",
     ),
-        # path('inscription/review/', views.UserCreateReviewView.as_view(), name='user_create_review'),  # Récapitulatif
+    # Liste des nominations (Vue basée sur la classe)
+    path(
+        'attribut_module/list', views.AssignModuleListView.as_view(), 
+        name='attributmodule-list'),
 
+    # Détail d'une nomination (Vue basée sur la classe)
+    path(
+        'attribut_module/<uuid:pk>/', views.AssignModuleDeleteView.as_view(),
+        name='attributmodule-detail'),
+
+    # Création d'une nouvelle nomination (Vue basée sur la classe)
+    path(
+        'attribut_module/new/', views.AssignModuleCreateView.as_view(),
+        name='attributmodule-create'),
+
+    # Mise à jour d'une nomination (Vue basée sur la classe)
+    path(
+        'attribut_module/<uuid:pk>/edit/', views.AssignModuleUpdateView.as_view(), 
+        name='attributmodule-update'),
+
+    # Suppression d'une nomination (Vue basée sur la classe)
+    path(
+        'attribut_module/<uuid:pk>/delete/', views.AssignModuleDeleteView.as_view(), 
+        name='attributmodule-delete'),
+
+    path(
+        'attribut_user_module/<uuid:pk>/update/', views.UserModulesUpdateView.as_view(), 
+        name='attributmodule-update'),
 
 ]

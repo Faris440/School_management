@@ -1,6 +1,6 @@
 from django import forms
-from .models import MailContent, UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau,Promotion,Annee_univ
-from django.forms.models import ModelChoiceField , ModelMultipleChoiceField
+from .models import MailContent, UniteDeRecherche, Departement, Filiere, UE, Module, Semestre,Niveau,Promotion,Annee_univ,Volume_horaire,Credit, Grade
+from django.forms.models import ModelChoiceField , ModelMultipleChoiceField 
 from formset.renderers.bootstrap import FormRenderer
 from formset.widgets import (
     Selectize,
@@ -15,7 +15,7 @@ from School_management.constants import control_elements , TEXTAREA
 from django.core.exceptions import ValidationError
 from ckeditor.fields import RichTextField
 from ckeditor.widgets import CKEditorWidget
-
+from django.forms import fields, widgets
 
 
 
@@ -71,11 +71,10 @@ class FiliereForm(forms.ModelForm):
     )
     class Meta:
         model = Filiere
-        fields = ['code', 'departement', 'label', 'description']
+        fields = ['code', 'departement','label', 'description']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la filière'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
             'departement': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
                 search_lookup="label__icontains",
@@ -110,24 +109,16 @@ class SemestreForm(forms.ModelForm):
             "*": "mb-2 col-md-6 input100s",
         },
     )
-
-    niveau = ModelMultipleChoiceField(
-            queryset=Niveau.objects.all(),
-            label="niveau",
-            widget=SelectizeMultiple(
-                search_lookup="label__icontains",
-            )
-        )
-
     class Meta:
         model = Semestre
-        fields = ['code', 'label','niveau', 'description',]  # Ajout du champ 'semestre'
+        fields = ['code', 'label', 'niveau','description', ]
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
-            'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du semestre'}),
+            'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du département'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            
+            'niveau': forms.Select(attrs={'class': 'form-control'}),
         }
+
 
 class UEForm(forms.ModelForm):
     default_renderer = FormRenderer(
@@ -143,10 +134,22 @@ class UEForm(forms.ModelForm):
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'UE'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
+            'ufr': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une UFR",
+            ),
+            'departement': Selectize(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+                filter_by={"UniteDeRecherche": "UniteDeRecherche__id"},  # Liaison au département sélectionné
+            ),
             'filiere': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
                 search_lookup="label__icontains",
-                placeholder="Sélectionnez la filiere",
+                placeholder="Sélectionnez une filière",
+                filter_by={"departement": "departement__id"},  # Liaison au département sélectionné
             ),
             'niveau': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
@@ -169,49 +172,108 @@ class ModuleForm(forms.ModelForm):
             "*": "mb-2 col-md-6 input100s",
         },
     )
+
+    # Cases à cocher pour activer les champs
+    a_cours_theorique = forms.BooleanField(
+        label="Cours théorique pour ce module ?",
+        required=False,
+        initial=False  # La case est décochée par défaut
+    )
+
+    cours_theorique = forms.IntegerField(
+        label='Nombre d\'heures cours théorique',
+        widget=forms.NumberInput(attrs={'df-disable': ".a_cours_theorique==''"}),
+        required=False
+    )
+
+    a_travaux_diriges = forms.BooleanField(
+        label="Travaux dirigés pour ce module ?",
+        required=False,
+        initial=False  # La case est décochée par défaut
+    )
+
+    travaux_diriges = forms.IntegerField(
+        label='Nombre d\'heures travaux dirigés prévues',
+        widget=forms.NumberInput(attrs={'df-disable': ".a_travaux_diriges==''"}),
+        required=False
+    )
+
+    a_travaux_pratiques = forms.BooleanField(
+        label="Travaux pratiques pour ce module ?",
+        required=False,
+        initial=False  # La case est décochée par défaut
+    )
+
+    travaux_pratiques = forms.IntegerField(
+        label='Nombre d\'heures travaux pratiques prévues',
+        widget=forms.NumberInput(attrs={'df-disable': ".a_travaux_pratiques==''"}),
+        required=False
+    )
+
     class Meta:
         model = Module
         fields = [
-            'code', 'label', 'description', 'ufr', 'departement', 
-            'filiere', 'niveau', 'semestre', 'ue', 'volume_horaire', 'credit'
+            'code',
+            'label',
+            'description',
+            'filiere',
+            'ue',
+            'volume_horaire',
         ]
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
             'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du module'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            'ufr': Selectize(
-                attrs={'class': 'form-control', 'incomplete': True},
-                search_lookup="label__icontains",
-                placeholder="Sélectionnez une UFR",
-            ),
-            'departement': Selectize(
-                attrs={'class': 'form-control', 'incomplete': True},
-                search_lookup="label__icontains",
-                placeholder="Sélectionnez un département",
-                filter_by={"ufr": "ufr__id"},
-            ),
+            'description': RichTextarea(),
+
             'filiere': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
                 search_lookup="label__icontains",
                 placeholder="Sélectionnez une filière",
-                filter_by={"departement": "departement__id"},  # Liaison au département sélectionné
             ),
             'ue': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
                 search_lookup="label__icontains",
                 placeholder="Sélectionnez une unité d'enseignement",
-                filter_by={"filiere": "filiere__id"},  # Liaison au département sélectionné
+                filter_by={"filiere" : "filiere__id"},
             ),
-            'niveau': Selectize(
+            'volume_horaire': Selectize(
                 attrs={'class': 'form-control', 'incomplete': True},
                 search_lookup="label__icontains",
-                placeholder="Sélectionnez un niveau",
-                filter_by={"semestre": "semestre__id"},  # Liaison au niveau 
+                placeholder="Sélectionnez le volume horaire",
             ),
-
-
         }
-       
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Vérifier si les champs sont activés et valider la somme
+        a_cours_theorique = cleaned_data.get("a_cours_theorique")
+        cours_theorique = cleaned_data.get("cours_theorique", 0)
+        
+        a_travaux_diriges = cleaned_data.get("a_travaux_diriges")
+        travaux_diriges = cleaned_data.get("travaux_diriges", 0)
+        
+        a_travaux_pratiques = cleaned_data.get("a_travaux_pratiques")
+        travaux_pratiques = cleaned_data.get("travaux_pratiques", 0)
+        
+        # Calculer la somme des volumes horaires
+        total_volume_horaire = 0
+        
+        if a_cours_theorique:
+            total_volume_horaire += cours_theorique
+        if a_travaux_diriges:
+            total_volume_horaire += travaux_diriges
+        if a_travaux_pratiques:
+            total_volume_horaire += travaux_pratiques
+        
+        # Vérifier si le volume horaire du module correspond à la somme des heures
+        volume_horaire = cleaned_data.get("volume_horaire")
+        
+        if volume_horaire and volume_horaire.heures != total_volume_horaire:
+            raise ValidationError("Le volume horaire doit être égal à la somme des heures des cours théoriques, travaux dirigés et travaux pratiques.")
+        
+        return cleaned_data
+    
 class CustomModelForm(forms.ModelForm):
     default_renderer = default_renderer
     # submit = submit
@@ -249,12 +311,17 @@ class MailContentForm(ContentForm):
 class PromotionForm(forms.ModelForm):
     class Meta:
         model = Promotion
-        fields = ['name', 'start_date', 'end_date']
+        fields = ['name','filiere','start_date', 'end_date']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Exemple : 2024-2025',
             }),
+            'filiere': SelectizeMultiple(
+                attrs={'class': 'form-control', 'incomplete': True},
+                search_lookup="label__icontains",
+                placeholder="Sélectionnez une filière",
+            ),
             'start_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
@@ -265,7 +332,7 @@ class PromotionForm(forms.ModelForm):
             }),
         }
         labels = {
-            'name': "Année universitaire",
+            'name': "Promotion",
             'start_date': "Date de Début",
             'end_date': "Date de Fin",
         }
@@ -337,5 +404,53 @@ class Annee_univForm(forms.ModelForm):
                 )
         return cleaned_data
 
+
+
+class VolumeHoraireForm(forms.ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
+
+    class Meta:
+        model = Volume_horaire
+        fields = ['heures']
+        widgets = {
+            'heures': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Volume horaire en heures',
+                'oninput': 'updateCredits()',
+            }),
+        }
+    
+    credit = forms.IntegerField(
+        required=False,
+        label="Crédit",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'readonly': 'readonly',
+            'placeholder': 'Calculé automatiquement',
+        }) 
+
+    )
+
+class GradeForm(forms.ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
+  
+    class Meta:
+        model = Grade
+        fields = ['code', 'label', 'description']
+        widgets = {
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code'}),
+            'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de grade'}),
+            'description': CKEditorWidget(),  # Utilisation de CKEditorWidget
+            }
 
 

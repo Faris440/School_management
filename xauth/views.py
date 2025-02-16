@@ -16,7 +16,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models import Q, Sum, Max
 from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -27,8 +27,6 @@ from xauth.models import User, Assign, AccountActivationSecret, Nomination
 from .forms import *
 from formset.views import FileUploadMixin
 from django.views.generic import TemplateView
-
-
 
 # from web.mails import mail_password
 from School_management import views as cviews
@@ -166,25 +164,28 @@ class AssignUpdateView(cviews.CustomUpdateView):
     permission_required("xauth.can_assign", raise_exception=True),
     name="dispatch",
 )
-class RemoveAssignView(View):
+class AssignRemoveView(View):
+
+    def get_success_url(self):
+        return reverse(
+            "auth:user-list")
+    
+
     def get(self, request, *args, **kwargs):
-        user = get_object_or_404(models.User, pk=self.kwargs.get("pk"))
+        self.user = get_object_or_404(models.User, pk=self.kwargs.get("pk"))
 
-        if not hasattr(user, "assign"):
-            messages.error(request, "Aucune nomination pour cette utilisateur")
-            return redirect("xauth:user-list")
+        if not hasattr(self.user, "assign"):
+            messages.warning(request, "Aucun rôle pour cette utilisateur")
+            return redirect("auth:user-list")
+        else:
+            assign = get_object_or_404(models.Assign, pk=self.user.assign.pk)
+            self.user.groups.remove(assign.group_assign)
+            assign.user = None
+            assign.save()
+            assign.delete()
 
-        assign = user.assign
-        assign.unassigner = request.user
-        assign.end_date = timezone.now()
-        assign.save()
-
-        user.groups.remove(**assign.office.permissions)
-        user.assign.remove()
-        models.HistoricalAssign.objects.create(assign=assign)
-
-        messages.error(request, "Nomination retirer avec succès")
-        return redirect("xauth:user-list")
+            messages.success(request, "Rôle retirer avec succès")
+            return redirect(self.get_success_url())
 
 
 # @method_decorator(
@@ -276,6 +277,10 @@ class UserCreateView(FileUploadMixin,cviews.CustomCreateView):
     def form_valid(self, form):
         form.instance.is_active = False
         return super().form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # Passe l'utilisateur connecté au formulaire
+        return kwargs
 
 
 
@@ -355,6 +360,8 @@ class UserDetailView(cviews.CustomDetailView):
         template_name = "private/user-profile-admin-view.html"
 
         return [template_name]
+    
+
 
 
 @method_decorator(transaction.atomic, name="render_to_response")
@@ -795,6 +802,7 @@ class NominationDeleteView(cviews.CustomDeleteView):
 
 def deactivate_nomination(request, pk):
     nomination = get_object_or_404(Nomination, id=pk)
+    nomination = get_object_or_404(Nomination, id=pk)
 
     if nomination.is_desactivate:
         messages.warning(request, "La nomination est déjà activée.")
@@ -858,3 +866,137 @@ class UserCreateSubmitView(View):
         else:
             # Si le formulaire n'est pas valide, renvoyer à la page de récapitulatif
             return redirect('user_create_review')
+        
+# class AssignModuleView(View):
+#     template_name = 'modules/assign_module.html'
+#     form_class = ModuleAssignForm
+
+#     def dispatch(self, request, *args, **kwargs):
+#         self.teacher = get_object_or_404(models.User, pk=self.kwargs.get("pk"))
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def form_valid(self, form):
+#         module = form.cleaned_data['module']
+#         assignment, created = TeacherModuleAssignment.objects.get_or_create(teacher=self.teacher, module=module)
+#         if created:
+#             messages.success(self.request, f"Le module {module.label} a été attribué à {self.teacher.first_name} {self.teacher.last_name}.")
+#         else:
+#             messages.warning(self.request, f"Le module {module.label} est déjà attribué à cet enseignant.")
+#         return redirect('auth:user-list')  # Changez par la vue appropriée
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['teacher'] = self.teacher
+#         return context
+
+
+# class RemoveModuleView(View):
+#     template_name = 'modules/remove_module.html'
+
+#     def dispatch(self, request, *args, **kwargs):
+#         self.teacher = get_object_or_404(User, pk=kwargs['teacher_pk'], user_type='teacher')
+#         self.module = get_object_or_404(Module, pk=kwargs['module_pk'])
+#         self.assignment = get_object_or_404(TeacherModuleAssignment, teacher=self.teacher, module=self.module)
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def post(self, request, *args, **kwargs):
+#         self.assignment.delete()
+#         messages.success(request, f"Le module {self.module.name} a été retiré à {self.teacher.first_name} {self.teacher.last_name}.")
+#         return redirect('auth:user-list')  # Changez par la vue correspondante
+
+#     def get(self, request, *args, **kwargs):
+#         return render(request, self.template_name, {'module': self.module, 'teacher': self.teacher})
+
+
+# Création d'une nomination (Vue basée sur la classe)
+class NominationCreateView(cviews.CustomCreateView):
+    model = Nomination
+    form_class = NominationForm
+    name = 'nominations'
+    app_name = 'auth'
+    success_url = reverse_lazy('auth:nominations-list')
+
+    def get_name(self) -> tuple[str, str]:
+        if self.name != "":
+            name = self.name
+        return name, self.app_name 
+
+
+
+# class AssignModuleView(cviews.CustomCreateView):
+#     model = AttributModule
+#     form_class = AttributModuleForm
+#     name = 'assignation'
+#     app_name = 'auth'
+#     success_url = reverse_lazy('auth:user-list')
+
+#     def dispatch(self, request, *args, **kwargs):
+#         """Récupère l'enseignant depuis l'URL"""
+#         self.teacher = get_object_or_404(User, pk=self.kwargs.get('pk'), user_type='teacher')
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def get_form_kwargs(self):
+#         """Passe l'enseignant sélectionné au formulaire"""
+#         kwargs = super().get_form_kwargs()
+#         kwargs['teacher'] = self.teacher  # Ajoute l’enseignant pour qu'il apparaisse grisé
+#         return kwargs
+
+#     def form_valid(self, form):
+#         attribut_module = form.save(commit=False)
+#         attribut_module.enseignant = self.teacher  # Affecte l’enseignant sélectionné
+#         attribut_module.save()
+#         form.save_m2m()  # Sauvegarde les relations ManyToMany si nécessaire
+
+#         messages.success(self.request, f"Les modules ont été attribués à {self.teacher.first_name} {self.teacher.last_name}.")
+#         return redirect(self.success_url)
+
+
+class AssignModuleListView(cviews.CustomListView):
+    model = AttributModule
+    name = "attributmodule"
+    app_name = 'auth'
+    template_name = "list-attribut_module.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class AssignModuleCreateView(cviews.CustomCreateView):
+    model = AttributModule
+    form_class = AttributModuleForm
+    name = "attributmodule"
+    success_url = reverse_lazy("auth:attributmodule-list")
+    
+
+
+class AssignModuleUpdateView(cviews.CustomUpdateView):
+    model = AttributModule
+    name = "attributmodule"
+    form_class = AttributModuleForm
+    success_url = reverse_lazy("auth:attributmodule-list")
+
+
+class AssignModuleDetailView(cviews.CustomDetailView):
+    model = AttributModule
+    name = "attributmodule"
+    template_name = "attribut_module/detail-attribut_module.html"
+
+
+class AssignModuleDeleteView(cviews.CustomDeleteView):
+    model = AttributModule
+    name = "attributmodule"
+    template_name = "attribut_module/delete-attribut_module.html"
+    success_url = reverse_lazy("auth:attributmodule-list")
+
+
+
+class UserModulesUpdateView(cviews.CustomUpdateView):
+    model = User
+    form_class = forms.UserModulesForm
+    success_url = reverse_lazy("auth:user-list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        context['card_title'] = f"Attribution de module : {user}"
+        return context

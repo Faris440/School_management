@@ -1,98 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
-{% load icon %}
-
 
 {% block stylesheet %}
-<!-- <link rel="stylesheet" href="{# static 'css/searchbar.css' #}"> -->
-
-<style>
-    /* Styles pour la barre de recherche avec icône alignée */
-    .search-bar {
-        position: relative;
-        display: flex;
-        align-items: center;
-        width: 100%; /* Ajustez la largeur selon vos besoins */
-        max-width: 400px; /* Largeur maximale de la barre de recherche */
-    }
-
-    .search-bar input {
-        border: none;
-        border-bottom: 2px solid #ccc;
-        background: transparent;
-        padding: 5px 0;
-        padding-left: 30px; /* Espace pour l'icône */
-        font-size: 14px;
-        outline: none;
-        flex-grow: 1; /* Remplit l'espace disponible */
-        transition: border-color 0.3s ease;
-    }
-
-    .search-bar input:focus {
-        border-bottom-color: #0c7dd4; /* Couleur sur focus */
-    }
-
-    .search-bar .search-icon {
-        position: absolute;
-        left: 8px; /* Ajustez selon la taille de l'icône */
-        color: #888;
-        font-size: 16px; /* Taille de l'icône */
-    }
-
-    .search-bar button {
-        margin-left: 10px;
-        padding: 5px 10px;
-        font-size: 14px;
-    }
-    .back-button {
-        padding-left: 20px; /* Pousse le bouton à l'extrême droite */
-    }
-</style>
-
-
+<link rel="stylesheet" href="{# static 'css/searchbar.css' #}">
 {% endblock stylesheet %}
 
 
 {% block breadcrumb %}
-<div class="breadcrumb-container">
-    <ul class="breadcrumb">
-        <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-        <li><a href="{{ list_url }}">{{ list_of }}</a></li>
-        <li class="active">{{ card_title }}</li>
-    </ul>
-</div>
+<li class="breadcrumb-item active" aria-current="page">{{card_title}}</li>
 {% endblock breadcrumb %}
 
 {% block title %} {{card_title}} {% endblock title %}
 
 
 {% block content %}
-
-<div class="card" >
-    <div class="d-flex justify-content-between align-items-center">
-        <h2>{{ card_title }}</h2>
-    </div>    
+<div class="card">
+    <div class="card-header">
+        <h2>{{card_title}}</h2>
+        {% block more-info %}{% endblock more-info %}
+    </div>
     <div class="card-body">
-        <div class="d-flex flex-row mb-4 justify-content-between">
+        <div class="d-flex flex-row mb-5 justify-content-between">
             <div>
-                <form class="d-flex flex-row mb-4 justify-content-between" method="get" action="{{ search_url }}">
-                    <div>
-                        <input type="search" class="form-control rounded" placeholder="recherche..." aria-label="Search"
-                            aria-describedby="search-addon" name="query" 
-                            data-toggle="tooltip" title="Faire une recherche"/>
-                    </div>
-                    <div>
-                        <div class="btn-group" role="group">
-                            <button type="submit" class="btn btn-outline-success">
-                                {% icon "search" size=option_size %}&nbsp;Recherche
-                            </button>
-                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#filterModal">
-                                {% icon "filter" size=option_size %}&nbsp;
-                            </button>
-                            
-                        </div>
-                    </div>
-                </form>
+                {% include "components/searchbar.html" %}
             </div>
             <div>
                 {% block toolbar %}
@@ -107,44 +37,22 @@
                     <tr>
                         <th class="center">#</th>
                         {% block table-headers %}{% endblock table-headers %}
-                        <th class="center text-center"> Action </th>
+                        <th class="center"> Action </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for object in object_list %}
                     <tr class="odd gradeX">
-                        <td scope="row" class="center">{{ forloop.counter }}</th>
+                        <th scope="row" class="center">{{ forloop.counter }}</th>
                         {% block table-rows %}{% endblock table-rows %}
                         <td class="center">
                             <div class="btn-group" role="group" aria-label="buttons group">
                                 {% block list-options %}
-                                <a href="{% url info_url object.slug|default:object.id %}">
-                                    <button type="button" class="btn btn-md btn-outline-info" data-bs-toggle="popover"
-                                        data-bs-content="Voir les détails" data-bs-container="body" data-bs-placement="top" 
-                                        data-toggle="tooltip" title="Voir les infos">
-                                        {% icon "info" height=option_size width=option_size %}
-                                    </button>
-                                </a>
-                                
-                                    <a href="{% url update_url object.slug|default:object.id %}">
-                                        <button type="button" class="btn btn-md btn-outline-success" data-bs-toggle="popover" data-bs-content="Modifier"
-                                            data-bs-container="body" data-bs-placement="top"
-                                            data-toggle="tooltip" title="Modifier">
-                                            {% icon "edit" height=option_size width=option_size %}
-                                        </button>
-                                    </a>
-                                        <a href="{% url delete_url object.slug|default:object.id %}" class="delete-btn">
-                                            <button type="button" class="btn btn-md btn-outline-danger" data-bs-toggle="popover" data-bs-content="Supprimer"
-                                                data-bs-container="body" data-bs-placement="top"
-                                                data-toggle="tooltip" title="Supprimer">
-                                                {% icon "trash" height=option_size width=option_size %}
-                                            </button>
-                                        </a>
 
                                 {% block other-options %}
-                                
                                 {% endblock other-options %}
 
+                                {% include 'components/list-options.html' %}
                                 {% endblock list-options %}
                             </div>
                         </td>
@@ -159,48 +67,8 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Modal pour les filtres -->
-        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form method="get" action="{{ filter_url }}">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="filterModalLabel">Filtres</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Ajoutez ici vos champs de filtre -->
-                            <div class="mb-3">
-                                <label for="filter-name" class="form-label">Nom</label>
-                                <input type="text" class="form-control" id="filter-name" name="name" placeholder="Rechercher par nom">
-                            </div>
-                            <div class="mb-3">
-                                <label for="filter-status" class="form-label">Statut</label>
-                                <select class="form-select" id="filter-status" name="status">
-                                    <option value="">Tous</option>
-                                    <option value="actif">Actif</option>
-                                    <option value="inactif">Inactif</option>
-                                </select>
-                            </div>
-                            <!-- Ajoutez d'autres champs de filtre selon vos besoins -->
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
     </div>
     {% block add-more %}{% endblock add-more %}
+    {% include "models/paginates.html" %}
 </div>
-
-<script>
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-</script>
 {% endblock content %}

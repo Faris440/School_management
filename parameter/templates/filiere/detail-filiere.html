@@ -1,101 +1,84 @@
-{% extends 'base.html' %}
 
-{% block breadcrumb %}
-<ul class="breadcrumb">
-    <li><a href="{% url 'index-view' %}"><i class="fa fa-home"></i> Accueil</a></li>
-    <li><a href="#">Détail</a></li>
-    <li class="active">{{ filiere.name }}</li>
-</ul>
-{% endblock %}
+{% extends 'base.html' %}
 
 {% block content %}
 <!-- Begin Page Content -->
-<div class="container-fluid">
-
-    <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800" style="padding-top: 20px;" >Détails de la filiere: {{ object.label }}</h1>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Informations sur la filiere</h6>
+<div class="container-fluid py-4">
+    <!-- Card Wrapper -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h5 class="m-0 font-weight-bold">Informations sur le département</h5>
         </div>
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Code:</strong>
-                    <p>{{ object.code }}</p>
-                </div>
-                <div class="col-md-6">
-                    <strong>Libellé:</strong>
-                    <p>{{ object.label }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>Description:</strong>
-                    <p>{{ object.description }}</p>
-                </div>
-            </div>
-
+        <div class="card-body px-4">
+            <!-- Two-Column Layout -->
             <div class="row">
-                <div class="col-md-12 text-right">
-
-                    <a href="{% url 'parameter:filiere-update' object.pk %}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-
-                    <a href="{% url 'parameter:filiere-delete' object.pk %}" class="btn btn-danger" 
-                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette filière ?');">
-                        <i class="fas fa-trash"></i> Supprimer
-                    </a>
+                <!-- Colonne Gauche -->
+                <div class="col-md-6">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Code:</th>
+                                <td>{{ object.code }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Libellé:</th>
+                                <td>{{ object.label }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                <!-- Colonne Droite -->
+                <div class="col-md-6">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Département:</th>
+                                <td>{{ object.departement }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Description:</th>
+                                <td>{{ object.description }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Pied de page de la carte -->
+        <div class="card-footer bg-light text-right">
+            <a href="{% url 'parameter:filiere-update' object.pk %}" class="btn btn-outline-warning btn-sm">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <!-- Bouton de suppression intégré avec le modal -->
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmationLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette unité d'enseignement : <strong>{{ object.label }}</strong> ?</p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'parameter:filiere-delete' object.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
             </div>
         </div>
     </div>
-<style>
-/* Styles généraux pour le breadcrumb */
-.breadcrumb {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-}
-
-.breadcrumb li {
-    display: inline;
-    margin-right: 10px;
-}
-
-.breadcrumb li a {
-    text-decoration: none;
-    color: #007bff;
-}
-
-.breadcrumb li a:hover {
-    text-decoration: underline;
-}
-
-/* Remplacer le séparateur par un slash */
-.breadcrumb li + li:before {
-    content: " / ";  /* Le séparateur est un slash */
-    margin-left: 10px;
-    color: #6c757d;
-}
-
-.breadcrumb li.active {
-    color: #6c757d;
-    font-weight: bold;
-}
-
-.breadcrumb li a i {
-    margin-right: 5px;
-}
-</style>
-
 </div>
-<!-- /.container-fluid -->
+
 {% endblock content %}

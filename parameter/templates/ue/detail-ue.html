@@ -1,51 +1,112 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Begin Page Content -->
-<div class="container-fluid">
+<!-- Bouton Retour Dynamique Aligné à Droite -->
+<div class="text-end mb-3">
+    <a href="{% url 'parameter:ue-list' %}" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+</div>
 
-    <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Détails de l'unité d'enseignement': {{ object.label }}</h1>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Informations sur l'unité d'enseignement'</h6>
+<!-- Contenu Principal -->
+<div class="container-fluid py-4">
+    <!-- Card -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h5 class="m-0 font-weight-bold">Informations sur l'Unité d'Enseignement</h5>
         </div>
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Code:</strong>
-                    <p>{{ object.code }}</p>
-                </div>
-                <div class="col-md-6">
-                    <strong>Libellé:</strong>
-                    <p>{{ object.label }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>Description:</strong>
-                    <p>{{ object.description }}</p>
-                </div>
-            </div>
-
+        <div class="card-body px-4">
+            <!-- Disposition en deux colonnes -->
             <div class="row">
-                <div class="col-md-12 text-right">
-
-                    <a href="{% url 'parameter:ue-update' object.pk %}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-
-                    <a href="{% url 'parameter:ue-delete' object.pk %}" class="btn btn-danger" 
-                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette unité d\'enseigement ?');">
-                        <i class="fas fa-trash"></i> Supprimer
-                    </a>
+                <!-- Colonne Gauche -->
+                <div class="col-md-6">
+                    <table class="table table-hover table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Code</th>
+                                <td>{{ object.code }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Libellé</th>
+                                <td>{{ object.label }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">UFR</th>
+                                <td>{{ object.ufr }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Département</th>
+                                <td>{{ object.departement }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                <!-- Colonne Droite -->
+                <div class="col-md-6">
+                    <table class="table table-hover table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">Filière</th>
+                                <td>{{ object.filiere }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Niveau</th>
+                                <td>{{ object.niveau }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Semestre</th>
+                                <td>{{ object.semestre }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Description</th>
+                                <td>{{ object.description }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Pied de Page de la Carte -->
+        <div class="card-footer bg-light text-right">
+            <a href="{% url 'parameter:ue-update' object.pk %}" class="btn btn-outline-warning btn-sm">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmation de Suppression -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmationLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette unité d'enseignement : <strong>{{ object.label }}</strong> ?</p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'parameter:ue-delete' object.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
             </div>
         </div>
     </div>
-
 </div>
-<!-- /.container-fluid -->
+
+<!-- CSS Customisé pour l'effet de Hover -->
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa; /* Couleur de fond au survol */
+        cursor: pointer; /* Change le curseur en pointer */
+        transition: background-color 0.3s ease; /* Transition douce */
+    }
+</style>
 {% endblock content %}

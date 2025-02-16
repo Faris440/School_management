@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "fiche_management",
     "ckeditor",
     "notifications",
+    "django_bootstrap5",
     
 ]
 

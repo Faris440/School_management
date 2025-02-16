@@ -266,4 +266,64 @@ urlpatterns = [
     ),
 
 
+    # Volume_horaire
+
+    path(
+        "parameters/volume_horaire/list/",
+        view=views.VolumeHoraireListView.as_view(),
+        name="volume_horaire-list",
+        ),
+    path(
+        "parameters/volume_horaire/create/",
+        view=views.VolumeHoraireCreateView.as_view(),
+        name="volume_horaire-create",
+    ),
+    path(
+        "parameters/volume_horaire/<uuid:pk>/detail/",
+        view=views.VolumeHoraireDetailView.as_view(),
+        name="volume_horaire-detail",
+        ),
+
+    path(
+        "parameters/volume_horaire/<uuid:pk>/update/",
+        view=views.VolumeHoraireUpdateView.as_view(),
+        name="volume_horaire-update",
+    ),
+
+    
+    path(
+        "parameters/volume_horaire/<uuid:pk>/delete/",
+        view=views.VolumeHoraireDeleteView.as_view(),
+        name="volume_horaire-delete",
+    ),
+##Grade urls
+
+    path(
+        "parameters/grade/list/",
+        view=views.GradeListView.as_view(),
+        name="grade-list",
+    ),
+    path(
+        "parameters/grade/create/",
+        view=views.GradeCreateView.as_view(),
+        name="grade-create",
+    ),
+    path(
+        "parameters/grade/<uuid:pk>/detail/",
+        view=views.GradeDetailView.as_view(),
+        name="grade-detail",
+    ),
+    path(
+        "parameters/grade/<uuid:pk>/update/",
+        view=views.GradeUpdateView.as_view(),
+        name="grade-update",
+    ),
+    path(
+        "parameters/grade/<uuid:pk>/delete/",
+        view=views.GradeDeleteView.as_view(),
+        name="grade-delete",
+    ),
+    
+
+
 ]

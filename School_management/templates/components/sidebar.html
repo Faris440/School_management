@@ -3,14 +3,11 @@
 
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
-      <div class="sidebar-brand">
+      <div class="sidebar-brand" style="margin-top: 10px; ">
         <a href="{% url 'index-view' %}">
-          <img src="{% static 'img/logo-uvbf.png' %}" alt="Logo" class="sidebar-logo">
+            <img src="{% static 'img/logo-uv.png' %}" alt="Logo" class="sidebar-logo" style="background-color: #ffffff; padding: 1px;border-radius: 5px; ">
         </a>
-      </div>
-      <div class="sidebar-brand sidebar-brand-sm">
-        <a href="index.html">Rabo</a>
-      </div>
+    </div>
       <ul class="sidebar-menu">
         <li class="menu-header">i</li>
         <li class="dropdown active">
@@ -28,17 +25,19 @@
         {% if perms.xauth.access_parameter%}
         <li class="menu-header">PARAMETRES</li>
         <li class="dropdown">
-          <a href="#" class="nav-link has-dropdown" data-toggle="dropdown" ><i class="fas fa fa-graduation-cap"></i> <span>Gestion des cours</span></a>
+          <a href="#" class="nav-link has-dropdown" data-toggle="dropdown" ><i class="fas fa fa-graduation-cap"></i> <span>PARAMETRAGE</span></a>
           <ul class="dropdown-menu">
             <li><a class="nav-link5" href="{% url 'parameter:uniteDeRecherche-list' %}">UFR</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:departement-list' %}">Départements</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:filiere-list' %}">Filières</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:annee_univ-list' %}">Année Universitaire</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:promotion-list' %}">Promotion</a></li>
-            <li><a class="nav-link5" href="{% url 'parameter:semestre-list' %}">Semestre</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:niveau-list' %}">Niveau</a></li>
+            <li><a class="nav-link5" href="{% url 'parameter:semestre-list' %}">Semestre</a></li>
+            <li><a class="nav-link5" href="{% url 'parameter:volume_horaire-list' %}">Volume Horaire</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:ue-list' %}">Unité d'Enseignements</a></li>
             <li><a class="nav-link5" href="{% url 'parameter:module-list' %}">Module(s)</a></li>
+            <li><a class="nav-link5" href="{% url 'parameter:grade-list' %}">Grade</a></li>
           </ul>
         </li>
         {% endif %}
@@ -52,6 +51,7 @@
             <li><a class="nav-link5" href="{% url 'auth:user-list' %}">Utilisateurs</a></li>
             <li><a class="nav-link5" href="{% url 'auth:group-list' %}">Droit d'accès</a></li>
             <li><a class="nav-link5" href="{% url 'auth:nominations-list' %}">Nomination</a></li>
+            <li><a class="nav-link5" href="{% url 'auth:attributmodule-list' %}">Attribution de Module(s)</a></li>
           </ul>
         </li>
         {% endif %}

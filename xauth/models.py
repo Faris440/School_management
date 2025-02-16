@@ -1,6 +1,8 @@
 from collections import defaultdict
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
+from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 from model_utils.choices import Choices
 from datetime import date, datetime
@@ -8,6 +10,13 @@ from School_management.cmodels import CONSTRAINT, CommonAbstractModel
 from School_management.constants import MEDIUM_LENGTH, MIN_LENGTH
 from parameter import models as parameter_models
 from phonenumber_field.modelfields import PhoneNumberField
+from School_management.constants import BIG_LENGTH
+
+import uuid
+from django.core.exceptions import ValidationError
+from ckeditor.fields import RichTextField
+from parameter.models import Module,Filiere
+
 
 
 
@@ -24,6 +33,7 @@ class User(AbstractUser, CommonAbstractModel):
         ('teacher', 'Enseignant'),
         ('agent_administratif', 'Personnel administratif'),
     )
+    
     MATRIAL_STATUS = Choices(
         ('bachelor', 'Célibataire'),
         ('married', 'Mariée'),
@@ -41,17 +51,26 @@ class User(AbstractUser, CommonAbstractModel):
         default=USER_TYPES.teacher,
         verbose_name="Type d'utilisateur"
     )
+    
     first_name = models.CharField(_("first name"), max_length=MEDIUM_LENGTH)
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     diplome = models.CharField(_("diplome"),null=True, max_length=MEDIUM_LENGTH)
     structure_origine = models.CharField(_("Struture d'origine"), max_length=MEDIUM_LENGTH)
-    date_nomination = models.DateField(_("Date de nomination"), null=True, max_length=MEDIUM_LENGTH)
+    etablissement_enseigne = models.CharField(max_length= BIG_LENGTH, verbose_name="Etablissement enseigné",null=True) 
+    course_start_date = models.DateField("Date de début du cours", null=True)
+    course_end_date = models.DateField("Date de fin du cours", null=True)
+    date_nomination = models.DateField(_("Date de nomination"), null=True)
     birthdate = models.DateField("Date de naissance")
     last_name = models.CharField(_("last name"), max_length=MEDIUM_LENGTH)
     email = models.EmailField(_("email address"), unique=True)
     birthdate = models.DateField("Date de naissance")
     birthplace = models.CharField("Lieu de naissance", max_length=MIN_LENGTH)
     matricule = models.CharField(max_length=MIN_LENGTH, null=True, unique=True)
+    volume_horaire_statuaire = models.IntegerField(null=True, verbose_name='Volume horaire statuaire')
+    abattement = models.IntegerField(null=True, verbose_name='veuillez saisir l\'abattement')
+    motif_abattement = models.CharField(max_length= BIG_LENGTH, verbose_name="Motif de l'abattement",null=True) 
+    v_h_obli_apres_abattement = models.IntegerField(null=True, verbose_name='Volume horaire après abattement')
+  
     address = models.CharField("Adresse", max_length=MIN_LENGTH, null=True, blank=True)
     photo = models.ImageField(
         "Photo d'identité",
@@ -93,11 +112,72 @@ class User(AbstractUser, CommonAbstractModel):
         blank=True,
         help_text="Indiquez si l'enseignant est vacataire ou permanent",
     )
-    grade = models.CharField("Grade", max_length=MEDIUM_LENGTH, null=True, blank=True)
+    
     diplome = models.CharField("Diplôme", max_length=MEDIUM_LENGTH, null=True, blank=True)
-    ufr = models.ForeignKey('parameter.UniteDeRecherche', on_delete=models.CASCADE,null=True, related_name="user_urf")
-    departement = models.ForeignKey('parameter.Departement', on_delete=models.CASCADE,null=True, related_name="user_department")
-    filiere = models.ForeignKey('parameter.Filiere', on_delete=models.CASCADE,null=True, related_name="user_filiere")
+    grade = models.ForeignKey(
+        "parameter.Grade", 
+        on_delete=models.CASCADE, 
+        related_name="user_grade",
+        null=True,
+        blank=True,
+        verbose_name="Grade"
+    )
+
+    ufr = models.ForeignKey(
+        "parameter.UniteDeRecherche", 
+        on_delete=models.CASCADE, 
+        related_name="user_ufr",
+        null=True,
+        blank=True,
+        verbose_name="UFR"
+    )
+    departement = models.ForeignKey(
+        "parameter.Departement", 
+        on_delete=models.CASCADE, 
+        related_name="user_departement",
+        null=True,
+        blank=True,
+        verbose_name="Département"
+    )
+    filiere = models.ForeignKey(
+        "parameter.Filiere", 
+        on_delete=models.CASCADE, 
+        related_name="user_filiere",
+        null=True,
+        blank=True,
+        verbose_name="Filière"
+    )
+    module = models.ManyToManyField(
+        "parameter.Module",
+        related_name="user_module",
+        verbose_name='Modules attribués'
+    )
+    niveau = models.ForeignKey(
+        "parameter.Niveau", 
+        on_delete=models.CASCADE, 
+        related_name="niveau",
+        null=True,
+        blank=True,
+        verbose_name="Niveau"
+    )
+    semestre = models.ForeignKey(
+        "parameter.Semestre", 
+        on_delete=models.CASCADE, 
+        related_name="semestre",
+        null=True,
+        blank=True,
+        verbose_name="Semestre"
+    )
+    ue = models.ForeignKey(
+        "parameter.UE", 
+        on_delete=models.CASCADE, 
+        related_name="ue",
+        null=True,
+        blank=True,
+        verbose_name="UE"
+    )
+
+    
 
     def save(self, *args, **kwargs):
 
@@ -110,6 +190,12 @@ class User(AbstractUser, CommonAbstractModel):
                 self.teacher_type = self.TEACHER_TYPE_CHOICES.vacataire  # par défaut
         else:
             self.teacher_type = None
+        if self.course_start_date and self.course_end_date:
+            if self.course_start_date > self.course_end_date:
+                raise ValidationError({
+                    'course_start_date': "La date de début ne peut pas être supérieure à la date de fin.",
+                    'course_end_date': "La date de fin ne peut pas être inférieure à la date de début."
+                })
         super().save(*args, **kwargs)
 
     def get_role(self):
@@ -122,7 +208,7 @@ class User(AbstractUser, CommonAbstractModel):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
+ 
     class Meta:
         ordering = ["first_name", "last_name"]
         verbose_name = "utilisateur"
@@ -130,6 +216,8 @@ class User(AbstractUser, CommonAbstractModel):
         permissions = [
             ("list_user", "Can list user"),
             ("can_assign", "Peut attribuer un rôle"),
+            ("can_assign_module", "Peut attribuer un module"),
+            ("can_unassign_module", "Peut retirer un module"),
             ("deactivate_user", "Can deactivate user"),
             ("change_right_user", "Can change user right"),
             ("access_parameter", "Can access to parameter module"),
@@ -147,7 +235,6 @@ class User(AbstractUser, CommonAbstractModel):
             ("responsable_programme", "Est responsable d'un programme"),
             ("responsable_filiere", "Est responsable d'une filière"),
         ]
-
 
 class AccountActivationSecret(CommonAbstractModel):
     user = models.OneToOneField(User, on_delete=CONSTRAINT)
@@ -172,17 +259,6 @@ class Assign(CommonAbstractModel):
     group_assign = models.ForeignKey(
         "auth.Group", on_delete=CONSTRAINT, null=True, blank=True
     )
-
-# class VolumeHoraireStatuaire(BaseModel):
-#     class Meta:
-#         ordering = ["label"]
-#         verbose_name = "Volume horaire statutaire"
-#         verbose_name_plural = "Volumes horaires statutaire"
-#         permissions = [("list_volumeHoraireStatuaire", f"Peut lister {verbose_name}")]
-
-#     def __str__(self):
-#         return self.label
-
 
 class Nomination(CommonAbstractModel):
     # Champ ForeignKey pour l'utilisateur (non nullable)
@@ -242,3 +318,61 @@ class Nomination(CommonAbstractModel):
         verbose_name = "Nomination"
         verbose_name_plural = "Nominations"
         ordering = ['date_debut']
+
+
+
+class AttributModule(CommonAbstractModel):
+    
+     # Champ ForeignKey pour l'utilisateur (non nullable)
+    user = models.ForeignKey(
+        User,  # Si vous utilisez le modèle utilisateur par défaut de Django
+        on_delete=models.CASCADE,
+        related_name="assignations_modules",
+        null=False
+    )
+    module = models.ForeignKey(
+        'parameter.Module',
+        on_delete=models.SET_NULL,        
+        related_name="assignation_module",
+        null=True,
+        blank=True
+    )
+    def __str__(self):
+        return f"Attribution de {self.module} pour la filiere {self.filiere} à l'enseignant "
+
+    class Meta:
+            verbose_name = "assignation de module"
+            verbose_name_plural = "attributions de modules"
+
+
+
+# class AttributModule(CommonAbstractModel):
+#     # Champ ForeignKey pour l'utilisateur (non nullable)
+#     user = models.ForeignKey(
+#         User,  # Si vous utilisez le modèle utilisateur par défaut de Django
+#         on_delete=models.CASCADE,
+#         related_name="assignations_modules",
+#         null=False
+#     )
+
+#     filiere = models.ForeignKey(
+#         'parameter.Filiere',       
+#         on_delete=models.SET_NULL,
+#         related_name="assignation_filiere",
+#         null=True,
+#         blank=True
+#     )
+#     module = models.ForeignKey(
+#         'parameter.Module',
+#         on_delete=models.SET_NULL,        
+#         related_name="assignation_module",
+#         null=True,
+#         blank=True
+#     )
+#     def __str__(self):
+#         return f"Attribution du module de {self.module} à l'enseignant {self.user} "
+
+#     class Meta:
+#         verbose_name = "Assignation_de_module"
+#         verbose_name_plural = "Assignation_de_modules"
+

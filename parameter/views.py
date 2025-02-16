@@ -11,8 +11,8 @@ from School_management import views as cviews
 from .forms import PromotionForm, Annee_univForm
 from django.contrib import messages
 from django.db import IntegrityError
-
-
+from django_filters.views import FilterView
+from .filters import ModuleFilterSet
 
 
 class ContentListView(cviews.CustomListView):
@@ -49,6 +49,7 @@ class UfrListView(cviews.CustomListView):
     model = UniteDeRecherche
     name = "uniteDeRecherche"
     template_name = "ufr/list-ufr.html"
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -142,7 +143,6 @@ class FiliereCreateView(cviews.CustomCreateView):
     model = Filiere
     form_class = FiliereForm
     name = "filiere"
-    template_name = "form.html"
     success_url = reverse_lazy("parameter:filiere-list")
     
 
@@ -217,7 +217,7 @@ class UeListView(cviews.CustomListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["list_of"] = "Suppression d'une UE"
+        context["list_of"] = "Liste des UE"
         return context
 
 
@@ -259,10 +259,13 @@ class UeDeleteView(cviews.CustomDeleteView):
     
 ##Module views
 
-class ModuleListView(cviews.CustomListView):
+class ModuleListView(FilterView, cviews.CustomListView):
     model = Module
     name = "module"
     template_name = "modules/list-module.html"
+
+    def get_filterset_class(self):
+        return ModuleFilterSet
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -412,6 +415,88 @@ class Annee_univDeleteView(cviews.CustomDeleteView):
     success_url = reverse_lazy("parameter:annee_univ-list")
 
 
+class VolumeHoraireListView(cviews.CustomListView):
+    model = Volume_horaire
+    name = "volume_horaire"
+    template_name = "volume_horaire/list-volume_horaire.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class VolumeHoraireCreateView(cviews.CustomCreateView):
+    model = Volume_horaire
+    form_class = VolumeHoraireForm
+    name = "volume_horaire"
+    success_url = reverse_lazy("parameter:volume_horaire-list")
+
+class VolumeHoraireUpdateView(cviews.CustomUpdateView):
+    model = Volume_horaire
+    name = "volume_horaire"
+    form_class = VolumeHoraireForm
+    success_url = reverse_lazy("parameter:volume_horaire-list")
+
+class VolumeHoraireDetailView(cviews.CustomDetailView):
+    model = Volume_horaire
+    name = "volume_horaire"
+    template_name = "volume_horaire/detail-volume_horaire.html"
+
+class VolumeHoraireDeleteView(cviews.CustomDeleteView):
+    model = Volume_horaire
+    name = "volume_horaire"
+    template_name = "volume_horaire/delete-volume_horaire.html"
+    success_url = reverse_lazy("parameter:volume_horaire-list")
+
+
+class CreditListView(cviews.CustomListView):
+    model = Credit
+    name = "credit"
+    template_name = "credit/list-credit.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+##Grade views
+
+class GradeListView(cviews.CustomListView):
+    model = Grade
+    name = "grade"
+    template_name = "grade/list-grade.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class GradeCreateView(cviews.CustomCreateView):
+    model = Grade
+    form_class = GradeForm
+    name = "grade"
+    success_url = reverse_lazy("parameter:grade-list")
+    
+
+
+class GradeUpdateView(cviews.CustomUpdateView):
+    model = Grade
+    name = "grade"
+    template_name = "grade/create_grade.html"
+    form_class = GradeForm
+    success_url = reverse_lazy("parameter:grade-list")
+
+
+class GradeDetailView(cviews.CustomDetailView):
+    model = Grade
+    name = "grade"
+    template_name = "grade/detail-grade.html"
+
+
+class GradeDeleteView(cviews.CustomDeleteView):
+    model = Grade
+    name = "grade"
+    template_name = "grade/delete-grade.html"
+    success_url = reverse_lazy("parameter:grade-list")
+  
 
 
 
