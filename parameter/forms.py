@@ -309,6 +309,12 @@ class MailContentForm(ContentForm):
 
 
 class PromotionForm(forms.ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
     class Meta:
         model = Promotion
         fields = ['name','filiere','start_date', 'end_date']
@@ -360,6 +366,12 @@ class PromotionForm(forms.ModelForm):
     
 
 class Annee_univForm(forms.ModelForm):
+    default_renderer = FormRenderer(
+        form_css_classes="row",
+        field_css_classes={
+            "*": "mb-2 col-md-6 input100s",
+        },
+    )
     class Meta:
         model = Annee_univ
         fields = ['name', 'start_date', 'end_date']

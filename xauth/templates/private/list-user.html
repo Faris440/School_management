@@ -27,6 +27,7 @@
 <th>Nom</th>
 <th>Email</th>
 <th>Matricule</th>
+<th>Staut</th>
 <th>Rôle</th>
 {% endblock table-headers %}
 {% include 'models/paginates.html' %}
@@ -34,6 +35,7 @@
 <td>{{object.first_name|title}} {{object.last_name|title}}</td>
 <td>{{object.email}}</td>
 <td>{{object.matricule}}</td>
+<td>{{object.teacher_type}}</td>
 <td>{{object.get_role}}</td>
 {% endblock table-rows %}
 

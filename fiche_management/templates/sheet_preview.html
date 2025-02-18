@@ -184,7 +184,7 @@
                 {% for key, value in enseignement_data.items %}
                 <tr>
                     <td>{{ value.code }}</td>
-                    <td>{{ value.niveau.label }} - {{ value.semestre.label }}</td>
+                    <td>{{ value.filiere.label }} - {{ value.niveau.label }} - {{ value.semestre.label }}</td>
                     <td>{{ value.module.label }}</td>
                     <td>{{ value.ct_volume_horaire_confie }}</td>
                     <td>{{ value.td_volume_horaire_confie }}</td>

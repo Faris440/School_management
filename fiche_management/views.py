@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, get_list_or_404
 from django.contrib import messages
 from django.views.generic import TemplateView, View
 from xauth.models import Nomination, User
-from parameter.models import Annee_univ, Filiere, Niveau, Semestre,Module
+from parameter.models import Promotion, Filiere, Niveau, Semestre,Module
 from datetime import date
 from notifications.models import Notification
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -86,7 +86,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             if user.teacher_type == 'permanent':
                 sheet = Sheet.objects.create(
                 enseignant = user,
-                annee_univ = sheet_data['annee_univ'],
+                promotion = sheet_data['promotion'],
                 date_debut = sheet_data['date_debut'],
                 date_fin = sheet_data['date_fin'],
                 etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -101,7 +101,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
             elif user.teacher_type == 'vacataire':
                 sheet = Sheet.objects.create(
                 enseignant = user,
-                annee_univ = sheet_data['annee_univ'],
+                promotion = sheet_data['promotion'],
                 date_debut = sheet_data['date_debut'],
                 date_fin = sheet_data['date_fin'],
                 etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -111,7 +111,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         elif type == '0' :
             sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
-            annee_univ = sheet_data['annee_univ'],
+            promotion = sheet_data['promotion'],
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -125,7 +125,7 @@ class SheetCreateView(cviews.CustomFormCollectionView):
         elif type == '1' :
             sheet = Sheet.objects.create(
             enseignant = sheet_data['enseignant'],
-            annee_univ = sheet_data['annee_univ'],
+            promotion = sheet_data['promotion'],
             date_debut = sheet_data['date_debut'],
             date_fin = sheet_data['date_fin'],
             etablissement_enseigne = sheet_data['etablissement_enseigne'],
@@ -176,7 +176,6 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
         add_multi =self.request.user.has_perm(f"{app_name}.can_add_multiple_{model_name}")
         if not user.is_staff and not add_multi:
             if user.teacher_type == 'permanent':
-                print('zsdertyuilomp')
                 return FinalPermanentFormCollection
             elif user.teacher_type == 'vacataire':
                 return FinalVacataireFormCollection
@@ -192,7 +191,7 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
         enseignant = sheet_data.get('enseignant')
         if enseignant is None:
             enseignant = self.request.user
-        annee_univ = sheet_data['annee_univ']
+        promotion = sheet_data['promotion']
         date_debut = sheet_data.get('date_debut')
         date_fin = sheet_data.get('date_fin')
         cond = sheet_data.get('gender')
@@ -213,9 +212,9 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
                     'lastname': f"{enseignant.last_name}",
                     'firstname': f"{enseignant.first_name}"
                 },
-                'annee_univ': {
-                    'id': str(annee_univ.id) if annee_univ else None,
-                    'label': annee_univ.name
+                'promotion': {
+                    'id': str(promotion.id) if promotion else None,
+                    'label': promotion.name
                 },
 
                 
@@ -246,9 +245,9 @@ class SheetPermananteCreateByAgentView(cviews.CustomFormCollectionView):
                 'lastname': f"{enseignant.last_name}",
                 'firstname': f"{enseignant.first_name}"
             },
-            'annee_univ': {
-                'id': str(annee_univ.id) if annee_univ else None,
-                'label': annee_univ.name
+            'promotion': {
+                'id': str(promotion.id) if promotion else None,
+                'label': promotion.name
             },
             'etablissement_enseigne': sheet_data['etablissement_enseigne'],
             }
@@ -310,7 +309,7 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
         sheet_data = form_collection.cleaned_data.get('sheet')
         enseignements = form_collection.cleaned_data.get('enseignement')
         enseignant = sheet_data['enseignant']
-        annee_univ = sheet_data['annee_univ']
+        promotion = sheet_data['promotion']
         
         modules_labels = set()  # Utiliser un set pour détecter les doublons
         for enseignement in enseignements:
@@ -327,9 +326,9 @@ class SheetVacataireCreateByAgentView(cviews.CustomFormCollectionView):
                 'lastname': f"{enseignant.last_name}",
                 'firstname': f"{enseignant.first_name}"
             },
-            'annee_univ': {
-                'id': str(annee_univ.id) if annee_univ else None,
-                'label': annee_univ.name
+            'promotion': {
+                'id': str(promotion.id) if promotion else None,
+                'label': promotion.name
             },
 
         }
@@ -388,6 +387,7 @@ class SheetListView(cviews.CustomListView):
         if not user.is_staff:
             enseignements_queryset = Enseignements.objects.filter(sheet__enseignant=user)
             nomination = Nomination.objects.filter(user=user, is_desactivate=False).first()
+            print(nomination)
             if nomination is None:
                 return Sheet.objects.filter(
                     enseignement_sheet__in=enseignements_queryset
@@ -489,11 +489,15 @@ class SheetDetailView(cviews.CustomDetailView):
         context['count_validate'] = 0
         context['count_invalidate'] = 0
         context['count_inprocess'] = 0
+        context['count_validate_filiere'] = 0
+        context['count_validate_programme'] = 0
+        context['count_validate_vice_president'] = 0
         context["card_title"] = sheet.enseignant
         
         access_vice_president = self.request.user.has_perm("xauth.vice_president")
         access_programme = self.request.user.has_perm("xauth.responsable_programme")
         access_responsable_filiere = self.request.user.has_perm("xauth.responsable_filiere")
+        print(access_responsable_filiere, "zsdefrgthyjuklk,nbvcxwqszdefghjk")
         context['access_vice_president'] = access_vice_president
         context['access_programme'] = access_programme
         context['access_responsable_filiere'] = access_responsable_filiere
@@ -537,6 +541,8 @@ class SheetDetailView(cviews.CustomDetailView):
             if nomination:
                 if nomination.nomination_type == "filiere":
                     if enseignement.filiere == nomination.filiere:
+                        if enseignement.validate_by_responsable_filiere:
+                            context['count_validate_filiere'] += 1
                         if enseignement.validate_by_vice_presient:
                             context['count_validate'] += 1
                         elif enseignement.validate_by_vice_presient is False:
@@ -550,6 +556,8 @@ class SheetDetailView(cviews.CustomDetailView):
                 elif nomination.nomination_type == "ufr":
 
                     if enseignement.filiere.departement == nomination.departement:
+                        if enseignement.validate_by_responsable_programme:
+                            context['count_validate_programme'] += 1
                         if enseignement.validate_by_vice_presient:
                             context['count_validate'] += 1
                         elif enseignement.validate_by_vice_presient is False:
@@ -861,10 +869,10 @@ class SheetPreviewView(View):
         # Enregistrer les données dans la base de données
         print(enseignement_data)
         enseignant = get_object_or_404(User, id = sheet_data['enseignant']['id'])
-        annee_univ = get_object_or_404(annee_univ, id = sheet_data['annee_univ']['id'])
+        promotion = get_object_or_404(Promotion, id = sheet_data['promotion']['id'])
         sheet = Sheet.objects.create(
             enseignant=enseignant,
-            annee_univ=annee_univ,
+            promotion=promotion,
             is_permanent=False,
         )
 
@@ -944,11 +952,11 @@ class SheetPermanantPreviewView(View):
 
         # Enregistrer les données dans la base de données
         enseignant = get_object_or_404(User, id=sheet_data['enseignant']['id'])
-        annee_univ = get_object_or_404(annee_univ, id=sheet_data['annee_univ']['id'])
+        promotion = get_object_or_404(Promotion, id=sheet_data['promotion']['id'])
 
         sheet = Sheet.objects.create(
             enseignant=enseignant,
-            annee_univ=annee_univ,
+            promotion=promotion,
             is_permanent=True,
             volume_horaire_statuaire=sheet_data['volume_horaire_statuaire'],
             abattement=sheet_data['abattement'],

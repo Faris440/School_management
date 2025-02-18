@@ -34,10 +34,10 @@
                     {% if object.validate_by_responsable_filiere and object.validate_by_responsable_programme == null %}
                         {% if count_invalidate == 0 and not check %}
                             {% if validate %}
-                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider&</a>
                             {% endif %}
                             {% if invalidate %}
-                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter&</a>
                             {% endif %}
                         {% endif %}
                     {% endif %}
@@ -45,15 +45,15 @@
                     {% if object.validate_by_responsable_programme and object.validate_by_vice_presient == null %}
                         {% if count_invalidate == 0 and not check %}
                             {% if validate %}
-                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>
+                                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valideré</a>
                             {% endif %}
                             {% if invalidate %}
-                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeter</a>
+                                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">Rejeteré</a>
                             {% endif %}
                         {% endif %}
                     {% endif %}
                 {% elif access_responsable_filiere %}
-                    {% if object.validate_by_responsable_filiere == null %}
+                    {% if object.validate_by_responsable_filiere == null and count_validate_filiere == 0 %}
                         {% if count_invalidate == 0 and not check %}
                             {% if validate %}
                                 <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmationModal">Valider</a>

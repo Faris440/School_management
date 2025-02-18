@@ -146,38 +146,6 @@ class UserCreateForm(ModelForm):
                 search_lookup="label__icontains",
                 placeholder="Sélectionnez un grade",
             ),
-    
-            # 'filiere': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez une filière",
-            # ),
-            # 'module': SelectizeMultiple(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez un module",
-            #     filter_by={"filiere": "filiere__id"},  # Correction ici
-            # ),
-
-            # 'niveau': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez le niveau",
-            # ),
-            # 'semestre': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez le semestre",
-            #     filter_by={"niveau": "niveau__id"}, 
-            # ),
-            # 'ue': Selectize(
-            #     attrs={'class': 'form-control', 'incomplete': True},
-            #     search_lookup="label__icontains",
-            #     placeholder="Sélectionnez une filière",
-            #     filter_by={"semestre": "semestre__id"}, 
-            # ),
-
-
             "username": fm.TextInput(
                 attrs={"placeholder": "Saisir votre nom d'utilisateur", "class":"form-control"},
             ),
@@ -205,7 +173,7 @@ class UserCreateForm(ModelForm):
             'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".teacher_type=='permanent'"}),
             'abattement' : forms.NumberInput(attrs={'df-show': ".teacher_type=='permanent'"}),
             'motif_abattement' : forms.TextInput(attrs={'df-show': ".teacher_type=='permanent'"}),
-            "matricule": forms.TextInput(attrs={'df-show': " .teacher_type=='permanent'", "class": "form-control"}),
+            "matricule": forms.TextInput(attrs={'df-show': " .teacher_type=='permanent' || .teacher_type=='vacataire'", "class": "form-control"}),
             "date_nomination": forms.DateInput(attrs={'df-show': " .teacher_type=='permanent'", "class": "form-control", "type": "date"}),
             "course_start_date": forms.DateInput(attrs={'df-show': " .teacher_type=='permanent'", "class": "form-control", "type": "date"}),
             "course_end_date": forms.DateInput(attrs={'df-show': " .teacher_type=='permanent'", "class": "form-control", "type": "date"}),

@@ -304,7 +304,7 @@ class Module(BaseModel):
 
     def __str__(self):
         
-        return f"{self.label} - {self.niveau}-{self.semestre}"
+        return f"{self.label} - {self.niveau}-{self.semestre} ({self.filiere}) "
     
 class Annee_univ(CommonAbstractModel):
     name = models.CharField(max_length=20, unique=True, verbose_name="Année universitaire")

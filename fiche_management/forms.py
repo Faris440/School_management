@@ -168,7 +168,7 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         model = Sheet
         fields = [
             'enseignant',
-            'annee_univ',
+            'promotion',
             'date_debut',
             'date_fin',
             'etablissement_enseigne',
@@ -190,11 +190,6 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
                 'type': 'date',
                 'df-show': ".gender=='O'"
             }),
-            'annee_univ': Selectize(
-                attrs={'class': 'form-control', 'incomplete': True},
-                search_lookup="label__icontains",
-                placeholder="Sélectionnez l'année universitaire'",
-            ),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
             'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
             'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
@@ -218,8 +213,6 @@ class SheetAgentPermanantForm(FormMixin, forms.ModelForm):
         self.fields['motif_abattement'].required = False
         self.fields['date_debut'].required = False
         self.fields['date_fin'].required = False
-        self.fields['annee_univ'].required = False
-        self.fields['promotion'].required = False
 
 
         # Filtrer les enseignants de type "permanent"
@@ -245,7 +238,7 @@ class SheetAgentVacataireForm(FormMixin, forms.ModelForm):
 
     class Meta:
         model = Sheet
-        fields = ['enseignant', 'etablissement_enseigne', 'promotion','annee_univ']
+        fields = ['enseignant', 'etablissement_enseigne', 'promotion']
         widgets = {
             'enseignant': Selectize()
         }
@@ -294,7 +287,6 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         fields = [
             'date_debut',
             'date_fin',
-            'annee_univ',
             'promotion',
             'etablissement_enseigne',
             'volume_horaire_statuaire',
@@ -310,20 +302,11 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
                 'max': (now()).isoformat(),
             'df-show': ".gender=='O'"
             }),
-            'annee_univ': Selectize(
-                attrs={'class': 'form-control', 'incomplete': True},
-                search_lookup="label__icontains",
-                placeholder="Sélectionnez l'année universitaire",
-            ),
-            'promotion': Selectize(
-                attrs={'class': 'form-control', 'incomplete': True},
-                search_lookup="label__icontains",
-                placeholder="Sélectionnez la promotion",
-            ),
             'etablissement_enseigne': forms.TextInput(attrs={'class': 'form-control'}),
             'volume_horaire_statuaire' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
             'abattement' : forms.NumberInput(attrs={'df-show': ".gender=='O'"}),
             'motif_abattement' : forms.TextInput(attrs={'df-show': ".gender=='O'"}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -342,8 +325,6 @@ class SheetPermanentForm(FormMixin, forms.ModelForm):
         self.fields['motif_abattement'].required = False
         self.fields['date_debut'].required = False
         self.fields['date_fin'].required = False
-        self.fields['annee_univ'].required = False
-        self.fields['promotion'].required = False
 
         # Ajouter une indication visuelle pour les champs requis
         for field_name, field in self.fields.items():
@@ -366,7 +347,6 @@ class SheetVacataireForm(FormMixin, forms.ModelForm):
     class Meta:
         model = Sheet
         fields = [
-            'annee_univ',
             'promotion',
             'etablissement_enseigne',
         ]
